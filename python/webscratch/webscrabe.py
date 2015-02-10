@@ -5,7 +5,7 @@ import time
 
 
 unusedurl=[]
-g_mysql="usr='root',password='',databases='webdb',use_unicode=True"
+g_mysql="usr='root',password='123456',databases='webdb',use_unicode=True"
 
 def check_exist(urls):
 	conn=mysql.connector.connect(g_mysql)
@@ -32,7 +32,7 @@ def store_usedurl(url1,url2):
 	conn=mysql.connector.connect(g_mysql)
 	tempcur=conn.cursor()
 	for tt in url1:
-		tempcur.execute("insert into use
+		tempcur.execute("insert into usedurl ('usedurl','shijian','laiyuan') values('"+
 	tempcur.close()
 	conn.close()
 
