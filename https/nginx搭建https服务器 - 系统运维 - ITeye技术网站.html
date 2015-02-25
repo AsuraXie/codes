@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>nginx搭建https服务器 - 系统运维 - ITeye技术网站</title>
+    <meta name="description" content="HTTPS简介  HTTPS(Hypertext Transfer Protocol over Secure Socket Layer),是以安全为目标的HTTP通道，简单来讲就是HTTP的安全版。即HTTP下加入SSL层，HTTPS的安全基础是SSL，因此加密的详细内容就需要SSL。  它是一个URI scheme（抽象标识符体系），句法类同http:体系，用于安全的http数据传输。https使 ...">
+    <meta name="keywords" content=" nginx搭建https服务器">
+    <link rel="shortcut icon" href="http://xitong.iteye.com/images/favicon.ico" type="image/x-icon">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://xitong.iteye.com/open_search.xml" title="ITeye">
+    <link href="http://xitong.iteye.com/rss" rel="alternate" title="系统运维" type="application/rss+xml">
+    <link href="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/blog.css" media="screen" rel="stylesheet" type="text/css">
+<link href="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/blue.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/ga.js" async="" type="text/javascript"></script><script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/application.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/shCoreCommon.js" type="text/javascript"></script>
+<script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/hotkey.js" type="text/javascript"></script>
+  <script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/code_favorites.js" type="text/javascript"></script>
+<script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/weiboshare.js" type="text/javascript"></script>
+  <style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style></head>
+  <body>
+    <div id="header">
+      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="left: 368px; display: none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">招聘</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+      <div id="user_nav">
+      <a href="http://xitong.iteye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://xitong.iteye.com/login">登录</a>
+    <a href="http://xitong.iteye.com/signup" class="nobg">注册</a>
+  </div>
+
+    </div>
+
+    <div id="page">
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="http://xitong.iteye.com/">系统运维</a></h1>
+        </div>
+        <div id="fd"></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class="blog_navbar_for"><a href="http://xitong.iteye.com/"><strong>博客</strong></a></li>
+            <li><a href="http://xitong.iteye.com/weibo">微博</a></li>
+            <li><a href="http://xitong.iteye.com/album">相册</a></li>
+            <li><a href="http://xitong.iteye.com/link">收藏</a></li>
+            <li><a href="http://xitong.iteye.com/blog/guest_book">留言</a></li>
+            <li><a href="http://xitong.iteye.com/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text">
+              <input class="submit_search" value="" type="submit">
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="h-entry" style="display:none">
+  <a href="http://xitong.iteye.com/" class="p-author" target="_blank">xitong</a>
+</div>
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="http://xitong.iteye.com/blog/1795501">nginx搭建https服务器</a>
+      <em class="actions">      </em>
+    </h3>
+    
+        <div class="news_tag">&nbsp;</div>
+  </div>
+
+  <div id="blog_content" class="blog_content">
+    <h2>HTTPS简介</h2>
+<div>HTTPS(Hypertext Transfer Protocol over Secure Socket 
+Layer),是以安全为目标的HTTP通道，简单来讲就是HTTP的安全版。即HTTP下加入SSL层，HTTPS的安全基础是SSL，因此加密的详细
+内容就需要SSL。</div>
+<div>它是一个URI scheme（抽象标识符体系），句法类同http:体系，用于安全的http数据传输。https使用的默认端口是443.</div>
+<div><br></div>
+<h2>ssl证书</h2>
+<h3>证书类型简介</h3>
+<div>要设置安全服务器，使用公共钥创建一对公私钥对。大多数情况下，发送证书请求（包括自己的公钥），你的公司证明材料以及费用到一个证书颁发机构(CA).CA验证证书请求及您的身份，然后将证书返回给您的安全服务器。</div>
+<div><br></div>
+<div>但是内网实现一个服务器端和客户端传输内容的加密，可以自己给自己颁发证书，只需要忽略掉浏览器不信任的警报即可！</div>
+<div><br></div>
+<div>由CA签署的证书为您的服务器提供两个重要的功能：</div>
+<div>
+<ul>
+<li>浏览器会自动识别证书并且在不提示用户的情况下允许创建一个安全连接</li>
+<li>当一个CA生成一个签署过的证书，它为提供网页给浏览器的组织提供身份担保。</li>
+<li>多数支持ssl的web服务器都有一个CA列表，它们的证书会被自动接受。当一个浏览器遇到一个其授权CA并不在列表中的证书，浏览器将询问用户是否接受或拒绝连接</li>
+</ul>
+<br>
+</div>
+<h3>生成ssl证书</h3>
+<div>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed wmode="transparent" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/clipboard_new.swf" flashvars="clipboard=%20openssl%20genrsa%20-des3%20-out%20wangzhengyi.key%202048" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_star.png" alt="收藏代码"><img class="spinner" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/spinner.gif" style="display:none"></a></div></div><ol class="dp-xml" start="1"><li><span><span>openssl&nbsp;genrsa&nbsp;-des3&nbsp;-out&nbsp;wangzhengyi.key&nbsp;2048&nbsp;&nbsp;</span></span></li></ol></div><pre title="nginx搭建https服务器" pre_index="0" source_url="http://xitong.iteye.com/blog/1795501" codeable_type="Blog" codeable_id="1795501" style="display: none;" class="html" name="code"> openssl genrsa -des3 -out wangzhengyi.key 2048</pre>
+<p><br></p>
+<p><img class="magplus" title="点击查看原始大小图片" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/1358677806_3532.png" alt="" height="56" width="700"></p>
+<p><br></p>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed wmode="transparent" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/clipboard_new.swf" flashvars="clipboard=openssl%20req%20-new%20-key%20wangzhengyi.key%20-out%20wangzhengyi.csr" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_star.png" alt="收藏代码"><img class="spinner" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/spinner.gif" style="display:none"></a></div></div><ol class="dp-xml" start="1"><li><span><span>openssl&nbsp;req&nbsp;-new&nbsp;-key&nbsp;wangzhengyi.key&nbsp;-out&nbsp;wangzhengyi.csr&nbsp;&nbsp;</span></span></li></ol></div><pre title="nginx搭建https服务器" pre_index="1" source_url="http://xitong.iteye.com/blog/1795501" codeable_type="Blog" codeable_id="1795501" style="display: none;" class="html" name="code">openssl req -new -key wangzhengyi.key -out wangzhengyi.csr</pre>
+<br><img class="magplus" title="点击查看原始大小图片" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/1358677824_5707.png" alt="" height="330" width="700"><br><br>
+</div>
+<h3>创建一个自己签署的CA证书</h3>
+<div>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed wmode="transparent" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/clipboard_new.swf" flashvars="clipboard=openssl%20req%20-new%20-x509%20-days%203650%20-key%20wangzhengyi_nopass.key%20-out%20wangzhengyi.crt" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_star.png" alt="收藏代码"><img class="spinner" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/spinner.gif" style="display:none"></a></div></div><ol class="dp-xml" start="1"><li><span><span>openssl&nbsp;req&nbsp;-new&nbsp;-x509&nbsp;-days&nbsp;3650&nbsp;-key&nbsp;wangzhengyi_nopass.key&nbsp;-out&nbsp;wangzhengyi.crt&nbsp;&nbsp;</span></span></li></ol></div><pre title="nginx搭建https服务器" pre_index="2" source_url="http://xitong.iteye.com/blog/1795501" codeable_type="Blog" codeable_id="1795501" style="display: none;" class="html" name="code">openssl req -new -x509 -days 3650 -key wangzhengyi_nopass.key -out wangzhengyi.crt</pre>
+<br><img class="magplus" title="点击查看原始大小图片" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/1358678071_5438.png" alt="" height="240" width="700"><br>
+</div>
+<div><br></div>
+<h2>搭建https虚拟主机</h2>
+<h3>虚拟主机配置文件</h3>
+<div>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed wmode="transparent" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/clipboard_new.swf" flashvars="clipboard=upstream%20sslfpm%20%7B%0A%09server%20127.0.0.1%3A9000%09weight%3D10%09max_fails%3D3%09fail_timeout%3D20s%3B%0A%7D%0A%0Aserver%20%7B%20%0A%09listen%20%20%20%20%20%20%20192.168.1.*%3A443%3B%20%0A%09server_name%20%20192.168.1.*%3B%20%0A%09%0A%09%23%E4%B8%BA%E4%B8%80%E4%B8%AAserver%E5%BC%80%E5%90%AFssl%E6%94%AF%E6%8C%81%0A%09ssl%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20on%3B%0A%20%09%23%E4%B8%BA%E8%99%9A%E6%8B%9F%E4%B8%BB%E6%9C%BA%E6%8C%87%E5%AE%9Apem%E6%A0%BC%E5%BC%8F%E7%9A%84%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6%0A%09ssl_certificate%20%20%20%20%20%20%2Fhome%2Fwangzhengyi%2Fssl%2Fwangzhengyi.crt%3B%20%0A%09%23%E4%B8%BA%E8%99%9A%E6%8B%9F%E4%B8%BB%E6%9C%BA%E6%8C%87%E5%AE%9A%E7%A7%81%E9%92%A5%E6%96%87%E4%BB%B6%0A%09ssl_certificate_key%20%20%2Fhome%2Fwangzhengyi%2Fssl%2Fwangzhengyi_nopass.key%3B%20%0A%09%23%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%83%BD%E5%A4%9F%E9%87%8D%E5%A4%8D%E4%BD%BF%E7%94%A8%E5%AD%98%E5%82%A8%E5%9C%A8%E7%BC%93%E5%AD%98%E4%B8%AD%E7%9A%84%E4%BC%9A%E8%AF%9D%E5%8F%82%E6%95%B0%E6%97%B6%E9%97%B4%0A%09ssl_session_timeout%20%205m%3B%0A%09%23%E6%8C%87%E5%AE%9A%E4%BD%BF%E7%94%A8%E7%9A%84ssl%E5%8D%8F%E8%AE%AE%20%0A%09ssl_protocols%20%20SSLv3%20TLSv1%3B%20%0A%09%23%E6%8C%87%E5%AE%9A%E8%AE%B8%E5%8F%AF%E7%9A%84%E5%AF%86%E7%A0%81%E6%8F%8F%E8%BF%B0%0A%09ssl_ciphers%20%20ALL%3A!ADH%3A!EXPORT56%3ARC4%2BRSA%3A%2BHIGH%3A%2BMEDIUM%3A%2BLOW%3A%2BSSLv2%3A%2BEXP%3B%20%0A%09%23SSLv3%E5%92%8CTLSv1%E5%8D%8F%E8%AE%AE%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AF%86%E7%A0%81%E9%9C%80%E6%B1%82%E4%BC%98%E5%85%88%E7%BA%A7%E9%AB%98%E4%BA%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AF%86%E7%A0%81%0A%09ssl_prefer_server_ciphers%20%20%20on%3B%20%0A%0A%09location%20%2F%20%7B%20%0A%09%09root%20%20%20%2Fhome%2Fwangzhengyi%2Fssl%2F%3B%0A%09%09autoindex%20on%3B%0A%20%20%20%20%20%20%20%20%09autoindex_exact_size%20%20%20%20off%3B%0A%20%20%20%20%20%20%20%20%09autoindex_localtime%20on%3B%0A%09%7D%20%0A%20%20%20%20%09%23%20redirect%20server%20error%20pages%20to%20the%20static%20page%20%2F50x.html%0A%20%20%20%20%09%23%0A%20%20%20%20%09error_page%20%20%20500%20502%20503%20504%20%20%2F50x.html%3B%0A%20%20%20%20%09error_page%20%20%20404%20%2F404.html%3B%0A%0A%09location%20%3D%20%2F50x.html%20%7B%0A%20%20%20%20%20%20%20%20%09root%20%20%20%2Fusr%2Fshare%2Fnginx%2Fwww%3B%0A%20%20%20%20%09%7D%0A%20%20%20%09location%20%3D%20%2F404.html%20%7B%0A%20%20%20%20%20%20%20%20%09root%20%20%20%2Fusr%2Fshare%2Fnginx%2Fwww%3B%0A%20%20%20%20%09%7D%0A%20%20%20%20%0A%20%20%20%20%09%23%20proxy%20the%20PHP%20scripts%20to%20fpm%0A%20%20%20%20%09location%20~%20%5C.php%24%20%7B%0A%09%09access_log%20%20%2Fvar%2Flog%2Fnginx%2Fssl%2Fssl.access.log%20%20main%3B%0A%09%09error_log%20%2Fvar%2Flog%2Fnginx%2Fssl%2Fssl.error.log%3B%0A%09%09root%20%2Fhome%2Fwangzhengyi%2Fssl%2F%3B%20%0A%09%09fastcgi_param%09HTTPS%20%09on%3B%0A%20%20%20%20%20%20%20%20%09include%20%2Fetc%2Fnginx%2Ffastcgi_params%3B%20%20%0A%20%20%20%20%20%20%20%20%09fastcgi_pass%20%20%20%20sslfpm%3B%0A%20%20%20%20%09%7D%0A%7D" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_star.png" alt="收藏代码"><img class="spinner" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/spinner.gif" style="display:none"></a></div></div><ol class="dp-xml" start="1"><li><span><span>upstream&nbsp;sslfpm&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;server&nbsp;127.0.0.1:9000&nbsp;&nbsp;&nbsp;<span class="attribute">weight</span><span>=</span><span class="attribute-value">10</span><span>&nbsp;&nbsp;&nbsp;</span><span class="attribute">max_fails</span><span>=</span><span class="attribute-value">3</span><span>&nbsp;</span><span class="attribute">fail_timeout</span><span>=</span><span class="attribute-value">20s</span><span>;&nbsp;&nbsp;</span></span></li><li><span>}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>server&nbsp;{&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;listen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.1.*:443;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;server_name&nbsp;&nbsp;192.168.1.*;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#为一个server开启ssl支持&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#为虚拟主机指定pem格式的证书文件&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl_certificate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/home/wangzhengyi/ssl/wangzhengyi.crt;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#为虚拟主机指定私钥文件&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl_certificate_key&nbsp;&nbsp;/home/wangzhengyi/ssl/wangzhengyi_nopass.key;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#客户端能够重复使用存储在缓存中的会话参数时间&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl_session_timeout&nbsp;&nbsp;5m;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#指定使用的ssl协议&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl_protocols&nbsp;&nbsp;SSLv3&nbsp;TLSv1;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#指定许可的密码描述&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl_ciphers&nbsp;&nbsp;ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;#SSLv3和TLSv1协议的服务器密码需求优先级高于客户端密码&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ssl_prefer_server_ciphers&nbsp;&nbsp;&nbsp;on;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;location&nbsp;/&nbsp;{&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root&nbsp;&nbsp;&nbsp;/home/wangzhengyi/ssl/;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autoindex&nbsp;on;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autoindex_exact_size&nbsp;&nbsp;&nbsp;&nbsp;off;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autoindex_localtime&nbsp;on;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;redirect&nbsp;server&nbsp;error&nbsp;pages&nbsp;to&nbsp;the&nbsp;static&nbsp;page&nbsp;/50x.html&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error_page&nbsp;&nbsp;&nbsp;500&nbsp;502&nbsp;503&nbsp;504&nbsp;&nbsp;/50x.html;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error_page&nbsp;&nbsp;&nbsp;404&nbsp;/404.html;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="attribute">location</span><span>&nbsp;=&nbsp;/50x.html&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root&nbsp;&nbsp;&nbsp;/usr/share/nginx/www;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="attribute">location</span><span>&nbsp;=&nbsp;/404.html&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root&nbsp;&nbsp;&nbsp;/usr/share/nginx/www;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;proxy&nbsp;the&nbsp;PHP&nbsp;scripts&nbsp;to&nbsp;fpm&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;location&nbsp;~&nbsp;\.php$&nbsp;{&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access_log&nbsp;&nbsp;/var/log/nginx/ssl/ssl.access.log&nbsp;&nbsp;main;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error_log&nbsp;/var/log/nginx/ssl/ssl.error.log;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root&nbsp;/home/wangzhengyi/ssl/;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fastcgi_param&nbsp;&nbsp;&nbsp;HTTPS&nbsp;&nbsp;&nbsp;on;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;/etc/nginx/fastcgi_params;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fastcgi_pass&nbsp;&nbsp;&nbsp;&nbsp;sslfpm;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre title="nginx搭建https服务器" pre_index="3" source_url="http://xitong.iteye.com/blog/1795501" codeable_type="Blog" codeable_id="1795501" style="display: none;" class="html" name="code">upstream sslfpm {
+	server 127.0.0.1:9000	weight=10	max_fails=3	fail_timeout=20s;
+}
+
+server { 
+	listen       192.168.1.*:443; 
+	server_name  192.168.1.*; 
+	
+	#为一个server开启ssl支持
+	ssl                  on;
+ 	#为虚拟主机指定pem格式的证书文件
+	ssl_certificate      /home/wangzhengyi/ssl/wangzhengyi.crt; 
+	#为虚拟主机指定私钥文件
+	ssl_certificate_key  /home/wangzhengyi/ssl/wangzhengyi_nopass.key; 
+	#客户端能够重复使用存储在缓存中的会话参数时间
+	ssl_session_timeout  5m;
+	#指定使用的ssl协议 
+	ssl_protocols  SSLv3 TLSv1; 
+	#指定许可的密码描述
+	ssl_ciphers  ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP; 
+	#SSLv3和TLSv1协议的服务器密码需求优先级高于客户端密码
+	ssl_prefer_server_ciphers   on; 
+
+	location / { 
+		root   /home/wangzhengyi/ssl/;
+		autoindex on;
+        	autoindex_exact_size    off;
+        	autoindex_localtime on;
+	} 
+    	# redirect server error pages to the static page /50x.html
+    	#
+    	error_page   500 502 503 504  /50x.html;
+    	error_page   404 /404.html;
+
+	location = /50x.html {
+        	root   /usr/share/nginx/www;
+    	}
+   	location = /404.html {
+        	root   /usr/share/nginx/www;
+    	}
+    
+    	# proxy the PHP scripts to fpm
+    	location ~ \.php$ {
+		access_log  /var/log/nginx/ssl/ssl.access.log  main;
+		error_log /var/log/nginx/ssl/ssl.error.log;
+		root /home/wangzhengyi/ssl/; 
+		fastcgi_param	HTTPS 	on;
+        	include /etc/nginx/fastcgi_params;  
+        	fastcgi_pass    sslfpm;
+    	}
+}</pre>
+<div><br></div>
+<h3>HTTPS服务器优化</h3>
+<h4>方法</h4>
+<div>SSL操作需要消耗CPU资源，所以在多处理器的系统，需要启动多个工作进程，而且数量需要不少于可用CPU的个数。最消耗CPU资源的SSL操作是SSL握手，有两种方法可以将每个客户端的握手操作数量降到最低：</div>
+<div>
+<ol>
+<li>保持客户端长连接，在一个SSL连接发送多个请求</li>
+<li>在并发的连接或者后续的连接中重用SSL会话参数，这样可以避免SSL握手操作。</li>
+</ol>
+<br>
+</div>
+<div>会话缓存用于保存SSL会话，这些缓存在工作进程间共享，可以使用<strong>ssl_session_cache</strong>指令进行配置。1M缓存可以存放约4000个会话。默认的缓存超时时间是5m，可以使用ssl_session_timeout加大它。</div>
+<div><br></div>
+<h4>ssl_session_cache指令</h4>
+</div>
+<div>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed wmode="transparent" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/clipboard_new.swf" flashvars="clipboard=%E8%AF%AD%E6%B3%95%EF%BC%9Assl_session_cache%20off%7Cnone%7Cbuiltin%3Asize%7Cshared%3Aname%3Asize%0A%E4%BD%BF%E7%94%A8%E7%8E%AF%E5%A2%83%EF%BC%9Amain%2Cserver%0A%E7%BC%93%E5%AD%98%E7%B1%BB%E5%9E%8B%3A%0Aoff%20--%20%E7%A1%AC%E5%85%B3%E9%97%AD%EF%BC%8Cnginx%E6%98%8E%E7%A1%AE%E5%91%8A%E8%AF%89%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%99%E4%B8%AA%E4%BC%9A%E8%AF%9D%E4%B8%8D%E5%8F%AF%E9%87%8D%E7%94%A8%0Anone%20--%20%E8%BD%AF%E5%85%B3%E9%97%AD%EF%BC%8Cnginx%E5%91%8A%E8%AF%89%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%9A%E8%AF%9D%E8%83%BD%E5%A4%9F%E8%A2%AB%E9%87%8D%E7%94%A8%EF%BC%8C%E4%BD%86%E6%98%AFnginx%E5%AE%9E%E9%99%85%E4%B8%8A%E4%B8%8D%E4%BC%9A%E9%87%8D%E7%94%A8%E5%AE%83%E4%BB%AC%0Abultin%20--%20openssl%E5%86%85%E7%BD%AE%E7%BC%93%E5%AD%98%EF%BC%8C%E4%BB%85%E5%8F%AF%E7%94%A8%E4%BA%8E%E4%B8%80%E4%B8%AA%E5%B7%A5%E4%BD%9C%E8%BF%9B%E7%A8%8B.%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87%0Ashared%20--%20%E6%89%80%E6%9C%89%E5%B7%A5%E4%BD%9C%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%85%B1%E4%BA%AB%E7%BC%93%E5%AD%98%E3%80%82%EF%BC%881%EF%BC%89%E7%BC%93%E5%AD%98%E5%A4%A7%E5%B0%8F%E7%94%A8%E5%AD%97%E8%8A%82%E6%95%B0%E6%8C%87%E5%AE%9A%EF%BC%882%EF%BC%89%E6%AF%8F%E4%B8%AA%E7%BC%93%E5%AD%98%E5%BF%85%E9%A1%BB%E6%8B%A5%E6%9C%89%E8%87%AA%E5%B7%B1%E7%9A%84%E5%90%8D%E7%A7%B0%EF%BC%883%EF%BC%89%E5%90%8C%E5%90%8D%E7%9A%84%E7%BC%93%E5%AD%98%E5%8F%AF%E7%94%A8%E4%BA%8E%E5%A4%9A%E4%B8%AA%E8%99%9A%E6%8B%9F%E4%B8%BB%E6%9C%BA" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_star.png" alt="收藏代码"><img class="spinner" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/spinner.gif" style="display:none"></a></div></div><ol class="dp-xml" start="1"><li><span><span>语法：ssl_session_cache&nbsp;off|none|builtin:size|shared:name:size&nbsp;&nbsp;</span></span></li><li><span>使用环境：main,server&nbsp;&nbsp;</span></li><li><span>缓存类型:&nbsp;&nbsp;</span></li><li><span>off&nbsp;--&nbsp;硬关闭，nginx明确告诉客户端这个会话不可重用&nbsp;&nbsp;</span></li><li><span>none&nbsp;--&nbsp;软关闭，nginx告诉客户端会话能够被重用，但是nginx实际上不会重用它们&nbsp;&nbsp;</span></li><li><span>bultin&nbsp;--&nbsp;openssl内置缓存，仅可用于一个工作进程.可能导致内存碎片&nbsp;&nbsp;</span></li><li><span>shared&nbsp;--&nbsp;所有工作进程的共享缓存。（1）缓存大小用字节数指定（2）每个缓存必须拥有自己的名称（3）同名的缓存可用于多个虚拟主机&nbsp;&nbsp;</span></li></ol></div><pre title="nginx搭建https服务器" pre_index="4" source_url="http://xitong.iteye.com/blog/1795501" codeable_type="Blog" codeable_id="1795501" style="display: none;" class="html" name="code">语法：ssl_session_cache off|none|builtin:size|shared:name:size
+使用环境：main,server
+缓存类型:
+off -- 硬关闭，nginx明确告诉客户端这个会话不可重用
+none -- 软关闭，nginx告诉客户端会话能够被重用，但是nginx实际上不会重用它们
+bultin -- openssl内置缓存，仅可用于一个工作进程.可能导致内存碎片
+shared -- 所有工作进程的共享缓存。（1）缓存大小用字节数指定（2）每个缓存必须拥有自己的名称（3）同名的缓存可用于多个虚拟主机</pre>
+<br><h4>优化示例</h4>
+</div>
+<div>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed wmode="transparent" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/clipboard_new.swf" flashvars="clipboard=%09%23%E4%BC%98%E5%8C%96ssl%E6%9C%8D%E5%8A%A1%0A%09ssl_session_cache%09shared%3Awzy%3A10m%3B%20%0A%09%23%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%83%BD%E5%A4%9F%E9%87%8D%E5%A4%8D%E4%BD%BF%E7%94%A8%E5%AD%98%E5%82%A8%E5%9C%A8%E7%BC%93%E5%AD%98%E4%B8%AD%E7%9A%84%E4%BC%9A%E8%AF%9D%E5%8F%82%E6%95%B0%E6%97%B6%E9%97%B4%0A%09ssl_session_timeout%20%2010m%3B%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_star.png" alt="收藏代码"><img class="spinner" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/spinner.gif" style="display:none"></a></div></div><ol class="dp-xml" start="1"><li><span><span>#优化ssl服务&nbsp;&nbsp;</span></span></li><li><span>ssl_session_cache&nbsp;&nbsp;&nbsp;shared:wzy:10m;&nbsp;&nbsp;&nbsp;</span></li><li><span>#客户端能够重复使用存储在缓存中的会话参数时间&nbsp;&nbsp;</span></li><li><span>ssl_session_timeout&nbsp;&nbsp;10m;&nbsp;&nbsp;</span></li></ol></div><pre title="nginx搭建https服务器" pre_index="5" source_url="http://xitong.iteye.com/blog/1795501" codeable_type="Blog" codeable_id="1795501" style="display: none;" class="html" name="code">	#优化ssl服务
+	ssl_session_cache	shared:wzy:10m; 
+	#客户端能够重复使用存储在缓存中的会话参数时间
+	ssl_session_timeout  10m;
+</pre>
+<br><br>
+</div>
+<h2>参考链接</h2>
+<div>
+<a href="http://nginx.org/cn/docs/http/configuring_https_servers.html">http://nginx.org/cn/docs/http/configuring_https_servers.html</a><br>
+</div>
+<div><br></div>
+  </div>
+
+  
+
+  
+  
+  <iframe src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/794.html" scrolling="no" frameborder="0" height="60" width="468"></iframe>
+  
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type="sina" href="javascript:;" title="分享到新浪微博"><img src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/sina.jpg"></a>
+      <a data-type="qq" href="javascript:;" title="分享到腾讯微博"><img src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="http://xitong.iteye.com/blog/1795500" class="next" title="C翻转">C翻转</a>
+      |
+      <a href="http://xitong.iteye.com/blog/1822725" class="pre" title="bash参考手册之三（基本的Shell特性）续五">bash参考手册之三（基本的Shell特性）续五</a>
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2013-01-20 18:47</li>
+      <li>浏览 2545</li>
+      <li><a href="#comments">评论(1)</a></li>
+      
+      
+            
+      <li class="last"><a href="http://www.iteye.com/wiki/blog/1795501" target="_blank" class="more">相关推荐</a></li>
+    </ul>
+  </div>
+
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    <div id="bc2316412">
+  <div class="comment_title">
+    1 楼
+    <a href="http://kun20031029.iteye.com/" target="_blank" title="kun20031029">kun20031029</a>
+    2013-06-25&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content">#优化ssl服务&nbsp; <br>ssl_session_cache&nbsp;&nbsp; shared:wzy:10m;&nbsp;&nbsp; <br>#客户端能够重复使用存储在缓存中的会话参数时间&nbsp; <br>ssl_session_timeout&nbsp; 10m;&nbsp; <br><br>以上这个可以实现nginx的https的客户端请求过来的长连接吗？我配置了发现并不好使啊</div>
+</div>
+
+
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="http://xitong.iteye.com/login" style="background-color:white;"> <img src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/login_icon.png" style="vertical-align:middle; margin-right: 10px;"></a><a href="http://xitong.iteye.com/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 1795501;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'nginx搭建https服务器');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'nginx搭建https服务器');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href="http://xitong.iteye.com/"><img alt="xitong的博客" class="logo" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo.gif" title="xitong的博客: 系统运维" width=""></a></div>
+  <div id="blog_owner_name">xitong</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 681924 次</li>
+              
+              
+              <li><img src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/offline.gif"></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style="font-weight:normal;font-size:12px;padding-left:30px;"><a href="http://xitong.iteye.com/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://dylinshi126.iteye.com/" target="_blank"><img alt="dylinshi126的博客" class="logo" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="dylinshi126的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://dylinshi126.iteye.com/" target="_blank" title="dylinshi126">dylinshi126</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://dagf113225.iteye.com/" target="_blank"><img alt="dagf113225的博客" class="logo" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="dagf113225的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://dagf113225.iteye.com/" target="_blank" title="dagf113225">dagf113225</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://hhayyok.iteye.com/" target="_blank"><img alt="hhayyok的博客" class="logo" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="hhayyok的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://hhayyok.iteye.com/" target="_blank" title="hhayyok">hhayyok</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://tree-james.iteye.com/" target="_blank"><img alt="tree.james的博客" class="logo" src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="tree.james的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://tree-james.iteye.com/" target="_blank" title="tree.james">tree.james</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="http://xitong.iteye.com/">全部博客 (7351)</a></li>
+                
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="http://xitong.iteye.com/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="http://xitong.iteye.com/blog/post">我的论坛</a> (0)
+                </li>
+                <li><a href="http://xitong.iteye.com/blog/answered_problems">我的问答</a> (0)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="http://xitong.iteye.com/blog/monthblog/2013-05">2013-05</a> (45)</li>
+                
+                  <li><a href="http://xitong.iteye.com/blog/monthblog/2013-04">2013-04</a> (98)</li>
+                
+                  <li><a href="http://xitong.iteye.com/blog/monthblog/2013-03">2013-03</a> (45)</li>
+                
+                <li><a href="http://xitong.iteye.com/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+                <li>
+                  <a href="http://wzwahl36.iteye.com/" target="_blank" title="wzwahl36">wzwahl36</a>： 
+                  http://www.atool.org/crontab.ph ...<br>
+                  <a href="http://xitong.iteye.com/blog/1723436#bc2366410">[centos6.2] crond 计划任务</a>
+                </li>
+                
+                <li>
+                  <a href="http://15223093495.iteye.com/" target="_blank" title="辉锅锅">辉锅锅</a>： 
+                   ...<br>
+                  <a href="http://xitong.iteye.com/blog/1822399#bc2366036">影响mysql查询效率的优化点</a>
+                </li>
+                
+                <li>
+                  <a href="http://geekant.iteye.com/" target="_blank" title="geekant">geekant</a>： 
+                  我马上入职金蝶了<br>
+                  <a href="http://xitong.iteye.com/blog/1716114#bc2365575">金蝶时期的那些笔记</a>
+                </li>
+                
+                <li>
+                  <a href="http://xjeryi.iteye.com/" target="_blank" title="xjeryi">xjeryi</a>： 
+                  通过您的文章解决了困扰的问题，非常感谢。<br>
+                  <a href="http://xitong.iteye.com/blog/1723393#bc2347172">POI 生成 Excel ，关于 下拉列表（有效性）</a>
+                </li>
+                
+                <li>
+                  <a href="http://jianggege.iteye.com/" target="_blank" title="jianggege">jianggege</a>： 
+                  MDM和MAM应该会越来越火的，最近在搞一个MDM相关的项目， ...<br>
+                  <a href="http://xitong.iteye.com/blog/1795625#bc2327837">iOS: 一个简单免费的MDM</a>
+                </li>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+      </div>
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br>
+          © 2003-2015 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script><img src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/a.gif" height="0" width="0">
+
+<script src="nginx%E6%90%AD%E5%BB%BAhttps%E6%9C%8D%E5%8A%A1%E5%99%A8%20-%20%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/tracking.js" type="text/javascript"></script>
+
+    
+    
+  
+
+</body></html>
