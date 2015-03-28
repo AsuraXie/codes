@@ -1,0 +1,5 @@
+php 安装步骤 
+1,安装php的命令为：./configure --enable-fpm --with-mysql=mysqlnd
+2,在ext中编译需要的模块,先进入到mysql中命令为 phpize 然后运行./configure make copy module中的内容
+nginx安装内容：
+
