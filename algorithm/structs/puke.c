@@ -12,7 +12,7 @@ struct stack{
 };
 
 int main(){
-	int book[10],temp,flag;
+	int book[10],temp,flag,temp2;
 	struct queue a,b;
 	struct stack c;
 	int n,i,j,k;
@@ -51,27 +51,23 @@ int main(){
 	flag=0;
 	while(a.top!=a.tail&&b.top!=b.tail)
 	{
-		for(i=0;i<10;i++)
-			printf("%d ",c.ch[i]);
-		printf("\n");
-		for(i=0;i<20;i++)
-			printf("%d ",a.ch[i]);
-		printf("\n");
-		for(i=0;i<20;i++)
-			printf("%d ",b.ch[i]);
-		printf("\n");
 		temp=a.ch[a.top];
 		a.top++;
-
-		if(book[temp]!=0)
+	
+		if(c.top>0&&book[temp]!=0)
 		{
-			while(c.ch[c.top]!=temp)
-			{
-				a.ch[a.tail]=c.ch[c.top];
+			a.ch[a.tail]=temp;
+			a.tail++;
+			while(c.ch[c.top-1]!=temp)
+			{	
+				book[c.ch[c.top-1]]=0;
+				a.ch[a.tail]=c.ch[c.top-1];
 				a.tail++;
 				c.top--;
+				book[c.ch[c.top-1]]=0;
 			}
-			a.ch[a.tail]=c.ch[c.top];
+			a.ch[a.tail]=c.ch[c.top-1];
+			book[c.ch[c.top-1]]=0;
 			a.tail++;
 			c.top--;
 		}
@@ -83,15 +79,19 @@ int main(){
 
 		temp=b.ch[b.top];
 		b.top++;
-		if(book[temp]!=0)
+		if(c.top>0&&book[temp]!=0)
 		{
-			while(c.ch[c.top]!=temp)
+			b.ch[b.tail]=temp;
+			b.tail++;
+			while(c.ch[c.top-1]!=temp)
 			{
-				b.ch[b.tail]=c.ch[c.top];
+				book[c.ch[c.top-1]]=0;
+				b.ch[b.tail]=c.ch[c.top-1];
 				b.tail++;
 				c.top--;
 			}
-			b.ch[b.tail]=c.ch[c.top];
+			b.ch[b.tail]=c.ch[c.top-1];
+			book[c.ch[c.top-1]]=0;
 			b.tail++;
 			c.top--;
 		}
@@ -113,9 +113,9 @@ int main(){
 		if(a.top==a.tail)
 		{
 			printf("b win\n");
-			while(b.top!=b.tail)
+			while(b.top<=b.tail)
 			{
-				printf("%c ",b.ch[b.top]);
+				printf("%d ",b.ch[b.top-1]);
 				b.top++;
 			}
 			printf("\n");
@@ -123,9 +123,9 @@ int main(){
 		else if(b.top==b.tail)
 		{
 			printf("a win\n");
-			while(a.top!=a.tail)
+			while(a.top<=a.tail)
 			{
-				printf("%c ",a.ch[a.top]);
+				printf("%d ",a.ch[a.top-1]);
 				a.top++;
 
 			}
