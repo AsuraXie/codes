@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>景天软件通用后台管理</title>
+    <link href="Public/bootstrap/css/bootstrap.min.css" rel="stylesheet">  
+	<script src="Public/jquery-1.11.2.min.js"></script>
+    <script src="Public/bootstrap/js/bootstrap.min.js"></script>
+   <!-- <script src="Public/layer/layer.js"></script>  --> 
+  </head>
+  <body>
+    <div class="row" style="width:100%">
+      <div class="col-md-3">
+      </div>
+      <div class="col-md-6">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            <h4 class="modal-title" id="myModalLabel">个人基础信息</h4>
+          </div>
+          <div class="modal-body">
+                <h4>登录名</h4>
+                <input type="text" id="login_name" class="form-control">
+                <h4>昵称</h4>
+                <input type="text"  id="name" class="form-control">
+                <h4>密码</h4>
+                <input type="password" id="pwd" class="form-control">
+                <h4>确认密码</h4>
+                <input type="password" id="pwd2" class="form-control">
+                <h4>联系方式</h4>
+                <input type="text" id="telphone" class="form-control">
+                <h4>地址</h4>
+                <input type="text" id="address" class="form-control">
+                <h4>邮箱</h4>
+                <input type="text" id="email" class="form-control">
+                <h4>描述</h4>
+                <textarea type="text" id="miaoshu" class="form-control" rows="5"></textarea>
+                <h4>头像</h4>
+                <img src="" style="width:120px;height:150px" id='headpic'></img>
+                <form id="tttt" action="users/AcceptFile" target="frameFile" method="post" enctype="multipart/form-data"> 
+                  <input  class="btn btn-default" type="file" id="myfile" name="file" style="margin-top:5px"> 
+                  <button type="submit" class="btn btn-default" style="margin-top:5px">上传</button>   
+                </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" onclick="window.parent.CloseWindow()">关闭</button>
+            <button type="button" class="btn btn-danger" onclick="saveall()">保存</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-1">
+      </div>
+    </div>
+    <!--上传图片暂用-->
+    <iframe id='frameFile' name='frameFile' style='display: none;' onload="upload_redo()"></iframe>
+    <script>
+    
+      function upload_redo(){
+    	  alert("aa");
+    	  var redos=eval(document.getElementById("frameFile").contentDocument.body.textContent);
+    	  alert(redos.success);
+    	  alert(redos.message);
+      }
+      
+      function saveall(){
+    	  if($('#pwd').val()!=$('#pwd2').val())
+    	  {
+    		  alert("密码不一致");
+    		  return;
+    	  }
+    	  
+    	  $.ajax({
+    		  url:'',
+    		  success:function (data){
+    			  
+    		  }
+    	  });
+    	  $.ajax({
+    		  url:'users/add',
+    		  contentType: "application/x-www-form-urlencoded; charset=utf-8",  
+    		  data:{
+    			  name:$('#name').val(),
+    			  login_name:$('#login_name').val(),
+    			  pwd:$('#pwd').val(),
+    			  email:$('#email').val(),
+    			  address:$('#address').val(),
+    			  telphone:$('#telphone').val(),
+    			  maioshu:$('#miaoshu').val(),
+    			  group:$('#group').val()
+    		  },
+    		  success:function (data){
+    			  data=eval("("+data+")");
+    			  layer.alert(data.message, function(index){
+    				    //do something
+    				    
+    				    layer.close(index);
+    				});
+    		  }
+    	  });
+      }
+    </script>
+  </body>
+</html>

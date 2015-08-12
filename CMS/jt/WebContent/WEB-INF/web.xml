@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>tests</display-name>
+  <servlet>
+  	<servlet-name>denglu</servlet-name>
+  	<servlet-class>Denglu.Denglu</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>denglu</servlet-name>
+  	<url-pattern>/denglu</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>users</servlet-name>
+  	<servlet-class>Work.users</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>users</servlet-name>
+  	<url-pattern>/users/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>group</servlet-name>
+  	<servlet-class>Work.group</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>group</servlet-name>
+  	<url-pattern>/group/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>gongneng</servlet-name>
+  	<servlet-class>Work.users</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>gongneng</servlet-name>
+  	<url-pattern>/gongneng</url-pattern>
+  </servlet-mapping>
+  
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

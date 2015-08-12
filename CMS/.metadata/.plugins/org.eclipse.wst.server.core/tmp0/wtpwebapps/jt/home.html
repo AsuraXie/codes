@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>景天软件通用后台管理</title>
+    <link href="Public/bootstrap/css/bootstrap.min.css" rel="stylesheet">  
+	<script src="Public/jquery-1.11.2.min.js"></script>
+    <script src="Public/bootstrap/js/bootstrap.min.js"></script>
+    <script src="Public/layer/layer.js"></script>
+    <style>
+      .loading{
+        width: 0;
+        height: 2px;
+        overflow: hidden;
+        background: #35b558;
+        background: -webkit-gradient(linear,10% 10%,100% 100%,color-stop(0.14,#35b550),color-stop(0.5,#8aca8c),color-stop(1,#2d85ca));
+      }
+      .mynavlinks{
+        margin-right:20px;
+        display: inline-block;
+        margin-top:20px
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="topnavbar" class="navbar navbar-default" style="height:90px;box-shadow:0px 1px 10px 2px rgb(237, 237, 237);background-color:transparent">
+      <div class="container">
+        <div id="topnavheader" class="navbar-header">
+          <a class="navbar-brand" href="#">
+            <div class="navbox" id="topbar">
+                <img alt="景天软件" src="Public/Image/logo.png" style="width:200px;height:50px;margin-right:10px"></img>
+            </div>
+          </a>
+        </div>
+        <div id="topuserinfo" class="navbar-right" style="margin-top:20px">
+          <ul class="nav">
+            <li role="presentation" class="dropdown">
+              <a class="dropdown-toggle glyphicon glyphicon-user" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                谢莉祥 <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" onclick="openCenter('userinfo.html')" class="glyphicon glyphicon-lock">个人中心</a></li>
+                <li class="divider"></li>
+                <li><a href="#" onclick="retry()" class="glyphicon glyphicon-off">退出</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id="greenbar" class="loading" style="width:100%;margin-top:10px"></div>
+    </nav>
+    <div class="row" style="margin-left:auto;margin-right:auto;display:inline;">
+      <div class="col-md-2" style="width:200px;float:left">
+        <div class="list-group">
+          <a href="#" class="list-group-item">博客管理<span style="float:right" class="glyphicon glyphicon-menu-right"></span></a>
+          <a href="#" class="list-group-item">新闻<span style="float:right" class="glyphicon glyphicon-menu-right"></span></a>
+          <a href="#" class="list-group-item">用户管理<span style="float:right" class="glyphicon glyphicon-menu-right"></span></a>
+          <a href="#" class="list-group-item">网站设置<span style="float:right" class="glyphicon glyphicon-menu-right"></span></a>
+          <a href="#" class="list-group-item">个人中心<span style="float:right" class="glyphicon glyphicon-menu-right"></span></a>
+          <a href="#" class="list-group-item">功能管理<span style="float:right" class="glyphicon glyphicon-menu-right"></span></a>
+        </div>
+      </div>
+      <div class="col-md-9 embed-responsive embed-responsive-16by9" >
+        <iframe id="centerplace" class="embed-responsive-item"  src="http://www.baidu.com"></iframe>
+      </div>
+    </div>
+
+    <script>
+      $.ajax({
+        url:'data/leftpanel.html',
+        success:function (data){
+          data=eval("("+data+")");
+          var htmls="";
+          var label_ID=1;
+          for(var i=0;i<data.length;i++)
+          {
+            htmls=htmls+"<div class='btn-group'>";
+            if(data[i].children!=null&&data[i].children.length>0)
+            {
+              htmls=htmls+"<a id=\""+label_ID+"\" class='mynavlinks' data-target='#' href='#' data-toggle='dropdown' aria-haspopup='true' role='button' aria-expanded='false'>"+data[i].name+"<span class='caret'></span></a>";
+              htmls=htmls+"<ul class='dropdown-menu' role='menu' aria-labelledby='"+label_ID+"'>";
+              for(var j=0;j<data[i].children.length;j++)
+              {
+                htmls=htmls+"<li><a href='#' onclick='openCenter(\""+data[i].children[j].url+"\")'>"+data[i].children[j].name+"</a></li>";
+                if(j<data[i].children.length-1)
+                  htmls=htmls+"<li class='divider'></li>";
+              }
+              htmls=htmls+"</ul>";
+            }
+            else htmls=htmls+"<a href='#' class='mynavlinks' onclick='openCenter(\""+data[i].url+"\")'>"+data[i].name+"</a>";
+            htmls=htmls+"</div>";
+          }
+          var temp=$('#topbar').html();
+          $('#topbar').html(temp+htmls);
+        }
+      });
+      
+      function openCenter(urls){
+        $('#centerplace').attr("src",urls);
+      }
+     
+      function retry(){
+        //询问框
+        layer.confirm('确定退出系统？', {
+            btn: ['退出','取消'], 
+            shade: false 
+        }, function(){
+           $.ajax({
+             url:'/Logout',
+             success:function (data){
+              
+             }
+           });
+        }, function(){
+            
+        });
+      }
+    </script>
+  </body>
+</html>
+<!--
+  接口描述：
+  退出登陆logout
+  文件接收：后台接收文件,
+-->

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>景天软件通用后台管理</title>
+    <link href="Public/bootstrap/css/bootstrap.min.css" rel="stylesheet">  
+	  <script src="Public/jquery-1.11.2.min.js"></script>
+    <script src="Public/bootstrap/js/bootstrap.min.js"></script>
+    <script src="Public/layer/layer.js"></script>
+    <link rel="stylesheet" type="text/css" href="Public/easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="Public/easyui/themes/icon.css">
+    <script type="text/javascript" src="Public/easyui/jquery.easyui.min.js"></script>
+  </head>
+  <body>
+    <table id="gongnengTable" class="easyui-treegrid" style="width:100%;height:100%"
+            data-options="
+                url: 'treegrid_data1.json',
+                method: 'get',
+                rownumbers: true,
+                idField: 'id',
+                toolbar:'#toolbar',
+                treeField: 'name'
+            ">
+        <thead>
+            <tr>
+                <th data-options="field:'mingcheng'" width="220">功能名称</th>
+                <th data-options="field:'url'" width="100">功能链接</th>
+                <th data-options="field:'paixu'" width="150">排序</th>
+            </tr>
+        </thead>
+    </table>
+    <div id="toolbar">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-primary" aria-label="Left Align" onclick="newGongneng()"><span class="glyphicon glyphicon-plus" aria-hidden="true">新增功能链接</span></button>
+            <button type="button" class="btn btn-info" aria-label="Left Align" onclick="editGongneng()"><span class="glyphicon glyphicon-pencil" aria-hidden="true">修改功能</span></button>
+            <button type="button" class="btn btn-warning" aria-label="Left Align" onclick="editGongneng()"><span class="glyphicon glyphicon-remove" aria-hidden="true">删除功能模块</span></button>
+        </div>
+    </div>
+    <div id="gongnenginfo" class="easyui-window" title="功能链接信息" data-options="modal:true,closed:true" style="width:550px;height:450px;padding:10px;">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+          <h4 class="modal-title" id="myModalLabel">功能链接信息</h4>
+        </div>
+        <div class="modal-body">
+              <h4>功能名称</h4>
+              <input type="text" class="form-control">
+              <h4>功能链接</h4>
+              <input type="text" class="form-control">
+              <h4>排序</h4>
+              <input type="text" class="form-control">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="CloseWindow()">关闭</button>
+          <button type="button" class="btn btn-primary">保存</button>
+        </div>
+    </div>
+  </body>
+  <script>
+      $('#gongnengTable').height($(window).height());
+      
+      ///新增功能
+      function newGongneng(){
+        $('#gongnenginfo').window("open");
+      }
+      
+      function CloseWindow(){
+        $('#gongnenginfo').window("close");
+      }
+      
+      ///修改功能
+      function editGongneng(){
+          var row=$('#gongnengTable').datagrid('getSelected');
+          if(row==null)
+          {
+            layer.alert("请选择相应修改记录",8);
+            return;
+          }
+          $('#gongnenginfo').window("open");
+      }
+      
+      ///删除功能
+      function destroyGongneng(){
+          var row=$('#gongnengTable').datagrid('getSelected');
+          if(row==null)
+          {
+            layer.alert("请选择相应删除记录",8);
+            return;
+          }
+      }
+  </script>
+</html>
