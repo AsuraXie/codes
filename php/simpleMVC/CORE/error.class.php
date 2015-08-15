@@ -1,6 +1,6 @@
 <?php
 namespace simpleMVC;
-class  Error{
+class  error{
 	public static $errors=array();
 	 
 	public static function add($errno, $errstr, $errfile, $errline){

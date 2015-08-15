@@ -1,5 +1,16 @@
 <html>
-	<body>
-		<h1>谢莉祥测试内容</h1>
-	</body>
+    <head>
+        <title>首页测试内容</title>
+        @require("/View/header.html")
+    </head>
+    <body>
+        <h1>参数替换测试</h1>
+        <table>
+            <tr>
+                <td>@ViewBag.id</td>
+                <td>@ViewBag.title</td>
+                <td>@ViewBag.body</td>
+            </tr>
+        </table>
+    </body>
 </html>

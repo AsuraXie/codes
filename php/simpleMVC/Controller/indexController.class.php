@@ -2,9 +2,11 @@
 namespace simpleMVC;
 class indexController extends controller{
 	public function index($a,$c){
-		var_dump($a);
-		var_dump($c);
-		$this->display();
+		$a=M("articles");
+		$data=array();
+		$data['id']=1;
+		$result=$a->delete($data);
+		$this->display($data);
 	}
 }
 ?>

@@ -7,16 +7,24 @@ class simpleMVC{
 	private static $version="0.1";
 	static public function start(){
 		
-		require("CORE/Route.class.php");
+		require("CORE/route.class.php");
 		require("CORE/controller.class.php");
-		require("CORE/Error.class.php");
-		require("CORE/View.class.php");
-		$error=new Error();
+		require("CORE/error.class.php");
+		require("CORE/view.class.php");
+		require("CORE/db.class.php");
+		require("CORE/functions.php");
+		require("CORE/model.class.php");
+		if(!defined("default_debug"))
+			defined("default_debug",false);
+			
+		$error=new error();
 		set_error_handler(array($error, 'adderror'));
-		
-		Route::init();
-		$controller=Route::get("controller");
-		$action=Route::get("action");
+		db::init();
+		/*$mydb=new db();
+		var_dump($mydb->query("describe articles"));*/
+		route::init();
+		$controller=route::get("controller");
+		$action=route::get("action");
 		define("controller",$controller);
 		define("action",$action);
 		
@@ -56,7 +64,7 @@ class simpleMVC{
 		{
 			///参数处理，如果参数不满足则提示错误
 			$args=array();
-			$allParams=Route::get("param");
+			$allParams=route::get("param");
 			foreach($ReqParams as $item)
 			{
 				if(array_key_exists($item->name,$allParams))

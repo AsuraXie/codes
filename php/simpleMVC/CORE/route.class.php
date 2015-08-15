@@ -1,7 +1,7 @@
 <?php
 namespace simpleMVC;
 
-class Route{
+class route{
 	private static $controller="";
 	private static $action="";
 	private static $param=array();
