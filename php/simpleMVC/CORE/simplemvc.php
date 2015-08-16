@@ -54,11 +54,10 @@ class simpleMVC{
 		$ReqParams=$method->getParameters(); // 函数需要的参数对象数组
 		$class="simpleMVC\\".$controller."Controller";
 		$instance  = new $class;
-		
 		if($ReqParamsCount==0)
 		{
 			///无参数执行
-			$method->invoke();
+			$method->invoke($instance);
 		}
 		else
 		{

@@ -67,7 +67,7 @@ class model{
 		else return false;
 	}
 	
-	public function where($data){
+	public function where($page=0,$rows=0,$data=null){
 		$classname=get_class($this);
 		$simplename=explode("\\",$classname);
 		$class=new $classname;
@@ -75,20 +75,28 @@ class model{
 		if(db::$dbprefix!=null&&db::$dbprefix!="")
 			$cmd=$cmd.db::$dbprefix."_".$simplename[1];
 		else $cmd=$cmd.$simplename[1];
-		$cmd=$cmd." where";
-		$keys=array_keys($data);
-		for($i=0;$i<count($keys);$i++)
+		///没有查询条件的时候则查询整个数据库表
+		if($data!=""&&$data!=null)
 		{
-			$cmd=$cmd." ".$keys[$i]."=\"".$data[$keys[$i]]."\"";
-			if($i<count($keys)-1)
-				$cmd=$cmd." and ";
+			$cmd=$cmd." where";
+			$keys=array_keys($data);
+			for($i=0;$i<count($keys);$i++)
+			{
+				$cmd=$cmd." ".$keys[$i]."=\"".$data[$keys[$i]]."\"";
+				if($i<count($keys)-1)
+					$cmd=$cmd." and ";
+			}
+		}
+		///分页支持
+		if($page!=0)
+		{
+			$count=intval($page-1)*$rows;
+			$cmd=$cmd." limit ".$count.",".$rows;
 		}
 		$result=db::query($cmd);
-		///var_dump($result);
 		if($result)
 		{
 			$result_data=array();
-			$index=0;
 			$reflect = new \ReflectionClass($class);
 			$props   = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
 			for($i=0;$i<count($result);$i++)
@@ -99,7 +107,7 @@ class model{
 					$name=$props[$j]->getName();
 					$temp[$name]=$result[$i][$j];
 				}
-				$result_data[$index]=$temp;
+				array_push($result_data,$temp);
 			}
 			return $result_data;
 		}
@@ -138,11 +146,37 @@ class model{
 		if(db::$dbprefix!=null&&db::$dbprefix!="")
 			$cmd=$cmd.db::$dbprefix."_".$simplename[1];
 		else $cmd=$cmd.$simplename[1];
-		echo $cmd;
 		$result=db::query($cmd);
 		if($result)
 		{
-			echo $result[0][0];
+			return $result[0][0];
+		}
+		else return false;
+	}
+	
+	public function count($data=null){
+		$classname=get_class($this);
+		$simplename=explode("\\",$classname);
+		$class=new $classname;
+		$cmd="select count(*) from ";
+		if(db::$dbprefix!=null&&db::$dbprefix!="")
+			$cmd=$cmd.db::$dbprefix."_".$simplename[1];
+		else $cmd=$cmd.$simplename[1];
+		///没有查询条件的时候则查询整个数据库表
+		if($data!=""&&$data!=null)
+		{
+			$cmd=$cmd." where";
+			$keys=array_keys($data);
+			for($i=0;$i<count($keys);$i++)
+			{
+				$cmd=$cmd." ".$keys[$i]."=\"".$data[$keys[$i]]."\"";
+				if($i<count($keys)-1)
+					$cmd=$cmd." and ";
+			}
+		}
+		$result=db::query($cmd);		
+		if($result)
+		{
 			return $result[0][0];
 		}
 		else return false;

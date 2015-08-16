@@ -8,7 +8,7 @@ class route{
 	private static $type="GET";
 	
 	public static function  init(){
-		$type=$_SERVER['REQUEST_METHOD'];
+		self::$type=$_SERVER['REQUEST_METHOD'];
 		$all_path=$_SERVER["REQUEST_URI"];
 		$path=array();
 		///剔除特殊情况 ///aa/bbb/cccc////dd//eee,多个‘/’的情况
