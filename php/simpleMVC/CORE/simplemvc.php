@@ -14,6 +14,7 @@ class simpleMVC{
 		require("CORE/db.class.php");
 		require("CORE/functions.php");
 		require("CORE/model.class.php");
+		
 		if(!defined("default_debug"))
 			defined("default_debug",false);
 			
