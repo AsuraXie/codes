@@ -266,7 +266,7 @@ void keypath(int data[][30],int length)
 		{
 			min=999999;
 			index=0;
-			for(k=1;k<length;k++)
+			for(k=1;k<=length;k++)
 			{
 				if(data[k][j]!=0&&min>early[k]+data[k][j])
 				{
@@ -284,7 +284,45 @@ void keypath(int data[][30],int length)
 			}
 			else early[j]=min;
 			visited[j]=1;
-			printf("%d %d\n",j,min);
 		}
 	}
+	
+	for(i=1;i<=length;i++)
+	{
+		visited[i]=0;
+		if(bdegree[i]==0)
+			break;
+	}
+	last[i]=early[i];
+	for(i=1;i<=length;i++)
+	{
+		for(j=1;j<=length;j++)
+		if(visited[j]==0&&bdegree[j]==0)
+		{
+			min=-999999;
+			index=1;
+			visited[j]=1;
+			for(k=1;k<=length;k++)
+			{
+				if(data[j][k]!=0)
+				{
+					if(last[k]!=0&&min<last[k]-data[j][k])
+					{
+						min=last[k]-data[j][k];
+						index=k;
+					}
+				}
+				if(data[k][j]!=0)
+					bdegree[k]--;
+			}
+			if(min==-999999)
+				last[j]=last[j];
+			else last[j]=min;
+		}
+	}
+	for(i=1;i<=length;i++)
+		if(last[i]==early[i])
+		{
+			printf("%d %d\n",i,last[i]);
+		}
 }
