@@ -24,4 +24,5 @@ if __name__=='__main__':
 		print "Usage:./file_get_content url path "
 		print "Need at least two arg"
 		exit()
-	file_get_contents(sys.argv[1],sys.argv[2])
+	data=file_get_contents(sys.argv[1])
+	store_src(data,sys.argv[1],sys.argv[2])
