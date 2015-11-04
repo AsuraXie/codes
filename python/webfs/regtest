@@ -1,0 +1,615 @@
+
+<div id="header">
+	<div id="blogTitle">
+		
+<!--done-->
+<div class="title"><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/kaituorensheng/">jihite</a></div>
+<div class="subtitle">真正的稳定，源于内心的强大和能力的充实
+真正的立身之本是当下的自己
+现在的想法和行动将决定10年后的自己</div>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li id="nav_sitehome"><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li id="nav_myhome"></li>
+<li id="nav_q"><a class="menu" href="http://q.cnblogs.com/">博问</a></li>
+<li id="nav_ing"><a class="menu" href="http://home.cnblogs.com/ing/">闪存</a></li>
+<li id="nav_newpost"><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li id="nav_contact"><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/jihite">联系</a></li>
+<li id="nav_rss"><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/kaituorensheng/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/kaituorensheng/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li id="nav_admin"><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔-409&nbsp;
+文章-0&nbsp;
+评论-257&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/kaituorensheng/p/4236254.html">Linux正则表达式grep</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p>&nbsp; &nbsp; 正则表达式是一种符号表示法，用于识别文本模式。Linux处理正则表达式的主要程序是grep。grep搜索与正则表达式匹配的<strong>行</strong>，并将结果输送至标准输出。</p>
+<p><span style="font-size: 14pt;"><strong>1. grep匹配模式</strong></span></p>
+<p>grep按下述方式接受选项和参数(其中，regex表示正则表达式)</p>
+<div class="cnblogs_Highlighter sh-gutter">
+<div><div id="highlighter_198968" class="syntaxhighlighter  css"><div class="toolbar"><span><a href="#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="css plain">grep [options] regex [files]</code></div></div></td></tr></tbody></table></div></div>
+</div>
+<p>其中options主要为下表：</p>
+<table style="height: 207px; width: 544px;" align="center" border="0">
+<tbody>
+<tr>
+<td>选项</td>
+<td>含义</td>
+<td>功能描述</td>
+</tr>
+<tr>
+<td>-i</td>
+<td>ignore case</td>
+<td>忽略大小写</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>invert match</td>
+<td>不匹配匹配的</td>
+</tr>
+<tr>
+<td>-l</td>
+<td>file-with-match</td>
+<td>输出匹配的文件名</td>
+</tr>
+<tr>
+<td>-L</td>
+<td>file-without-match</td>
+<td>输出不匹配的文件名</td>
+</tr>
+<tr>
+<td>-c</td>
+<td>count</td>
+<td>输出匹配的数目（行数）</td>
+</tr>
+<tr>
+<td>-n</td>
+<td>number</td>
+<td>输出匹配行的同时在前面加上文件名及在文件名中的行数</td>
+</tr>
+<tr>
+<td>-h</td>
+<td>no-filename</td>
+<td>抑制文件名的输出</td>
+</tr>
+</tbody>
+</table>
+<p>举例说明</p>
+<p>假设有三个文件del1、del2、del3三个文件的内容如下</p>
+<p><img src="http://images.cnitblog.com/blog/408927/201501/201916249065699.png" alt=""></p>
+<p>例子</p>
+<p><img style="line-height: 1.5;" src="http://images.cnitblog.com/blog/408927/201501/201925155008064.png" alt=""></p>
+<p><span style="font-size: 14pt;"><strong>2. 特殊字符</strong></span></p>
+<table style="height: 169px; width: 562px;" border="0">
+<tbody>
+<tr>
+<td>符号</td>
+<td>含义</td>
+<td>举例</td>
+</tr>
+<tr>
+<td>^</td>
+<td>开始标记</td>
+<td>"^abc"满足的例子abc、abcd</td>
+</tr>
+<tr>
+<td>^</td>
+<td>非（在[]内）</td>
+<td>"[^abc]"满足的例子：ddd、mpd</td>
+</tr>
+<tr>
+<td>$</td>
+<td>结束标记</td>
+<td>”abc$”满足的例子abc、mmabc</td>
+</tr>
+<tr>
+<td>.</td>
+<td>任意字符</td>
+<td>"a.c"满足的例子abc、fapcc</td>
+</tr>
+<tr>
+<td>\&lt;</td>
+<td>匹配单词开始</td>
+<td>"\&lt;abc"满足的例子abc、abcd</td>
+</tr>
+<tr>
+<td>\&gt;</td>
+<td>匹配单词结束</td>
+<td>"abc\&gt;"满足的例子abc、pmrabc</td>
+</tr>
+<tr>
+<td>|</td>
+<td>或</td>
+<td>"AAA|BBB"满足的例子AAA、BBBpp</td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 14pt;"><strong>3. 范围</strong></span></p>
+<table style="height: 215px; width: 631px;" border="0">
+<tbody>
+<tr>
+<td>符号</td>
+<td>含义</td>
+<td>举例</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配前一个字符0或1次</td>
+<td>"abc?"满足的例子ab、mabcd</td>
+</tr>
+<tr>
+<td>*</td>
+<td>匹配前一个字符≥0次</td>
+<td>"abc*"满足的例子abbb、abcdk</td>
+</tr>
+<tr>
+<td>+</td>
+<td>匹配前一个字符≥1次</td>
+<td>"abc+"满足的例子abcd、abcccdd</td>
+</tr>
+<tr>
+<td>{}</td>
+<td>{m}、{m,n}、{m,}、{,n}分别为匹配前一个字符m次、m到n次、≥m次、≤n次</td>
+<td>"abc\{3,5\}"满足的例子abcccc、abcccccc</td>
+</tr>
+<tr>
+<td>[]</td>
+<td>[]内如果不是范围，选其一；是范围的话，范围内选其一</td>
+<td>"m[abc]p"满足的例子acpd；m[1-9]p满足的例子m8pp</td>
+</tr>
+<tr>
+<td>()</td>
+<td>将候选的所有元素放在()内，用|隔开</td>
+<td>"a(1|2|3)bc"满足的例子a1bc、mba3bcd</td>
+</tr>
+</tbody>
+</table>
+<p>注意：{}在郑则表达式中需要转移，而{}()不需要。 &nbsp; &nbsp;</p>
+<p>注意理解{}范围的例子：</p>
+<p><img src="http://images.cnitblog.com/blog/408927/201501/202114516726257.png" alt="" height="233" width="440"></p>
+<p><span style="font-size: 14pt;"><strong>4. 标准字符类</strong></span></p>
+<table style="height: 336px; width: 386px;" border="0">
+<tbody>
+<tr>
+<td>字符类</td>
+<td>释义</td>
+</tr>
+<tr>
+<td>[:alnum:]</td>
+<td>字母和数字，与[A-Za-z0-9]等价</td>
+</tr>
+<tr>
+<td>[:word:]</td>
+<td>[:alnum:]加上下划线_</td>
+</tr>
+<tr>
+<td>[:alpa:]</td>
+<td>字母，与[A-Za-z]等价</td>
+</tr>
+<tr>
+<td>[:digit:]</td>
+<td>数字，与[0-9]等价</td>
+</tr>
+<tr>
+<td>[:xdigit:]</td>
+<td>十六进制字符，与[0-9A-Fa-f等价]</td>
+</tr>
+<tr>
+<td>[:blank:]</td>
+<td>空格和制表符</td>
+</tr>
+<tr>
+<td>[:graph:]</td>
+<td>可见字符，靠扩33~126</td>
+</tr>
+<tr>
+<td>[:lower:]</td>
+<td>小写字母</td>
+</tr>
+<tr>
+<td>[:upper:]</td>
+<td>大写字母</td>
+</tr>
+<tr>
+<td>[:print:]</td>
+<td>可打印字符</td>
+</tr>
+<tr>
+<td>[:space:]</td>
+<td>空白字符，等价于[\t\r\n\v\f]</td>
+</tr>
+<tr>
+<td>[:punct:]</td>
+<td>标点符号</td>
+</tr>
+<tr>
+<td>[:cntrl:]</td>
+<td>ASCII控制码，包括字符0~31以及127</td>
+</tr>
+</tbody>
+</table>
+<p>例子</p>
+<p><img src="http://images.cnitblog.com/blog/408927/201501/212258324222485.png" alt=""></p>
+<p>&nbsp;</p>
+<p><span style="font-size: 16px;"><strong>可视化正则表达式</strong></span></p>
+<p>工具：<a href="http://regexper.com/" target="_blank">Regexper</a></p>
+<p><img src="http://images.cnitblog.com/blog2015/408927/201503/192239371262740.png" alt="" height="277" width="557"></p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/kaituorensheng/category/398604.html">linux</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(4236254,cb_blogId,1);green_channel_success(this,'谢谢推荐！');">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="//msg.cnblogs.com/send/jihite" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="//common.cnblogs.com/images/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="//common.cnblogs.com/images/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/kaituorensheng/" target="_blank"><img src="http://pic.cnblogs.com/face/u408927.jpg?id=16165421" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/kaituorensheng/">jihite</a><br>
+<a href="http://home.cnblogs.com/u/kaituorensheng/followees">关注 - 39</a><br>
+<a href="http://home.cnblogs.com/u/kaituorensheng/followers">粉丝 - 370</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(4236254,'Digg')">
+        <span class="diggnum" id="digg_count">2</span>
+    </div>
+	<div class="buryit" onclick="votePost(4236254,'Bury')"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/kaituorensheng/p/4234938.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/kaituorensheng/p/4234938.html" title="发布于2015-01-19 22:35">Linux Shell 录制并回放终端会话</a><br><a href="http://www.cnblogs.com/kaituorensheng/p/4242297.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/kaituorensheng/p/4242297.html" title="发布于2015-01-22 23:25">Linux之sed</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2015-01-21 22:59</span> <a href="http://www.cnblogs.com/kaituorensheng/">jihite</a> 阅读(<span id="post_view_count">2646</span>) 评论(<span id="post_comment_count">2</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=4236254" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(4236254);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=117552,cb_entryId=4236254,cb_blogApp=currentBlogApp,cb_blogUserGuid='e10d37de-a69d-e111-aa3f-842b2b196315',cb_entryCreatedDate='2015/1/21 22:59:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<!--done-->
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>
+	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="#3112343" class="layer">#1楼</a><a name="3112343" id="comment_anchor_3112343"></a>  <span class="comment_date">2015-01-22 09:40</span> <a id="a_comment_author_3112343" href="http://www.cnblogs.com/youxia/" target="_blank">京山游侠</a> <a href="http://msg.cnblogs.com/send/%E4%BA%AC%E5%B1%B1%E6%B8%B8%E4%BE%A0" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3112343" class="blog_comment_body">Linux中用到正则表达式的地方很多，不仅是grep，还有sed、awk、vim等等。<br>而且正则表达式还分为bre和ere两种。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3112343,'Digg',this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3112343,'Bury',this)">反对(0)</a></div><span id="comment_3112343_avatar" style="display:none;">http://pic.cnblogs.com/face/16576/20150217205716.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="#3112366" class="layer">#2楼</a><a name="3112366" id="comment_anchor_3112366"></a>[<span class="louzhu">楼主</span>]<span id="comment-maxId" style="display:none;">3112366</span><span id="comment-maxDate" style="display:none;">2015/1/22 9:55:47</span>  <span class="comment_date">2015-01-22 09:55</span> <a id="a_comment_author_3112366" href="http://www.cnblogs.com/kaituorensheng/" target="_blank">jihite</a> <a href="http://msg.cnblogs.com/send/jihite" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3112366" class="blog_comment_body"><a href="#3112343" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,3112343);">@</a>京山游侠<br>嗯，继续学习，谢谢</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3112366,'Digg',this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3112366,'Bury',this)">反对(0)</a></div><span id="comment_3112366_avatar" style="display:none;">http://pic.cnblogs.com/face/u408927.jpg?id=16165421</span>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" id="lnk_RefreshComments" onclick="return RefreshCommentList();">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login('commentform');">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="site_nav_under"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="https://www.jpush.cn/" target="_blank">【福利】极光推送-富媒体+大数据驱动精准推送，完全免费开放啦</a><br><a href="http://click.aliyun.com/m/1328/" target="_blank">【专享】阿里云9折优惠码：bky758</a><br></div>
+<div id="opt_under_post"></div>
+<script type="text/javascript">
+    fixPostBodyFormat();
+</script>
+<div id="google_ad_c1" class="c_ad_block"><a href="http://www.gcpowertools.com.cn/products/spreadjs/?utm_source=cnblogs&amp;utm_medium=blogpage&amp;utm_term=bottom&amp;utm_content=SpreadJS&amp;utm_campaign=community" target="_blank"><img src="http://images2015.cnblogs.com/news/24442/201510/24442-20151030141724685-1469547474.png" alt="" height="250" width="300"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/532029/" target="_blank">迟到的万圣节大餐！Fedora 23正式发布</a><br> ·  <a href="http://news.cnblogs.com/n/532028/" target="_blank">微软公布用于Windows的OpenSSH代码</a><br> ·  <a href="http://news.cnblogs.com/n/532027/" target="_blank">当创业成为职业，在其中各取所需，已是最好结果</a><br> ·  <a href="http://news.cnblogs.com/n/532026/" target="_blank">在Google工作十三年后，他被特斯拉挖走了</a><br> ·  <a href="http://news.cnblogs.com/n/532025/" target="_blank">快要逼死书店的亚马逊自己也开了一家线下实体店，这是为何？</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="google_ad_c2" class="c_ad_block"><a href="http://e.jikexueyuan.com/html5.html?hmsr=cnb_banner_html5_09.14" target="_blank"><img src="http://images2015.cnblogs.com/news/24442/201509/24442-20150914101329570-406117032.jpg" alt="" height="60" width="468"></a></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/530046/" target="_blank">再谈设计和编码</a><br> ·  <a href="http://kb.cnblogs.com/page/531270/" target="_blank">什么时候应该避免写代码注释？</a><br> ·  <a href="http://kb.cnblogs.com/page/529677/" target="_blank">持续集成是什么？</a><br> ·  <a href="http://kb.cnblogs.com/page/530389/" target="_blank">人，技术与流程</a><br> ·  <a href="http://kb.cnblogs.com/page/530044/" target="_blank">HTTPS背后的加密算法</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="google_ad_c3" class="c_ad_block">
+    <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- C3_BlogPost -->
+<ins data-adsbygoogle-status="done" class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px;" data-ad-client="ca-pub-4210569241504288" data-ad-slot="3239908880"><ins id="aswift_0_expand" style="display:inline-table;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><ins id="aswift_0_anchor" style="display:block;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><iframe marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_0" name="aswift_0" style="left:0;position:absolute;top:0;" frameborder="0" height="250" width="300"></iframe></ins></ins></ins>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 200);
+});
+</script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div id="clustrmaps-widget"></div><noscript><a href="http://www2.clustrmaps.com/user/9a7116b91"><img src="http://www2.clustrmaps.com/stats/maps-no_clusters/www.cnblogs.com-kaituorensheng--thumb.jpg" alt="Locations of visitors to this page" /></a></noscript><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/kaituorensheng/">jihite</a><br>园龄：<a href="http://home.cnblogs.com/u/kaituorensheng/" title="入园时间：2012-05-14">3年5个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/kaituorensheng/followers/">370</a><br>关注：<a href="http://home.cnblogs.com/u/kaituorensheng/followees/">39</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="cnblogs.UserManager.FollowBlogger('e10d37de-a69d-e111-aa3f-842b2b196315')">+加关注</a></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_categories">
+<div class="catListPostCategory">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/kaituorensheng/category/465181.html">c++/c(66)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/kaituorensheng/category/588221.html">Django(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/kaituorensheng/category/694257.html">gis(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/kaituorensheng/category/548132.html">Hadoop(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/kaituorensheng/category/586157.html">java(6)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/kaituorensheng/category/693663.html">JavaScript/Html(14)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/kaituorensheng/category/571749.html">LeetCode(13)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/kaituorensheng/category/398604.html">linux(49)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/kaituorensheng/category/386335.html">Python每日小灶(68)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/kaituorensheng/category/545970.html">STL(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_10" href="http://www.cnblogs.com/kaituorensheng/category/482211.html">tools(19)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_11" href="http://www.cnblogs.com/kaituorensheng/category/512789.html">产品(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_12" href="http://www.cnblogs.com/kaituorensheng/category/386337.html">成长经历(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_13" href="http://www.cnblogs.com/kaituorensheng/category/404673.html">读书(7)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_14" href="http://www.cnblogs.com/kaituorensheng/category/600422.html">互联网(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_15" href="http://www.cnblogs.com/kaituorensheng/category/484221.html">机器学习(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_16" href="http://www.cnblogs.com/kaituorensheng/category/611937.html">计算机网络(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_17" href="http://www.cnblogs.com/kaituorensheng/category/560927.html">计算机原理(8)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_18" href="http://www.cnblogs.com/kaituorensheng/category/613525.html">数据库(7)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_19" href="http://www.cnblogs.com/kaituorensheng/category/566787.html">数学之美(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_20" href="http://www.cnblogs.com/kaituorensheng/category/445233.html">算法&amp;&amp;数据结构(72)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_21" href="http://www.cnblogs.com/kaituorensheng/category/526037.html">统计学习方法(6)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_22" href="http://www.cnblogs.com/kaituorensheng/category/576792.html">网络爬虫(6)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_23" href="http://www.cnblogs.com/kaituorensheng/category/622147.html">文学艺术(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_24" href="http://www.cnblogs.com/kaituorensheng/category/404670.html">学术创新</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_25" href="http://www.cnblogs.com/kaituorensheng/category/517963.html">英语(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_26" href="http://www.cnblogs.com/kaituorensheng/category/713922.html">运维(7)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_27" href="http://www.cnblogs.com/kaituorensheng/category/386336.html">自然语言处理(26)</a> </li>
+
+</ul>
+
+</div>
+
+<div class="catListPostArchive">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/kaituorensheng/archive/2015/11.html">2015年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/kaituorensheng/archive/2015/10.html">2015年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/kaituorensheng/archive/2015/09.html">2015年9月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/kaituorensheng/archive/2015/08.html">2015年8月 (15)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/kaituorensheng/archive/2015/07.html">2015年7月 (15)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/kaituorensheng/archive/2015/06.html">2015年6月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/kaituorensheng/archive/2015/05.html">2015年5月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/kaituorensheng/archive/2015/04.html">2015年4月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/kaituorensheng/archive/2015/03.html">2015年3月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/kaituorensheng/archive/2015/01.html">2015年1月 (13)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/kaituorensheng/archive/2014/12.html">2014年12月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/kaituorensheng/archive/2014/11.html">2014年11月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/kaituorensheng/archive/2014/10.html">2014年10月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/kaituorensheng/archive/2014/09.html">2014年9月 (20)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/kaituorensheng/archive/2014/08.html">2014年8月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/kaituorensheng/archive/2014/07.html">2014年7月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/kaituorensheng/archive/2014/06.html">2014年6月 (17)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/kaituorensheng/archive/2014/05.html">2014年5月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/kaituorensheng/archive/2014/04.html">2014年4月 (18)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/kaituorensheng/archive/2014/03.html">2014年3月 (45)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/kaituorensheng/archive/2014/02.html">2014年2月 (13)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/kaituorensheng/archive/2014/01.html">2014年1月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/kaituorensheng/archive/2013/12.html">2013年12月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/kaituorensheng/archive/2013/11.html">2013年11月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/kaituorensheng/archive/2013/10.html">2013年10月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/kaituorensheng/archive/2013/09.html">2013年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/kaituorensheng/archive/2013/08.html">2013年8月 (18)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/kaituorensheng/archive/2013/07.html">2013年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/kaituorensheng/archive/2013/06.html">2013年6月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/kaituorensheng/archive/2013/05.html">2013年5月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/kaituorensheng/archive/2013/04.html">2013年4月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/kaituorensheng/archive/2013/03.html">2013年3月 (16)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/kaituorensheng/archive/2013/02.html">2013年2月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/kaituorensheng/archive/2013/01.html">2013年1月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/kaituorensheng/archive/2012/12.html">2012年12月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/kaituorensheng/archive/2012/11.html">2012年11月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/kaituorensheng/archive/2012/10.html">2012年10月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_37" href="http://www.cnblogs.com/kaituorensheng/archive/2012/09.html">2012年9月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_38" href="http://www.cnblogs.com/kaituorensheng/archive/2012/08.html">2012年8月 (6)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_39" href="http://www.cnblogs.com/kaituorensheng/archive/2012/07.html">2012年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_40" href="http://www.cnblogs.com/kaituorensheng/archive/2012/06.html">2012年6月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_41" href="http://www.cnblogs.com/kaituorensheng/archive/2012/05.html">2012年5月 (1)</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_scorerank" class="sidebar-block">
+<div class="catListBlogRank">
+<h3 class="catListTitle">积分与排名</h3>
+<ul>
+	<li class="liScore">
+		积分 -	331871
+	</li>
+	<li class="liRank">
+		排名 -	315
+	</li>
+</ul>
+</div>
+
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/kaituorensheng/p/3602812.html#3298510">1. Re:linux中uptime命令</a></li>
+    <li class="recent_comment_body">请问是除物理核还是逻辑核？</li>
+    <li class="recent_comment_author">--寻灿者</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/kaituorensheng/p/4427501.html#3289924">2. Re:新纪元</a></li>
+    <li class="recent_comment_body">@Aiapple不是...</li>
+    <li class="recent_comment_author">--jihite</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/kaituorensheng/p/4427501.html#3289878">3. Re:新纪元</a></li>
+    <li class="recent_comment_body">恭喜恭喜，博主现在是在做运维吗？</li>
+    <li class="recent_comment_author">--Aiapple</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/kaituorensheng/p/4002630.html#3286929">4. Re:如何在工作的头三年里让自己变得强大</a></li>
+    <li class="recent_comment_body">必须大赞！</li>
+    <li class="recent_comment_author">--有一些想法</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/kaituorensheng/p/4445418.html#3286524">5. Re:Python多进程编程</a></li>
+    <li class="recent_comment_body">mark 慢慢看</li>
+    <li class="recent_comment_author">--jianviper</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/kaituorensheng/archive/2012/08/06/2625752.html">1. python find()用法(41353)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/archive/2012/08/07/2627386.html">2. python 字典排序(30883)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/archive/2012/08/14/2638935.html">3. python 遍历文件夹 文件(29471)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/p/3980334.html">4. linux后台运行和关闭、查看后台任务(22590)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/archive/2013/02/28/2937865.html">5. 数据结构之队列(21340)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/kaituorensheng/archive/2013/03/26/2983573.html">1. Linux  文件属性(6)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/p/3287652.html">2. pyhon之Tkinter实例化学习(6)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/p/4889268.html">3. nginx + keepalived 双机热备(5)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/p/4445418.html">4. Python多进程编程(5)</a></li><li><a href="http://www.cnblogs.com/kaituorensheng/p/4449457.html">5. Python垃圾回收机制:gc模块(5)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2015 jihite
+	</div><!--end: footer -->
+
