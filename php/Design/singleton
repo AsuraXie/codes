@@ -1,0 +1,82 @@
+#!/usr/local/bin/php
+<?php
+class node{
+	public $data;
+	public $next;
+	public function __construct(){
+		$this->data=0;
+		$this->next=NULL;
+	}
+}
+
+class xlist{
+	private $head;
+	public function __construct(){
+		$this->head=new node();
+	}
+	public function add($data){
+		try{
+			$temp=$this->head;
+			while($temp->next)
+				$temp=$temp->next;
+			$temp->next=new node();
+			$temp=$temp->next;
+			$temp->data=$data;
+			$temp->next=NULL;
+		}
+		catch(Exception $e)
+		{
+			echo $e;
+		}
+	}
+	public function delete($index){
+		try{
+			$temp=$this->head;
+			$temp=$temp->next;
+			$pre=$this->head;
+			$count=0;
+			while($temp)
+			{
+				$count++;
+				if($count==$index)
+					break;
+				$pre=$temp;
+				$temp=$temp->next;
+			}
+			if($count==$index)
+			{
+				if($pre->next)
+				{
+					$pre->next=$pre->next->next;
+				}
+			}
+		}
+		catch(Exception $e)
+		{
+			echo $e;
+		}
+	}
+	public function show(){
+		try{
+			$temp=$this->head;
+			while($temp)
+			{
+				echo $temp->data."\n\r";
+				$temp=$temp->next;
+			}
+		}
+		catch(Exception $e)
+		{
+			echo $e;
+		}
+	}
+}
+
+$mylist=new xlist();
+$mylist->add(1);
+$mylist->add(2);
+$mylist->add(120);
+$mylist->show();
+$mylist->delete(2);
+$mylist->show();
+?>

@@ -1,0 +1,1 @@
+./configure --prefix=/usr/local/php --enable-fpm --with-mysql=mysqlnd --with-gd --enable-gd-native-ttf --with-openssl

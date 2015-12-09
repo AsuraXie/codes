@@ -68,7 +68,7 @@ class route{
 			case "action":return self::$action;
 			case "param":return self::$param;
 			default :return false;
-		}	
+		}
 	}
 }
 ?>

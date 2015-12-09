@@ -3,3 +3,14 @@ php 安装步骤
 2,在ext中编译需要的模块,先进入到mysql中命令为 phpize 然后运行./configure make copy module中的内容
 nginx安装内容：
 
+iweor
+oiapwer
+opwer
+asl;
+oiwqpr
+lsa;foiwer
+iower
+qwrpweoi
+alsfoiwer
+owprqw
+oiwer
