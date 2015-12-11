@@ -5,5 +5,7 @@ import encrypt
 
 if __name__=='__main__':
 	a=dirnode.dirnode("谢莉祥",4)
-	print encrypt.jiami("wokao")
 	print a.getName()
+	for i in range(1,25):
+		a.mkdir(i)
+	a.ls()

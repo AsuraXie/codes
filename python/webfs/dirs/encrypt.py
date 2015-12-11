@@ -7,5 +7,5 @@ import hashlib
 
 def jiami(strs):
 	m=hashlib.md5()
-	m.update(strs)
+	m.update(str(strs))
 	return m.hexdigest()
