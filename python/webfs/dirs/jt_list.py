@@ -3,6 +3,7 @@
 
 #扩展的list结构
 import encrypt
+import sys
 
 class xlist(object):
 	__max=0x0
@@ -18,6 +19,9 @@ class xlist(object):
 	#插入元素到指定位
 	def insert(self,name,data):
 		key=encrypt.jiami(str(name))
+		if key in self.__data:
+			self.__data[key]=data
+			return key
 		bResult=self.bSearch(key)
 		if not bResult['success']:
 			index=bResult['index']
@@ -35,9 +39,8 @@ class xlist(object):
 				self.__min=key
 			res=self.__orderKey.insert(index,key)
 			self.__data[key]=data
-			return True
-		else:
-			return False
+			return key
+			
 	
 	#删除结点
 	def deleteByName(self,name):
@@ -100,16 +103,27 @@ class xlist(object):
 			return self.__data[key]
 		else:
 			return False
-	
+	#弹出最大的一个元素
+	def pop(self):
+		if len(self.__orderKey)>0:
+			key=self.__orderKey.pop(len(self.__orderKey)-1)
+			return self.__data.pop(key)
+		else:
+			return False
+			
 	#根据数组的下标返回结果
 	def __getitem__(self,index):
-
-		if index<0 or index >=len(self.__orderKey):
+		if index<0 or index>len(self.__orderKey):
 			return False
 		else :
 			key=self.__orderKey[index]
 			return self.__data[key]
-
+	#根据下标获取元素
+	def getByKey(self,key):
+		if not (key in self.__data):
+			return False
+		else:
+			return self.__data[key]
 	#获取self.__min
 	def getMin(self):
 		return self.__min
@@ -125,21 +139,26 @@ class xlist(object):
 	#获取所有条目	
 	def getAll(self):
 		result=[]
-		for item in self.__orderKey:
+		for item in self.__data:
 			result.append(self.__data[item])
 		return result
 
+	#显示所有内容
 	def show(self):
 		print self.__orderKey
 		print self.__data
 		print "min=%s" % self.__min
 		print "max=%s" % self.__max
+	#显示长度
+	def showLength(self):
+		print "orderkey:"+str(len(self.__orderKey))
+		print "data:"+str(len(self.__data))
 
 if __name__=='__main__':
 	a=xlist()
-	a.insert('a',['wokao'])
-	b=a.bSearch('a')
-	a.insert('b',['mimei'])
-	c=a.bSearch('b')
-	print b,c
-	a.show()
+	start=sys.argv[1]
+	end=sys.argv[2]
+	print start+"-------"+end
+	for i in range(int(start),int(end)):
+		a.insert(1,i*2)
+	a.showLength()
