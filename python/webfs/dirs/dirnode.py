@@ -11,8 +11,7 @@ class dirnode(object):
 	__name=""
 	#目录的权限
 	__power=666
-	#目录中保存的条目
-	__childs=0
+	#目录中保存的条目 __childs=0
 	#目录不够的时候使用链接下n个块的位置
 	__dirnexts=0
 	#根据名字加密的主键
@@ -31,7 +30,8 @@ class dirnode(object):
 	#获取目录的主键
 	def getKey(self):
 		return self.__key
-	
+
+	#获取列表长度	
 	def getLength(self):
 		pass
 
@@ -44,6 +44,7 @@ class dirnode(object):
 		if self.__childs.getLength()<jt_global.dir_size:
 			self.__childs.insert(name,temp_dir)
 			return True
+
 		#如果第一级目录满了，并且key小于最大值则插入进去后取出最大值放到下一个块中
 		elif temp_dir.getKey()<self.__childs.getMax():
 			self.__childs.insert(name,temp_dir)
@@ -57,27 +58,34 @@ class dirnode(object):
 			if self.__dirnexts.getLength()==0:
 				temp_next_dir=dirnext(name,0,0)
 				self.__dirnexts.insert(temp_max.getName(),temp_next_dir)
-	
-			target_block_index=self.__dirnexts.bSearch(temp_max.getName())
-			if not target_block_index['success']:
-				if target_block_index['index']==0 and self.__dirnexts.getLength()==0:
-					target_block_index['index']=0
-				else:
-					target_block_index['index']=target_block_index['index']+1
+
+			target_block_index=self.__dirnexts.bSearch(temp_max.getKey())
 			
+			if not target_block_index['success']:
+				if target_block_index['index']<=0 or self.__dirnexts.getLength()==0:
+					target_block_index['index']=0
+
+				temp_max_key=self.__dirnexts[target_block_index['index']].getMaxKey()
+                                temp_min_key=self.__dirnexts[target_block_index['index']].getMinKey()
+				if temp_max.getKey()>temp_max_key and target_block_index['index']<self.__dirnexts.getLength()-1:
+                                	target_block_index['index']+=1
+                                elif temp_max.getKey()<temp_min_key and target_block_index['index']>=1:
+		                	target_block_index['index']-=1
+
 			if self.__dirnexts[target_block_index['index']].getLength()<jt_global.dir_next_size:
 				self.__dirnexts[target_block_index['index']].insert(temp_max.getName(),temp_max)
 			else:
 				#如何分裂模块
+				#print target_block_index['index']
 				new_block=self.__dirnexts[target_block_index['index']].split(temp_max.getKey())
-				self.__dirnexts.deleteByIndex(target_block_index['index'])
+				res=self.__dirnexts.deleteByIndex(target_block_index['index'])
 				if new_block['pre'].getLength()<new_block['next'].getLength():
-					new_block['pre'].insert(temp_max.getKey(),temp_max)
+					new_block['pre'].insert(temp_max.getName(),temp_max)
 				else:
-					new_block['next'].insert(temp_max.getKey(),temp_max)
+					new_block['next'].insert(temp_max.getName(),temp_max)
 
-				self.__dirnexts.insert(new_block['pre'].getName(),new_block['pre'])
-				self.__dirnexts.insert(new_block['next'].getName(),new_block['next'])
+				self.__dirnexts.insert(new_block['pre'].getMaxName(),new_block['pre'])
+				self.__dirnexts.insert(new_block['next'].getMaxName(),new_block['next'])
 		return True
 
 	#删除目录
@@ -85,7 +93,48 @@ class dirnode(object):
 		key=encrypt.jiami(name)
 		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
 			self.__childs.removeByKey(name)
-			return True	
+			return True
+
+	#获取目录或者文件
+	def __getitem__(self,name):
+		key=encrypt.jiami(name)
+		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
+			res=self.__childs.bSearch(key)
+			if res['success']:
+				#print "found:"+str(self.__childs[res['index']].getName())
+				return 0
+			else:
+				#print "childs not found"
+				return -1
+		else:
+			res=self.__dirnexts.bSearch(key)
+			if res['index']<=0:
+				res['index']=0
+
+			temp=self.__dirnexts[res['index']]
+			if not isinstance(temp,bool):
+				temp_max=temp.getMaxKey()
+				temp_min=temp.getMinKey()
+
+				if key>temp_max:
+					res['index']+=1
+					temp=self.__dirnexts[res['index']]
+				elif key<temp_min:
+					res['index']-=1
+					temp=self.__dirnexts[res['index']]
+
+				temp=temp.getByKey(key)
+                                if not isinstance(temp,bool):
+                                #	print "found:"+str(temp.getName())
+					return 0
+                                else:
+                                #	print "block not found"
+					print "key="+str(key)+",index="+str(res['index'])
+					return -2
+			else:
+				#print "not exits index="+str(res['index'])+",lenght="+str(self.__dirnexts.getLength())
+				return -3
+
 
 	#重命名目录
 	def rename(self,name):
@@ -93,11 +142,12 @@ class dirnode(object):
 
 	#显示目录中的内容
 	def ls(self):
-		#self.__childs.show()
+		print self.getName()
 		alls=self.__childs.getAll()
 		for item in alls:
 			print item.getName()
-		for item in self.__dirnexts.getAll():
+		alls=self.__dirnexts.getAll()
+		for item in alls:
 			if item.getLength()>0:
 				item.ls()
 
@@ -124,30 +174,51 @@ class dirnext(object):
 
 	#显示当前块中的目录内容
 	def ls(self):
+		print 'start_________________________'
 		alls=self.__temp_list.getAll()
 		for item in alls:
 			item.ls()
+		print 'end___________________________'
 		return self.__temp_list.getLength()
 
 	#插入记录到块中
 	def insert(self,name,data):
+		if self.__temp_list.getLength()==0:
+			self.__min=data.getKey()
+			self.__max=data.getKey()
+
+		if data.getKey()<self.__min:
+			self.__min=data.getKey()
+
+		if data.getKey()>self.__max:
+			self.__max=data.getKey()
+
 		return self.__temp_list.insert(name,data)
 	
 	#重写get函数
 	def __getitem__(self,index):
 		return self.__temp_list[index]
 
+	#根据主键获取内容
+	def getByKey(self,key):
+		return self.__temp_list.getByKey(key)
+
 	#获取地址
 	def getAddress(self):
 		return self.__address
 
 	#获取最大的名称
-	def getName(self):
-		temp_dir=self.__temp_list.max()
-		if temp_dir:
-			return temp_dir.getName()
-		else:
-			return False
+	def getMaxName(self):
+		max_dir=self.__temp_list.max()
+		return max_dir.getName()
+	
+	#获取最大键值
+	def getMaxKey(self):
+		return self.__max
+
+	#获取最小键值
+	def getMinKey(self):
+		return self.__min
 
 	#获取当前存储内容的长度
 	def getLength(self):

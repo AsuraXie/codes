@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding:utf-8 --*--
 
-#扩展的list结构
+#扩展的list结构,有序列表
 import encrypt
 import sys
 
@@ -25,8 +25,7 @@ class xlist(object):
 		bResult=self.bSearch(key)
 		if not bResult['success']:
 			index=bResult['index']
-
-			if index==0 and len(self.__orderKey)==0:
+			if index<=0 and len(self.__orderKey)==0:
 				index=0
 				self.__max=key
 				self.__min=key
@@ -37,9 +36,11 @@ class xlist(object):
 				self.__max=key
 			if self.__min>key:
 				self.__min=key
-			res=self.__orderKey.insert(index,key)
+			self.__orderKey.insert(index,key)
 			self.__data[key]=data
 			return key
+		else:
+			print "error in jt_list.xlist.insert"
 			
 	
 	#删除结点
@@ -57,21 +58,32 @@ class xlist(object):
 		if index<0 or index > len(self.__orderKey):
 			return False
 
-		key=self.__orderKey[index]
-		self.__data.pop(key)
-		self.__orderKey.pop(index)
+		try:
+			key=self.__orderKey[index]
+			self.__data.pop(key)
+			self.__orderKey.pop(index)
+			self.__refreshMaxMin__()
+			return True
+		except Exception,e:
+			return False
+
+	def __refreshMaxMin__(self):
+		if len(self.__orderKey)>0:
+			self.__max=self.__orderKey[len(self.__orderKey)-1]
+			self.__min=self.__orderKey[0]
+		else:
+			self.__max=0
+			self.__min=0
 	
 	#二分查找
 	def bSearch(self,key):
 		start=0
-		end=len(self.__orderKey)
-		if end==0:
-			return {'success':False,'index':0}
+		end=len(self.__orderKey)-1
 
 		mid=(start+end)/2
 		signal=0
 		while True:
-			if start>=end:
+			if start>end:
 				break;
 
 			if self.__orderKey[mid]==key:
@@ -89,14 +101,14 @@ class xlist(object):
 		else :
 			return {'success':False,'index':mid}
 
-	#弹出最小一个元素
+	#返回最小一个元素
 	def min(self):
 		if len(self.__orderKey)>0:
 			key=self.__orderKey[0]
 			return self.__data[key]
 		else:
 			return False
-	#弹出最大一个元素
+	#返回最大一个元素
 	def max(self):
 		if len(self.__orderKey)>0:
 			key=self.__orderKey[len(self.__orderKey)-1]
@@ -107,6 +119,7 @@ class xlist(object):
 	def pop(self):
 		if len(self.__orderKey)>0:
 			key=self.__orderKey.pop(len(self.__orderKey)-1)
+			self.__refreshMaxMin__()
 			return self.__data.pop(key)
 		else:
 			return False
@@ -144,11 +157,16 @@ class xlist(object):
 		return result
 
 	#显示所有内容
-	def show(self):
-		print self.__orderKey
-		print self.__data
-		print "min=%s" % self.__min
-		print "max=%s" % self.__max
+	def show(self,type=1):
+		if type==1:
+			print self.__orderKey
+			print self.__data
+			print "min=%s" % self.__min
+			print "max=%s" % self.__max
+		else:
+			for key in self.__orderKey:
+				print self.__data[key]
+
 	#显示长度
 	def showLength(self):
 		print "orderkey:"+str(len(self.__orderKey))
@@ -160,5 +178,7 @@ if __name__=='__main__':
 	end=sys.argv[2]
 	print start+"-------"+end
 	for i in range(int(start),int(end)):
-		a.insert(1,i*2)
-	a.showLength()
+		a.insert(i,i)
+	a.show(2)
+	for i in range(int(start),int(end)):
+		print a.bSearch(encrypt.jiami(i))
