@@ -27,6 +27,12 @@ class dirnode(object):
 	#获取目录的名字
 	def getName(self):
 		return self.__name
+
+	#更改名字
+	def setName(self,name):
+		self.__name=name
+		self.__key=encrypt.jiami(name)
+		
 	#获取目录的主键
 	def getKey(self):
 		return self.__key
@@ -34,6 +40,23 @@ class dirnode(object):
 	#获取列表长度	
 	def getLength(self):
 		pass
+
+	#长路径生成目录，如果不存在则一路生成下去	
+	def mkdir2(self,path):
+		names=path.split('/')
+		print names
+		temp=self
+		for item in names:
+			if item!="":
+				res=temp[item]
+				if isinstance(res,dirnode):
+					temp=res
+					continue
+				else:
+					if not temp.mkdir(item):
+						print "wrong"
+					temp=temp[item]
+					continue
 
 	#新增目录
 	def mkdir(self,name):
@@ -92,20 +115,9 @@ class dirnode(object):
 	def rmdir(self,name):
 		key=encrypt.jiami(name)
 		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
-			self.__childs.removeByKey(name)
-			return True
-
-	#获取目录或者文件
-	def __getitem__(self,name):
-		key=encrypt.jiami(name)
-		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
-			res=self.__childs.bSearch(key)
-			if res['success']:
-				#print "found:"+str(self.__childs[res['index']].getName())
-				return 0
-			else:
-				#print "childs not found"
-				return -1
+			res=self.__childs.deleteByName(name)
+			if not res:
+				print "delete fail a"
 		else:
 			res=self.__dirnexts.bSearch(key)
 			if res['index']<=0:
@@ -115,41 +127,132 @@ class dirnode(object):
 			if not isinstance(temp,bool):
 				temp_max=temp.getMaxKey()
 				temp_min=temp.getMinKey()
-
-				if key>temp_max:
+				if key>temp_max and res['index']<temp.getLength()-1:
 					res['index']+=1
 					temp=self.__dirnexts[res['index']]
-				elif key<temp_min:
+				elif key<temp_min and res['index']>=1:
 					res['index']-=1
 					temp=self.__dirnexts[res['index']]
+				print temp,res
+				res=temp.getByKey(key)
+				if not isinstance(res,bool):
+					res=temp.deleteByName(res.getName())
+					if not res:
+						print "delete fail b"
+				else:
+					print "delete fail c"
+			else:
+				print "delete fail d"
+		
+			
 
-				temp=temp.getByKey(key)
-                                if not isinstance(temp,bool):
+	#获取目录或者文件
+	def __getitem__(self,path):
+		if path=="":
+			print "empty path"
+			return
+
+		names=path.split('/')
+		if names[0]=="":#绝对路径查找
+			if names[1]=="":
+				print "root path"
+				is_end=True
+			else:
+				name=names[1]
+				if len(names)>2:
+					is_end=False
+					left_path=str.join('/',names[2:])
+				else:
+					is_end=True
+
+		else:       #相对路径查找
+			name=names[0]
+			if len(names)>1:
+				is_end=False
+				left_path=str.join('/',names[1:])
+			else:
+				is_end=True
+				
+		key=encrypt.jiami(name)
+		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
+			res=self.__childs.bSearch(key)
+			if res['success']:
+				#print "found:"+str(self.__childs[res['index']].getName())
+				if is_end:#如果是最后一层
+					return self.__childs[res['index']]
+				else:
+					return self.__childs[res['index']][left_path]
+			else:
+				#print "childs not found"
+				return -1
+		else:
+			res=self.__dirnexts.bSearch(key)
+			if res['index']<=0:
+				res['index']=0
+
+			if self.__dirnexts.getLength()==0:
+				return -4
+
+			temp=self.__dirnexts[res['index']]
+			if not isinstance(temp,bool):
+				temp_max=temp.getMaxKey()
+				temp_min=temp.getMinKey()
+
+				if key>temp_max and res['index']<temp.getLength()-1:
+					res['index']+=1
+					temp=self.__dirnexts[res['index']]
+				elif key<temp_min and res['index']>=1:
+					res['index']-=1
+					temp=self.__dirnexts[res['index']]
+				res_t=temp.getByKey(key)
+                                if not isinstance(res_t,bool):
                                 #	print "found:"+str(temp.getName())
-					return 0
+					if is_end:
+						return res_t
+					else:
+						return res_t[left_path]
                                 else:
-                                #	print "block not found"
-					print "key="+str(key)+",index="+str(res['index'])
-					return -2
+                                #	print "block not found",目前有个问题就是下一层的没有找到，咋办啊
+					if temp.getLength()>0:
+						if is_end:
+							return temp[name]
+						else:
+							return temp[name][left_path]
+					else:
+						print "key="+str(key)+",index="+str(res['index'])
+						return -2
 			else:
 				#print "not exits index="+str(res['index'])+",lenght="+str(self.__dirnexts.getLength())
 				return -3
 
 
 	#重命名目录
-	def rename(self,name):
-		pass
+	def rename(self,old_name,new_name):
+		node=self[old_name]
+		if not isinstance(node,int):
+			old_key=node.getKey()
+			node.setName(new_name)
+			pass
+		else:
+			print "rename fail"	
 
 	#显示目录中的内容
-	def ls(self):
-		print self.getName()
+	def ls(self,level=0):
+		count=0
+		blank=""
+		while count<level:
+			blank+="  "
+			count+=1
+		print blank+self.getName()
 		alls=self.__childs.getAll()
+		blank+=" "
 		for item in alls:
-			print item.getName()
+			item.ls(level+1)
+	
 		alls=self.__dirnexts.getAll()
 		for item in alls:
 			if item.getLength()>0:
-				item.ls()
+				item.ls(level+1)
 
 #目录类中定义的下一个块的位置
 class dirnext(object):
@@ -173,12 +276,10 @@ class dirnext(object):
 		pass
 
 	#显示当前块中的目录内容
-	def ls(self):
-		print 'start_________________________'
+	def ls(self,level=0):
 		alls=self.__temp_list.getAll()
 		for item in alls:
-			item.ls()
-		print 'end___________________________'
+			item.ls(level)
 		return self.__temp_list.getLength()
 
 	#插入记录到块中

@@ -67,6 +67,7 @@ class xlist(object):
 		except Exception,e:
 			return False
 
+
 	def __refreshMaxMin__(self):
 		if len(self.__orderKey)>0:
 			self.__max=self.__orderKey[len(self.__orderKey)-1]
