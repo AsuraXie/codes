@@ -18,29 +18,32 @@ class xlist(object):
 	
 	#插入元素到指定位
 	def insert(self,name,data):
-		key=encrypt.jiami(str(name))
-		if key in self.__data:
-			self.__data[key]=data
-			return key
-		bResult=self.bSearch(key)
-		if not bResult['success']:
-			index=bResult['index']
-			if index<=0 and len(self.__orderKey)==0:
-				index=0
-				self.__max=key
-				self.__min=key
-			else:
-				index=index+1
+		try:
+			key=encrypt.jiami(str(name))
+			if key in self.__data:
+				self.__data[key]=data
+				return key
+			bResult=self.bSearch(key)
+			if not bResult['success']:
+				index=bResult['index']
+				if index<=0 and len(self.__orderKey)==0:
+					index=0
+					self.__max=key
+					self.__min=key
+				else:
+					index=index+1
 
-			if self.__max<key:
-				self.__max=key
-			if self.__min>key:
-				self.__min=key
-			self.__orderKey.insert(index,key)
-			self.__data[key]=data
-			return key
-		else:
-			print "error in jt_list.xlist.insert"
+				if self.__max<key:
+					self.__max=key
+				if self.__min>key:
+					self.__min=key
+				self.__orderKey.insert(index,key)
+				self.__data[key]=data
+				return key
+			else:
+				return -1
+		except Exception,e:
+			return -1
 			
 	
 	#删除结点
@@ -127,11 +130,14 @@ class xlist(object):
 			
 	#根据数组的下标返回结果
 	def __getitem__(self,index):
-		if index<0 or index>len(self.__orderKey):
+		if index<0 or index>=len(self.__orderKey):
 			return False
 		else :
-			key=self.__orderKey[index]
-			return self.__data[key]
+			try:
+				key=self.__orderKey[index]
+				return self.__data[key]
+			except Exception,e:
+				return False
 	#根据下标获取元素
 	def getByKey(self,key):
 		if not (key in self.__data):

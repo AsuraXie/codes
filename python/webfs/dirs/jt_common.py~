@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+import os
+def rename(path,name):
+	dirs=path.split(os.sep)
+	if name!="" and len(dirs)>1:
+		temp_path=dirs[0:-1]
+		new_name=os.sep.join(temp_path)+os.sep+name
+	else:
+		new_name=name
+	print new_name
+
+class cmds(object):
+	__url__=""
+	__params__={}
+	def __init__(self,path):
+		alls=path.split("?")
+		if len(alls)>=1:
+			self.__url__=alls[0]
+		if len(alls)>1:
+			left_params=alls[1].split("&")
+			for item in left_params:
+				temp=item.split("=")
+				if len(temp)==2:
+					self.__params__[temp[0]]=temp[1]
+		print self.__url__
+		print self.__params__	
+
+if __name__=="__main__":
+if __name__=="__main__":
+	rename("a.txt","b.txt")
+
+	a=cmds("/home/asura/xielixiang/a.txt?cmd=rmdir&a=b&c=d&e=f")
