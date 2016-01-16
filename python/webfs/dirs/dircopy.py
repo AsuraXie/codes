@@ -29,3 +29,4 @@ if __name__=="__main__":
 	b=root['/home/asura/codes/python']
 	print b.ls2()
 	print b.ls2()
+	#print b.ls()

@@ -1,0 +1,12 @@
+#!/bin/bash
+cdn=-o /dev/null -s -w %{time_total}/%{time_namelookup}/%{time_connect}/%{time_appconnect}/%{time_pretransfer}/%{time_redirect}/%{time_starttransfer}/%{size_download}/%{size_upload}/%{size_header}/%{size_request}
+curl cdn http://localhost:8800/root/home/asura/document?cmd=mkdir >> log/req.log
+echo ''>> log/req.log
+curl http://localhost:8800/root/home/asura/download?cmd=mkdir
+curl http://localhost:8800/root/home/asura/picture?cmd=mkdir
+curl http://localhost:8800/root/home/asura/soft?cmd=mkdir
+curl http://localhost:8800/root/home/asura/document/filea?cmd=mkdir
+curl http://localhost:8800/root/home/asura/document/fileb?cmd=mkdir
+curl http://localhost:8800/root/bin/nginx/nginx.conf?cmd=mkdir
+curl http://localhost:8800/root/bin/nginx?cmd=ls
+curl http://localhost:8800/root?cmd=ls

@@ -7,7 +7,8 @@ import random
 import jt_common
 import jt_log
 
-def process(ROOT,params):
+def process(params):
+	global ROOT
 	try:
 		if 'cmd' in params and 'path' in params:
 			if params['cmd']=='mkdir':
@@ -25,8 +26,6 @@ def process(ROOT,params):
 				print "rm"
 				pass
 			elif params['cmd']=="ls":
-				print params['path']
-				a=""
 				a=ROOT[params['path']]
 				if isinstance(a,dirnode.dirnode):
 					return a.ls2()
@@ -38,7 +37,7 @@ def process(ROOT,params):
 		else:
 			return {"code":0,"msg":"error cmd","data":""}
 	except Exception,e:
-		jt_log.write('error in process cmd')
+		jt_log.log.write('log/data/error.log','error in process cmd')
 		return {"code":-1,"msg":"error","data":""}
 	
 if __name__=='__main__':

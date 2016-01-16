@@ -5,8 +5,10 @@ import pdb
 import encrypt
 import jt_global
 import jt_list
+import jt_common
 
 class dirnode(object):
+	global MacList
 	#目录的名字
 	__name=""
 	#目录的权限
@@ -59,17 +61,6 @@ class dirnode(object):
        	                                		print "wrong"
        	                                	res=temp[item]
 						if not res:
-							print '-------------------------'
-							print res
-							print path
-							print item
-							print encrypt.jiami(item)
-							print temp._dirnode__dirnexts[4].ls()
-							print temp._dirnode__dirnexts[4][0].getKey()
-							print temp._dirnode__dirnexts[4][0].getName()
-							pdb.set_trace()
-							print temp['algorithm']
-							print '-------------------------'
 							return False
 						temp=res
                                	        	continue               
@@ -101,7 +92,7 @@ class dirnode(object):
 		#当前有一个巨大块，需要插入到链表中,需要明确的是：块不满则插入，满了则需要分裂	
 		if temp_max:
 			if self.__dirnexts.getLength()==0:
-				temp_next_dir=dirnext(name,0,0)
+				temp_next_dir=dirnext(MacList.getBestMC(),0,0)
 				if self.__dirnexts.insert(temp_max.getName(),temp_next_dir)<0:
 					return -3
 
@@ -379,6 +370,8 @@ class dirnext(object):
 	__max=0
 	#list中保存的是块的位置，可以有多个备份
 	__address=""
+	#数组保存数据长度
+	__length=0
 	#暂时用来保存数据以便单机测试
 	__temp_list=[]
 	#初始化
@@ -386,7 +379,7 @@ class dirnext(object):
 		self.__address=address
 		self.__max=max_key
 		self.__min=min_key
-		self.__temp_list=jt_list.xlist()
+		#self.__temp_list=jt_list.xlist()
 
 	#在当前块中查找是否有相应的文件名
 	def is_find(self,name):
@@ -401,7 +394,7 @@ class dirnext(object):
 
 	#插入记录到块中
 	def insert(self,name,data):
-		if self.__temp_list.getLength()==0:
+		if self.__length()==0:
 			self.__min=data.getKey()
 			self.__max=data.getKey()
 
@@ -411,7 +404,9 @@ class dirnext(object):
 		if data.getKey()>self.__max:
 			self.__max=data.getKey()
 
-		return self.__temp_list.insert(name,data)
+		#远程机创建目录只需要传递目录的名称即可
+		return jt_common.get(self.__address,name,{"cmd":"mkdir"})
+		#return self.__temp_list.insert(name,data)
 	
 	#重写get函数
 	def __getitem__(self,index):
@@ -442,8 +437,8 @@ class dirnext(object):
 	def getLength(self):
 		return self.__temp_list.getLength()
 	
-	#获取所有的内容
-	def getAll(self):
+	#获取所有的内容,弹出
+	def popAll(self):
 		result=[]
 		while True:
 			temp=self.__temp_list.pop()
@@ -453,11 +448,15 @@ class dirnext(object):
 				break
 		return result
 
+	#获取所有内容不弹出
+	def getAll(self):
+		return self.__temp_list.getAll()
+
 	#根据key将数据拆分成两个块
 	def split(self,key):
 		temp_pre=dirnext("a",666)
 		temp_next=dirnext("b",666)
-		allkeys=self.getAll()
+		allkeys=self.popAll()
 	
 		for item in allkeys:
 			if item.getKey()>key:

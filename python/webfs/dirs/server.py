@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# --*-- coding:utf-8 --*--
 import argparse
 import sys
 import dirnode
@@ -7,39 +8,48 @@ import jt_global
 import jt_common
 import main
 import dircopy
+import time
+import jt_machine_list
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
-DEFAULT_HOST="127.0.0.1"
-DEFAULT_PORT=8800
+DEFAULT_HOST=jt_global.local_addr
+DEFAULT_PORT=jt_global.local_port
 ROOT="root"
+MacList="machine list"
 
 class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
-		try:
-			self.store_request()
-			params=self.getCommand()
-			resp=main.process(ROOT,params)
-			self.send_response(200)
-			self.send_header('Content-type','text/html')
-			self.send_header("Server","JT xlx")
-			self.end_headers()
-			self.wfile.write(resp)
-		except Exception,e:
-			self.store_request()
-			self.send_response(500)
-			self.send_header("Content-type","text/html")
-			self.send_header("Server","JT xlx")
-			self.end_headers()
-			self.wfile.write(e)	
+		self.storeRequest()
+		params=self.getCommand()
+		process_start=time.time()	
+		resp=main.process(params)
+		process_end=time.time()
+		self.storeDealTime(process_start,process_end,params['cmd'])
+
+		self.send_response(200)
+		self.send_header('content-type','text/html')
+		self.send_header("Server","JT xlx")
+		self.end_headers()
+		self.wfile.write(resp)
 		return
 
 	def do_POST(self):
-		pass
+		self.send_response(200)
+		self.send_header("content-type","text/html")
+		self.send_header("Server","JT xlx")
+		self.end_headers()
+		self.wfile.write("weor")
 		return
 
-	def store_request(self):
+	def storeRequest(self):
 		logs=self.client_address[0]+str(self.client_address[1])+"  "+self.command+"  "+self.path
 		jt_log.log.write(jt_global.visited_log_path,logs)
+		return
+
+	def storeDealTime(self,start,end,cmd):
+		spend=round((float(end)-float(start))*1000,3)
+		jt_log.log.write(jt_global.spend_time_log_path,str(spend)+"---"+cmd)
+		return
 
 	def getCommand(self):
 		if self.command=="GET":
@@ -52,8 +62,12 @@ class CustomHTTPServer(HTTPServer):
 	def __init__(self,host,port):
 		server_address=(host,port)
 		global ROOT
+		global MacList
+		#初始化目录结构
 		ROOT=dirnode.dirnode("/")
-		dircopy.copydir(ROOT,"/home/asura/codes/python")
+		#初始化机器列表
+		MacList=jt_machine_list.mList()
+		#dircopy.copydir(ROOT,"/home/asura/codes/python")
 		HTTPServer.__init__(self,server_address,RequestHandler)
 	
 def run_server(port):
