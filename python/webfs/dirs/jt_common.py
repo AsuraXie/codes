@@ -5,7 +5,15 @@ import jt_log
 import httplib,urllib
 import socket
 import jt_machine_list
+import random
+import jt_global as GLOBAL
+import traceback
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 
+#重名名/home/asura/python + aws = /home/asura/aws
 def rename(path,name):
 	dirs=path.split(os.sep)
 	if name!="" and len(dirs)>1:
@@ -15,6 +23,7 @@ def rename(path,name):
 		new_name=name
 	print new_name
 
+#名字解析
 def pathFilter(path):
 	dirs=path.split(os.sep)
 	res={"path":"","file":"","filename":"","type":""}
@@ -34,6 +43,21 @@ def pathFilter(path):
 				res['type']=files[1]
 	return res
 
+#将名字切分
+def pathSplit(path):
+	names=path.split(os.sep)
+	name=""
+	name_left=""
+	index=0
+	for item in names:
+		index=index+1
+		if item!="":
+			name=item
+			break
+	name_left=os.sep.join(names[index:])
+	return {"name":name,"name_left":name_left}
+
+#解析命令
 def cmds(path):
 	res={}
 	alls=path.split("?")
@@ -51,31 +75,53 @@ def cmds(path):
 					res[temp[0]]=temp[1]
 	return res
 
+#获取随机的名字
+def getRandomName(count=8):
+	origin_str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	length=len(origin_str)
+	res=""
+	i=0
+	while i < count:
+		index=random.randint(0,length-1)
+		res=res+origin_str[index]
+		i=i+1
+	return res
+		
+
 #调用GET方法
-def get(address,dirs,params):
-	#解析命令参数
-	cmds=urllib.urlencode(params)
-	conn=httplib.HTTPConnection(address.getAddress())
-	conn.request("GET",dirs+"?"+cmds)
-	res=conn.getresponse()
-	if res.status==200 and res.reason=="OK":
-		return res.read()
-	else:
-		jt_log.log.write("log/data/error.log","jt_common,get"+res.read())
-		return False
+def get(machine,dirs,params):
+	try:
+		#解析命令参数
+		cmds=urllib.urlencode(params)
+		conn=httplib.HTTPConnection(machine.getAddress(),machine.getPort(),GLOBAL.time_out)
+		conn.request("GET",dirs+"?"+cmds)
+		res=conn.getresponse()
+		if res.status==200 and res.reason=="OK":
+			return pickle.loads(res.read())
+		else:
+			jt_log.log.write("log/data/error.log","jt_common,get"+res.read())
+			return False
+	except Exception,e:
+		traceback.print_exc()
+		jt_log.log.write(GLOBAL.error_log_path,e.message)		
 
 #调用POST方法
-def post(address,dirs,url,params):
-	params=urllib.urlencode(params)
-	headers={"Content-type":"application/x-www-form-urlencoded","Accept":"text/plain"}
-	conn=httplib.HTTPConnection(address.getAddress())
-	conn.request("POST",dirs,params,headers)
-	res=conn.getresponse()
-	if res.status==200 and res.reason=='OK':
-		return res.read()
-	else:
-		jt_log.log.write("log/data/error.log","jt_common,post"+res.read())
-		return False
+def post(machine,dirs,params):
+	try:
+		#params=urllib.urlencode(params)
+		params=pickle.dumps(params)
+		headers={"Content-type":"application/x-www-form-urlencoded","Accept":"text/plain"}
+		conn=httplib.HTTPConnection(machine.getAddress(),machine.getPort(),GLOBAL.time_out)
+		conn.request("POST",dirs,params,headers)
+		res=conn.getresponse()
+		if res.status==200 and res.reason=='OK':
+			return pickle.loads(res.read())
+		else:
+			jt_log.log.write("log/data/error.log","jt_common,post"+res.read())
+			return False
+	except Exception,e:
+		traceback.print_exc()
+		jt_log.log.write(GLOBAL.error_log_path,e.message)	
 	
 if __name__=="__main__":
 	rename("a.txt","b.txt")
@@ -83,6 +129,14 @@ if __name__=="__main__":
 	#print a
 	b=pathFilter("txt")
 	#print b
-	mac=jt_machine_list.machine("test","127.0.0.1",8800,{'a':'b'})
-	print get(mac,'/index.html',{"cmd":"ls"})
-	print post(mac,"/index.html",{"cmd":"ls"},{"a":"b","p":3,"d":'ebe'})
+	mac=jt_machine_list.machine("test","127.0.0.1",8802,{'a':'b'})
+	#print get(mac,'/index.html',{"cmd":"ls"})
+	#print post(mac,"/index.html",{"cmd":"ls"},{"a":"b","p":3,"d":'ebe'})
+	print getRandomName()
+	print getRandomName()
+	print pathSplit("/home/asura/xielixiang")
+	print pathSplit("/home")
+	print pathSplit("/home/")
+	print pathSplit("home")
+	print pathSplit("/home/asura")
+	print pathSplit("/home/asura/")

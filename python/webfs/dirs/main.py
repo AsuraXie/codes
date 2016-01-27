@@ -6,44 +6,147 @@ import sys
 import random
 import jt_common
 import jt_log
+import jt_respcode as RespCode
+import jt_apiResult
+import jt_global as GLOBAL
+import jt_list
+import traceback
+import jt_machine_list
+
 
 def process(params):
-	global ROOT
+	curr_root="none"
+	result=jt_apiResult.ApiResult()
+	if 'index' in params:
+		curr_root=GLOBAL.LocalData.getByKey(params['index'])
 	try:
-		if 'cmd' in params and 'path' in params:
-			if params['cmd']=='mkdir':
-				ROOT.mkdir2(params['path'])
-			elif params['cmd']=='rename' and 'name' in params:
-				ROOT.rename(params['path'],params['name'])
-			elif params['cmd']=='rmdir':
-				ROOT.rmdir(params['path'])
-			elif params['cmd']=='find':
-				ROOT[params['path']]
-			elif params['cmd']=='add':
-				print "add"
-				pass
-			elif params['cmd']=="rm":
-				print "rm"
-				pass
-			elif params['cmd']=="ls":
-				a=ROOT[params['path']]
-				if isinstance(a,dirnode.dirnode):
-					return a.ls2()
-				else:
-					return "not found path"
-			elif params['cmd']=="cd":
-				ROOT[params['path']]
-			return {"code":0,"msg":"success","data":""}
+		if isinstance(curr_root,jt_list.xlist) or params['cmd']=="mkdirnext":
+			return processDirnext(params,curr_root)
+		elif isinstance(curr_root,dirnode.dirnode) or params['cmd']=="mkdir":
+			return processDirnode(params,curr_root)
 		else:
-			return {"code":0,"msg":"error cmd","data":""}
+			result.setError(RespCode.RespCode['PARAM_ERROR'])
+			return result.display()
+
 	except Exception,e:
-		jt_log.log.write('log/data/error.log','error in process cmd')
-		return {"code":-1,"msg":"error","data":""}
+		traceback.print_exc()
+		jt_log.log.write(GLOBAL.error_log_path,'error in process cmd:'+e.message)
+		result.setError(RespCode.RespCode['UNDEFINE_ERROR'])
+		return result.display()
+
+def processDirnode(params,curr_root):
+	print "processDirnode:",params,curr_root
+	result=jt_apiResult.ApiResult()
+	if params['cmd']=='mkdir':
+		res=curr_root.mkdir(params['mypath'])
+        	result.setSuccess(res)
+        	return result.display()
+        elif params['cmd']=='rename' and 'name' in params:
+        	curr_root.rename(params['mypath'],params['name'])
+        elif params['cmd']=='rmdir':
+        	curr_root.rmdir(params['mypath'])
+        elif params['cmd']=='find':
+        	curr_root[params['mypath']]
+        elif params['cmd']=='add':
+        	print "add"
+        	pass
+        elif params['cmd']=="rm":
+        	print "rm"
+        	pass
+        elif params['cmd']=="ls":
+        	res=curr_root[params['mypath']]
+        	if res:
+        		result.setSuccess()
+        	else:
+        		result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
+        	return result.display()
+        elif params['cmd']=="cd":
+        	curr_root[params['mypath']]
+        else:
+        	result.setError(RespCode.RespCode['PARAM_ERROR'])
+        	return result.display()
+
+def processDirnext(params,curr_root):
+	result=jt_apiResult.ApiResult()
+	if params['cmd']=='insert':
+       		temp_data=params['dirnode']
+       		curr_root.insert(temp_data.getName(),temp_data)	
+       		result.setSuccess()
+       		return result.display()
+        elif params['cmd']=="ls":
+        	res=curr_root.ls()
+        	result.setSuccess(res)
+        	return result.display()
+        elif params['cmd']=="mkdirnext":
+        	temp=jt_list.xlist()
+		print params
+        	res_index=GLOBAL.LocalData.insert(params['mypath'],temp)
+        	result.setSuccess(res_index)	
+        	return result.display()
+        elif params['cmd']=="split":
+        	if curr_root.split(params['mac'],params['target_index']):
+        		result.setSuccess()
+        		return result.display()
+		else:
+			result.setError(RespCode.RespCode['SPLIT_FAIL'])
+			return result.display()
+	elif params['cmd']=="getByIndex":
+		index=params['sub_index']
+		res=curr_root[index]
+		result.setSuccess(res)
+		return result.display()
+	elif params['cmd']=="getByKey":
+		key=params['key']
+		res=curr_root.getByKey(key)
+		result.setSuccess(res)
+		return result.display()
+	elif params['cmd']=="getMaxName":
+		temp=curr_root.Max()
+		result.setSuccess(temp.getName())
+		return result.display()
+	elif params['cmd']=="deleteByName":
+		temp=curr_root.deleteByName(params['name'])
+		result.setSuccess(temp)
+		return result.display()
+	elif params['cmd']=="deleteByIndex":
+		temp=curr_root.deleteByIndex(params['sub_index'])
+		result.setSuccess(temp)
+		return result.display()
+	elif params['cmd']=="getMaxKey":
+		temp=curr_root.getMax()
+		result.setSuccess(temp)
+		return result.display()
+	elif params['cmd']=="getMinKey":
+		temp=curr_root.getMin()
+		result.setSuccess(temp)
+		return result.display()
+	elif params['cmd']=="getLength":
+		temp=curr_root.getLength()
+		result.setSuccess(temp)
+		return result.display()
+        else:
+        	result.setError(RespCode.RespCode['PARAM_ERROR'])
+        	return result.display()
+
+	result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
+	return result.display()
 	
 if __name__=='__main__':
-	a=dirnode.dirnode("/")
-	a.mkdir2("home/asura/codes/python/webfs/dirs/a/b/c")
-	a.mkdir2("home/asura/codes/python/webfs/dirs/f/e/c")
-	#a.ls()
-	a.rename("home/asura/codes","home/asurar/ttt")
-	#a.ls()
+	GLOBAL.LocalData=jt_list.xlist()
+	GLOBAL.MacList=jt_machine_list.mList()
+	params={"cmd":"mkdirnext","mypath":"home"}
+	res=process(params)
+	for i in range(1,40):
+		temp=dirnode.dirnode(str(i),"")
+		params={"cmd":"insert","dirnode":temp,"index":res['data']}
+		process(params)
+
+	params={"cmd":"ls","index":res['data']}
+	print process(params)
+
+	params={"cmd":"mkdirnext","mypath":"asura"}
+	res2=process(params)
+
+	target_mac=GLOBAL.MacList.getBestMC()
+	params={"cmd":"split","mac":target_mac,"index":res['data'],"target_index":res2['data']}
+	res3=process(params)

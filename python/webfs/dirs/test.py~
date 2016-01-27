@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# --*-- coding:utf-8 --*--
+import dirnode
+import jt_machine_list
+import jt_global
+if __name__=="__main__":
+	GLOBAL.LocalData=jt_list.xlist()
+	GLOBAL.MacList=jt_machine_list.mList()
+	params={"cmd":"mkdirnext","path":"home"}
+	res=process(params)
+	for i in range(1,40):
+		temp=dirnode.dirnode(str(i),"")
+		params={"cmd":"insert","dirnode":temp,"index":res['data']}
+		process(params)
+
+	params={"cmd":"ls","index":res['data']}
+	print process(params)
+
+	params={"cmd":"mkdirnext","path":"asura"}
+	res2=process(params)
+
+	target_mac=GLOBAL.MacList.getBestMC()
+	params={"cmd":"split","mac":target_mac,"index":res['data'],"target_index":res2['data']}
+	res3=process(params)

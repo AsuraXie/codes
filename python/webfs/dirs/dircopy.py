@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os
 import dirnode
+import jt_global as GLOBAL
+import jt_machine_list
 
 def copydir(root,path):
 	count=0
@@ -13,7 +15,7 @@ def copydir(root,path):
 	
 	while len(mydirs)>0:
 		temp=mydirs.pop(0)
-		root.mkdir2(temp)
+		root.mkdir(temp)
 		curr=os.listdir(temp)
 		for item in curr:
 			if os.path.isdir(temp+os.sep+item):
@@ -24,9 +26,10 @@ def copydir(root,path):
 	#print "total file:"+str(count)
 
 if __name__=="__main__":
-	root=dirnode.dirnode("/")
+	GLOBAL.MacList=jt_machine_list.mList()
+	root=dirnode.dirnode("home","")
 	copydir(root,"/home/asura/codes/python")
-	b=root['/home/asura/codes/python']
+	root.mkdir("/home/asura/codes/python/a/b/c")
+	b=root['/home/asura/codes/python/game']
 	print b.ls2()
-	print b.ls2()
-	#print b.ls()
+	print b.getFullName()

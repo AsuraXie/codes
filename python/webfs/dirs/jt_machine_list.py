@@ -7,6 +7,7 @@ import jt_list
 import encrypt
 import random
 import socket
+import jt_common
 
 #机器对象，保存机器名称，地址，端口，各类属性，attr中包括weight
 class machine(object):
@@ -19,8 +20,8 @@ class machine(object):
 			self.address=address
 		self.port=port
 		self.attr=attr
-		
-		self.url=""
+		self.index=encrypt.jiami(name)
+
 	def getName(self):
 		return self.name
 
@@ -33,17 +34,21 @@ class machine(object):
 	def getAttr(self,name):
 		if name in self.attr:
 			return self.attr[name]
-		return 0
+		return False
+
+	def getIndex(self):
+		return self.index
 
 #机器列表
 class mList(object):
 	__m_list=''
 
 	def __init__(self):
-		for item in jt_global.remote_mac:
-			t=machine(item['addr'],item['addr'],item['port'])
-			print item
 		self.__m_list=jt_list.xlist()
+		for item in jt_global.remote_mac:
+			t=machine(jt_common.getRandomName(),item['addr'],item['port'],{})
+			self.__m_list.insert(item['addr'],t)			
+			#print item
 
 	def add(self,m):
 		self.__m_list.insert(m.getName(),m)
@@ -66,7 +71,7 @@ class mList(object):
 		weight=0
 		index=0
 		length=self.__m_list.getLength()
-		print length
+		#print length
 		for i in range(1,length):
 			if weight < self.__m_list[i].getAttr('weight'):
 				weight=self.__m_list[i].getAttr('weight')

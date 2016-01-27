@@ -4,6 +4,10 @@
 #扩展的list结构,有序列表
 import encrypt
 import sys
+import jt_common
+import traceback
+import jt_log
+import jt_global as GLOBAL
 
 class xlist(object):
 	__max=0x0
@@ -163,6 +167,18 @@ class xlist(object):
 			result.append(self.__data[item])
 		return result
 
+	#获取所有的名字
+	def ls(self):
+		result=[]
+		for key in self.__data:
+			temp=self.__data[key]
+			attrs=dir(temp)
+			if "getName" in attrs:
+				result.append(temp.getName())
+			else:
+				result.append("not found getName")
+		return result
+
 	#显示所有内容
 	def show(self,type=1):
 		if type==1:
@@ -179,6 +195,24 @@ class xlist(object):
 		print "orderkey:"+str(len(self.__orderKey))
 		print "data:"+str(len(self.__data))
 
+	#将链表二分,从中间分开
+	def split(self,mac,index):
+		try:
+			length=self.getLength()/2
+			index=0	
+			while index<length:
+				temp=self.pop()
+				res=jt_common.post(mac,"",{"cmd":"insert","index":index,"dirnode":temp})
+				if res['code']!=0:
+					print "xlist split fail"
+					return False
+				index=index+1
+			return True
+		except Exception,e:
+			traceback.print_exc()
+			jt_log.log.write(GLOBAL.error_log_path,e.message)
+			return False
+
 if __name__=='__main__':
 	a=xlist()
 	start=sys.argv[1]
@@ -189,3 +223,4 @@ if __name__=='__main__':
 	a.show(2)
 	for i in range(int(start),int(end)):
 		print a.bSearch(encrypt.jiami(i))
+	a.ls()
