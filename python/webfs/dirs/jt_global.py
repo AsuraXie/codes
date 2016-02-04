@@ -15,4 +15,5 @@ spend_time_log_path="log/data/spendtime.log"
 local_addr="127.0.0.1"
 local_port="8800"
 time_out=2
-remote_mac=[{"addr":"127.0.0.1","port":"8803"}]
+remote_mac=[{"addr":"127.0.0.1","port":"8803"},
+	{"addr":"127.0.0.1","port":"8802"}]

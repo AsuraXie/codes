@@ -25,6 +25,8 @@ def process(params):
 		elif isinstance(curr_root,dirnode.dirnode) or params['cmd']=="mkdir":
 			return processDirnode(params,curr_root)
 		else:
+			print params
+			jt_log.log.write(GLOBAL.error_log_path,'params error:'+jt_common.dictToString(params))
 			result.setError(RespCode.RespCode['PARAM_ERROR'])
 			return result.display()
 
@@ -35,9 +37,17 @@ def process(params):
 		return result.display()
 
 def processDirnode(params,curr_root):
-	print "processDirnode:",params,curr_root
 	result=jt_apiResult.ApiResult()
 	if params['cmd']=='mkdir':
+		if curr_root=="none":
+			temp=dirnode.dirnode("root","")
+			res=GLOBAL.LocalData.insert("",temp)
+			if res:
+				result.setSuccess(res)
+				return result.display()
+			else:
+				result.setError(RespCode.RespCode['DIRNODE_INIT_FAIL'])
+				return result.display()	
 		res=curr_root.mkdir(params['mypath'])
         	result.setSuccess(res)
         	return result.display()
@@ -79,7 +89,6 @@ def processDirnext(params,curr_root):
         	return result.display()
         elif params['cmd']=="mkdirnext":
         	temp=jt_list.xlist()
-		print params
         	res_index=GLOBAL.LocalData.insert(params['mypath'],temp)
         	result.setSuccess(res_index)	
         	return result.display()
@@ -88,7 +97,7 @@ def processDirnext(params,curr_root):
         		result.setSuccess()
         		return result.display()
 		else:
-			result.setError(RespCode.RespCode['SPLIT_FAIL'])
+			result.setError(RespCode.RespCode['SPLIT_FAILE'])
 			return result.display()
 	elif params['cmd']=="getByIndex":
 		index=params['sub_index']
@@ -124,6 +133,21 @@ def processDirnext(params,curr_root):
 		temp=curr_root.getLength()
 		result.setSuccess(temp)
 		return result.display()
+	elif params['cmd']=="getByName":
+		names=jt_common.pathSplit(params['name'])
+		index=encrypt.jiami(names['name'])
+		res=curr_root[index]
+		if res:
+			temp=res[names['name_left']]
+			if temp:
+				result.setSuccess(temp)
+				return result.display()
+			else:
+				result.setError(RespCode.RespCode["XLIST_GET_ERROR"])
+				return result.display()
+		else:
+			result.setError(RespCode.RespCode["XLIST_WRONG_INDEX"])
+			return result.display()
         else:
         	result.setError(RespCode.RespCode['PARAM_ERROR'])
         	return result.display()

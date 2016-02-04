@@ -196,17 +196,22 @@ class xlist(object):
 		print "data:"+str(len(self.__data))
 
 	#将链表二分,从中间分开
-	def split(self,mac,index):
+	def split(self,mac,target_index):
 		try:
 			length=self.getLength()/2
 			index=0	
 			while index<length:
 				temp=self.pop()
-				res=jt_common.post(mac,"",{"cmd":"insert","index":index,"dirnode":temp})
-				if res['code']!=0:
-					print "xlist split fail"
+				if temp:
+					res=jt_common.post(mac,"",{"cmd":"insert","index":target_index,"dirnode":temp})
+					if res['code']!=0:
+						jt_log.log.write(GLOBAL.error_log_path,"拆分链表时远程插入错误")
+						return False	
+					else:
+						index=index+1
+				else:
+					jt_log.log.write(GLOBAL.error_log_path,"没有弹出最大元素")
 					return False
-				index=index+1
 			return True
 		except Exception,e:
 			traceback.print_exc()

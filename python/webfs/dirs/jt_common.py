@@ -23,6 +23,17 @@ def rename(path,name):
 		new_name=name
 	print new_name
 
+#
+def dictToString(mdict):
+	res=""
+	for k in mdict:
+		v=mdict[k]
+		if isinstance(v,str) or isinstance(v,int) or isinstance(v,float):
+			res=res+str(k)+":"+str(v)+";"
+		else:
+			res=res+str(k)+":unknow;"
+	return res
+
 #名字解析
 def pathFilter(path):
 	dirs=path.split(os.sep)
@@ -122,7 +133,7 @@ def post(machine,dirs,params):
 	except Exception,e:
 		traceback.print_exc()
 		jt_log.log.write(GLOBAL.error_log_path,e.message)	
-	
+
 if __name__=="__main__":
 	rename("a.txt","b.txt")
 	a=cmds("/home/asura/xielixiang/a.txt?cmd=rmdir&a=b&c=d&e=f")

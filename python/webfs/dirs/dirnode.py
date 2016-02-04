@@ -116,15 +116,14 @@ class dirnode(object):
 				new_block=self.__dirnexts[target_block_index['index']].split(new_dirnext)
 				#将新块插入到链表中
 				if new_block!=False:
-					self.__dirnexts.insert("",new_block)
-					old_block=self.__dirnexts[target_block_index['index']]
-					if temp_max.getKey()>old_block.getMaxKey():
-						new_block.insert(temp_max.getName(),temp_max)
+					self.__dirnexts.insert("",new_dirnext)
+					res=new_dirnext.insert(temp_max.getName(),temp_max)
+					if res:
+						return 0	
 					else:
-						old_block.insert(temp_max.getName(),temp_max)
-					return 0
+						return -1
 				else:
-					print "block split faile"
+					return -1
 		return 0
 
 	#删除目录
@@ -318,7 +317,7 @@ class dirnext(object):
 		self.__min=min_key
 		self.__length=0
 		self.__name=jt_common.getRandomName()
-		res=jt_common.post(self.__address,self.__name,{"cmd":"mkdirnext"})
+		res=jt_common.post(self.__address,self.__name,{"cmd":"mkdirnext","mypath":self.__name})
 		if res:
 			if res['code']==0:
 				self.__index=res['data']
@@ -406,7 +405,12 @@ class dirnext(object):
 	def getLength(self):
 		res=jt_common.post(self.__address,"",{"cmd":"getLength","index":self.__index})
 		return res
-	
+
+	#根据名称获取内容
+	def getByName(self,name):
+		res=jt_common.post(self.__address,"",{"cmd":"getByName","index":self.__index,"name":name})
+		return res
+
 	#根据key将数据拆分成两个块
 	def split(self,new_dirnext):
 		res=jt_common.post(self.__address,"",{"cmd":"split","mac":new_dirnext.__address,"target_index":new_dirnext.__index})

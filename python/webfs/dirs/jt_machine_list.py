@@ -36,6 +36,9 @@ class machine(object):
 			return self.attr[name]
 		return False
 
+	def setAttr(self,name,value):
+		self.attr[name]=value
+
 	def getIndex(self):
 		return self.index
 
@@ -68,14 +71,15 @@ class mList(object):
 		return self.__m_list[index]
 
 	def getBestMC(self):
-		weight=0
+		weight=1000000
 		index=0
 		length=self.__m_list.getLength()
 		#print length
 		for i in range(1,length):
-			if weight < self.__m_list[i].getAttr('weight'):
+			if weight > self.__m_list[i].getAttr('weight'):
 				weight=self.__m_list[i].getAttr('weight')
 				index=i
+		self.__m_list[index].setAttr("weight",weight+1)
 		return self.__m_list[index]
 
 	def show(self):
@@ -86,14 +90,5 @@ if __name__=="__main__":
 	for i in range(1,4):
 		t=machine("node_"+str(i),"192.168.0."+str(i),random.randint(8900,9000),{'a':i,'b':2*i})
 		mylist.add(t)
-	#mylist.show()
-	mylist.delete('node_1')
-	a=mylist.getByName('node_1')
-	b=mylist.getByName('node_2')
-	c=mylist.getByName('node_3')
-	print a,b,c
-	t=machine("node_1","192.168.0.111",random.randint(8900,9000),{"A":'b'})
-	mylist.modify(t)
-	a=mylist.getByName('node_1')
-	print a
-	print mylist.getBestMC();
+	for i in range(1,10):
+		print mylist.getBestMC();

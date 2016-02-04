@@ -39,7 +39,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		self.send_header("Server","JT xlx")
 		self.end_headers()
 		self.wfile.write(pickle.dumps(resp))
-		return
+		return 
 
 	def do_POST(self):
 		self.storeRequest()
@@ -58,7 +58,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		self.send_header("Server","JT xlx")
 		self.end_headers()
 		self.wfile.write(pickle.dumps(resp))
-		return
+		return 
 
 	def storeRequest(self):
 		logs=self.client_address[0]+str(self.client_address[1])+"  "+self.command+"  "+self.path
@@ -91,7 +91,7 @@ class CustomHTTPServer(HTTPServer):
 		#本地存储有序链表结构
 		GLOBAL.LocalData=jt_list.xlist()
 		#初始化目录结构
-		ROOT=dirnode.dirnode("root","")
+		#ROOT=dirnode.dirnode("root","")
 		#GLOBAL.LocalData.insert("/",ROOT)
 		#初始化机器列表
 		GLOBAL.MacList=jt_machine_list.mList()
@@ -108,7 +108,7 @@ def run_server(port):
 	except KeyboardInterrupt:
 		print "Server interrupted and is shutting down..."
 		server.socket.close()
-	
+
 if __name__=="__main__":
 	parser=argparse.ArgumentParser(description="JT distribute file system")
 	parser.add_argument("--port",action="store",dest="port",type=int,default=DEFAULT_PORT)

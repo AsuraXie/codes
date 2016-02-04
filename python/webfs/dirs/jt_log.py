@@ -23,4 +23,4 @@ class log(object):
 
 if __name__=="__main__":
 	a=log()
-	a.write('log/http/a.txt',"xielixiang")
+	a.write('log/http/visited.log',"xielixiang")

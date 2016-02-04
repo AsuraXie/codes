@@ -9,5 +9,8 @@ RespCode={
 	"NOT_FOUND_PATH":{"code":-1004,"msg":"没有找到路径"},
 	"RESULT_NOT_INIT":{"code":-1005,"msg":"ApiResul没有初始化"},
 	"SPLIT_FAILE":{"code":-1006,"msg":"拆分模块失败"},
+	"XLIST_GET_ERROR":{"code":-1007,"msg":"xlist中__getitem__错误"},
+	"XLIST_WRONG_INDEX":{"code":-1008,"msg":"没有在xlist中找到相应的index记录"},
+	"DIRNODE_INIT_FAILE":{"code":-1009,"msg":"dirnode中初始化失败"},
 	}
 	
