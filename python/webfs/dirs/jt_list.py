@@ -45,10 +45,11 @@ class xlist(object):
 				self.__data[key]=data
 				return key
 			else:
+				jt_log.log.write(GLOBAL.error_log_path,"二分查找失败，insert error"+str(name))
 				return -1
 		except Exception,e:
+			jt_log.log.write(GLOBAL.error_log_path,"insert error:"+str(name))
 			return -1
-			
 	
 	#删除结点
 	def deleteByName(self,name):
@@ -200,6 +201,7 @@ class xlist(object):
 		try:
 			length=self.getLength()/2
 			index=0	
+			mac.show()
 			while index<length:
 				temp=self.pop()
 				if temp:

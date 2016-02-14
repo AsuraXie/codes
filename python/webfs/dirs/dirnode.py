@@ -10,6 +10,7 @@ import jt_common
 import jt_machine_list
 import traceback
 import jt_log
+import jt_respcode as RespCode
 
 class dirnode(object):
 	#上级目录的全路径
@@ -56,7 +57,8 @@ class dirnode(object):
 	#新增目录
 	def mkdir(self,path):
 		if path=="":
-			return 0
+			return RespCode.RespCode['EMPTY_PATH']
+
 		temp_path=jt_common.pathSplit(path)
 		name=temp_path['name']
 		name_left=temp_path['name_left']
@@ -67,16 +69,16 @@ class dirnode(object):
 		#第一级目录没有满，可以放到里面.
 		if self.__childs.getLength()<GLOBAL.dir_size:
 			if self.__childs.insert(name,temp_dir)<0:
-				return -1
+				return RespCode.RespCode["INSERT_FAIL_EMPTY"]
 			else:
 				#递归生成目录
 				temp_dir.mkdir(name_left)
-				return 0
+				return RespCode.RespCode["SUCCESS"]
 
 		#如果第一级目录满了，并且key小于最大值则插入进去后取出最大值放到下一个块中
 		elif temp_dir.getKey()<self.__childs.getMax():
 			if self.__childs.insert(name,temp_dir)<0:
-				return -2
+				return RespCode.RespCode["INSTALL_FAIL_FULL"]
 			temp_max=self.__childs.max()
 			self.__childs.deleteByName(temp_max.getName())
 		else:
@@ -84,12 +86,20 @@ class dirnode(object):
 
 		#当前有一个巨大块，需要插入到链表中,需要明确的是：块不满则插入，满了则需要分裂	
 		if temp_max:
-			temp_max.mkdir(name_left)
+			res=temp_max.mkdir(name_left)
+			if res['code']!=0:
+				return RespCode.RespCode[""]
+	
 			if self.__dirnexts.getLength()==0:
-				temp_next_dir=dirnext(GLOBAL.MacList.getBestMC(),0,0)
-				if self.__dirnexts.insert(temp_max.getName(),temp_next_dir)<0:
-					return -3
-
+				mymc=GLOBAL.MacList.getBestMC()
+				print mymc.getPort()
+				print mymc.getAddress()
+				temp_next_dir=dirnext(mymc)
+				res=self.__dirnexts.insert(temp_max.getName(),temp_next_dir)
+				print res
+				if res<0:
+					return RespCode.RespCode["INSERT_FAIL_DIRNEXT"]	
+			
 			target_block_index=self.__dirnexts.bSearch(temp_max.getKey())
 			
 			if not target_block_index['success']:
@@ -97,79 +107,87 @@ class dirnode(object):
 					target_block_index['index']=0
 
 			temp_max_key=self.__dirnexts[target_block_index['index']].getMaxKey()
-       		        temp_min_key=self.__dirnexts[target_block_index['index']].getMinKey()
+			temp_min_key=self.__dirnexts[target_block_index['index']].getMinKey()
 
 			if temp_max.getKey()>temp_max_key and target_block_index['index']<self.__dirnexts.getLength()-1:
-               		   	target_block_index['index']+=1
-               		elif temp_max.getKey()<temp_min_key and target_block_index['index']>=1:
-		           	target_block_index['index']-=1
-
+				target_block_index['index']+=1
+			elif temp_max.getKey()<temp_min_key and target_block_index['index']>=1:
+				target_block_index['index']-=1
+			print target_block_index
 			if self.__dirnexts[target_block_index['index']].getLength()<GLOBAL.dir_next_size:
+				print "a"
 				if self.__dirnexts[target_block_index['index']].insert(temp_max.getName(),temp_max)<0:
-					return -4
+					return RespCode.RespCode["INSERT_FAIL_DIRNEXT_2"]
 			else:
+				print "b"
 				#先获取一个目标地址
 				new_dirnext_address=GLOBAL.MacList.getBestMC()
+				print new_dirnext_address.show()
 				#生成一个链接块
 				new_dirnext=dirnext(new_dirnext_address)
 				#分裂旧的块
 				new_block=self.__dirnexts[target_block_index['index']].split(new_dirnext)
+				print "new_block:"	
+				print new_block
+				print new_dirnext_address
 				#将新块插入到链表中
 				if new_block!=False:
-					self.__dirnexts.insert("",new_dirnext)
+					self.__dirnexts.insert(new_dirnext.getName(),new_dirnext)
 					res=new_dirnext.insert(temp_max.getName(),temp_max)
-					if res:
-						return 0	
+					print res
+					if res==0:
+						return RespCode.RespCode["SUCCESS"]
 					else:
-						return -1
+						return RespCode.RespCode["INSERT_FAIL_DIRNEXT_3"]
 				else:
-					return -1
-		return 0
+					return RespCode.RespCode["INSERT_FAIL_DIRNEXT_4"]
+		else:
+			return RespCode.RespCode["INSERT_FAIL_NO_temp_max"]
 
 	#删除目录
 	def rmdir(self,path):
-		if path=="":                                                     		
-                	print "empty path"
-                	return
-                                                                                 
-                temp_name=jt_common.pathSplit(path)
+		if path=="":
+			print "empty path"
+			return	False
+
+		temp_name=jt_common.pathSplit(path)
 		name=temp_name['name']
 		name_left=temp_name['name_left']
 
 		key=encrypt.jiami(name)
 		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
-                	res=self.__childs.bSearch(key)
-                	if res['success']:
-                		if name_left!="":#如果不是最后一层
-                			self.__childs[res['index']].rmdir(name_left)
+			res=self.__childs.bSearch(key)
+			if res['success']:
+				if name_left!="":#如果不是最后一层
+					self.__childs[res['index']].rmdir(name_left)
 				else:
 					self.__childs.deleteByIndex(res['index'])
-                	else:
-                		return -1
-                else:
-                	res=self.__dirnexts.bSearch(key)
-                	if res['index']<=0:
-                		res['index']=0
-                	if self.__dirnexts.getLength()==0:
-                		return -4
-                	temp=self.__dirnexts[res['index']]
-                	if not isinstance(temp,bool):
-                		temp_max=temp.getMaxKey()
-                		temp_min=temp.getMinKey()
+			else:
+				return -1
+		else:
+			res=self.__dirnexts.bSearch(key)
+			if res['index']<=0:
+				res['index']=0
+			if self.__dirnexts.getLength()==0:
+				return -4
+			temp=self.__dirnexts[res['index']]
+			if not isinstance(temp,bool):
+				temp_max=temp.getMaxKey()
+				temp_min=temp.getMinKey()
 
-                		if key>temp_max and res['index']<temp.getLength()-1:
-                			res['index']+=1
-                			temp=self.__dirnexts[res['index']]
-                		elif key<temp_min and res['index']>=1:
-                			res['index']-=1
-                			temp=self.__dirnexts[res['index']]
+				if key>temp_max and res['index']<temp.getLength()-1:
+					res['index']+=1
+					temp=self.__dirnexts[res['index']]
+				elif key<temp_min and res['index']>=1:
+					res['index']-=1
+					temp=self.__dirnexts[res['index']]
 
 				if name_left!="":
 					temp.rmdir(name_left,key)
 				else:
 					temp.deleteByName(name,key)
-                	else:
-                		return -3
+			else:
+				return -3
 	
 	#获取目录或者文件
 	def __getitem__(self,path):
@@ -224,7 +242,7 @@ class dirnode(object):
 				else:
 					return temp.getByName(name_left)
 			else:
-				return False                                                           
+				return False
 
 
 	#重命名目录
@@ -259,35 +277,23 @@ class dirnode(object):
 			print "rename fail 2"
 
 	#显示目录中的内容
-	def ls(self,level=0):
-		count=0
-		blank=""
-		while count<level:
-			blank+="  "
-			count+=1
-		print blank+self.getName()
-		alls=self.__childs.getAll()
-		blank+=" "
-		for item in alls:
-			item.ls(level+1)
-	
-		alls=self.__dirnexts.getAll()
-		for item in alls:
-			if item.getLength()>0:
-				item.ls(level+1)
-
-	def ls2(self):
+	def ls(self):
 		try:
 			res=[]
+			self.__childs.show()
 			alls_childs=self.__childs.getAll()
+			print alls_childs
 			for item in alls_childs:
 				res.append(item.getName())
 			alls_nexts=self.__dirnexts.getAll()
+			print alls_nexts
 			for item in alls_nexts:
-				if item.getLength():
-					temp=item.getAll()
-					for temp_item in temp:
-						res.append(temp_item.getName())
+				temp=item.ls()
+				for t in temp:
+					res.append(t)		
+			print alls_nexts
+			print "dirnode+ls()"
+			print res
 			return res
 		except Exception,e:
 			traceback.print_exc()
@@ -340,6 +346,7 @@ class dirnext(object):
 		except Exception,e:
 			traceback.print_exc()
 			jt_log.log.write(GLOBAL.error_log_path,e.message)
+			return False
 
 	#插入记录到块中
 	def insert(self,name,data):
@@ -356,11 +363,15 @@ class dirnext(object):
 
 			#远程机创建目录只需要传递目录的名称即可
 			if jt_common.post(self.__address,name,{"cmd":"mkdir","index":self.__index,"dirnode":data}):
-				self.__length=self.__length+1	
+				self.__length=self.__length+1
+				return 0
+			else:
+				return -1
 			#return self.__temp_list.insert(name,data)
 		except Exception,e:
 			traceback.print_exc()
 			jt_log.log_write(GLOBAL.error_log_path,e.message())
+			return -1
 	
 	#重写get函数
 	def __getitem__(self,index):
@@ -375,7 +386,10 @@ class dirnext(object):
 	#获取地址
 	def getAddress(self):
 		return self.__address
-
+	
+	#获取名字
+	def getName(self):
+		return self.__name
 	#获取最大的名称
 	def getMaxName(self):
 		res=jt_common.post(self.__address,"",{"cmd":"getMaxName","index":self.__index})
@@ -413,7 +427,8 @@ class dirnext(object):
 
 	#根据key将数据拆分成两个块
 	def split(self,new_dirnext):
-		res=jt_common.post(self.__address,"",{"cmd":"split","mac":new_dirnext.__address,"target_index":new_dirnext.__index})
+		res=jt_common.post(self.__address,"",{"cmd":"split","mac":new_dirnext.__address,"index":self.__index,"target_index":new_dirnext.__index})
+		print res	
 		if res['code']==0:	
 			return res['data']
 		else:

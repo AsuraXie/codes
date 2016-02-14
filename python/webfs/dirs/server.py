@@ -12,6 +12,7 @@ import dircopy
 import time
 import jt_machine_list
 import threading
+import socket
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 try:
 	import cPickle as pickle
@@ -119,4 +120,8 @@ if __name__=="__main__":
 	ROOT=dirnode.dirnode("root","")
 	GLOBAL.MacList=jt_machine_list.mList()
 	'''
+	GLOBAL.local_addr=socket.gethostbyname("localhost")
+	GLOBAL.local_port=port
+	print GLOBAL.local_addr
+	print GLOBAL.local_port
 	run_server(port)

@@ -114,7 +114,7 @@ def get(machine,dirs,params):
 			return False
 	except Exception,e:
 		traceback.print_exc()
-		jt_log.log.write(GLOBAL.error_log_path,e.message)		
+		jt_log.log.write(GLOBAL.error_log_path,"get error"+e.message)
 
 #调用POST方法
 def post(machine,dirs,params):
@@ -132,7 +132,7 @@ def post(machine,dirs,params):
 			return False
 	except Exception,e:
 		traceback.print_exc()
-		jt_log.log.write(GLOBAL.error_log_path,e.message)	
+		jt_log.log.write(GLOBAL.error_log_path,"post error"+e.message)
 
 if __name__=="__main__":
 	rename("a.txt","b.txt")

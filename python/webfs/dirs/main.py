@@ -13,14 +13,19 @@ import jt_list
 import traceback
 import jt_machine_list
 
-
 def process(params):
 	curr_root="none"
 	result=jt_apiResult.ApiResult()
+	if 'showall' in params:
+		showall()
+		result.setSuccess()
+		return result.display()
 	if 'index' in params:
 		curr_root=GLOBAL.LocalData.getByKey(params['index'])
 	try:
-		if isinstance(curr_root,jt_list.xlist) or params['cmd']=="mkdirnext":
+		if 'syscmd' in params:
+			return processSysCMD(params)
+		elif isinstance(curr_root,jt_list.xlist) or params['cmd']=="mkdirnext":
 			return processDirnext(params,curr_root)
 		elif isinstance(curr_root,dirnode.dirnode) or params['cmd']=="mkdir":
 			return processDirnode(params,curr_root)
@@ -29,13 +34,49 @@ def process(params):
 			jt_log.log.write(GLOBAL.error_log_path,'params error:'+jt_common.dictToString(params))
 			result.setError(RespCode.RespCode['PARAM_ERROR'])
 			return result.display()
-
 	except Exception,e:
 		traceback.print_exc()
 		jt_log.log.write(GLOBAL.error_log_path,'error in process cmd:'+e.message)
 		result.setError(RespCode.RespCode['UNDEFINE_ERROR'])
 		return result.display()
 
+def showall():
+	allitems=GLOBAL.LocalData.getAll()
+	for item in allitems:
+		if isinstance(item,jt_list.xlist):
+			temp_list=item.getAll()
+			for temp in temp_list:
+				print "xlist:"
+				temp.show()
+		elif isinstance(item,dirnode.dirnode):
+			print "dirnode:"	
+			temp.show()			
+	
+#处理系统命令
+def processSysCMD(params):
+	result=jt_apiResult.ApiResult()
+	result.setSuccess()
+	#更新机器状态信息
+	if params['syscmd']=="refresh_mc":
+		if len(params['data'])>0:
+			for item in params['data']:
+				temp=GLOBAL.MacList[item['index']]
+				if temp:
+					#有则修改
+					temp=item['data']
+				else:
+					#无则新增
+					GLOBAL.MacList.add(item['data'])
+			return	result.display()
+		GLOBAL.MacList.show()
+	elif params['syscmd']=="delete_mc":
+		if len(params['data'])>0:
+			for item in params['data']:
+				GLOBAL.MacList.deleteByIndex(item['index'])	
+		return result.display()
+		GLOBAL.MacList.show()
+
+#处理dirnode
 def processDirnode(params,curr_root):
 	result=jt_apiResult.ApiResult()
 	if params['cmd']=='mkdir':
@@ -47,55 +88,70 @@ def processDirnode(params,curr_root):
 				return result.display()
 			else:
 				result.setError(RespCode.RespCode['DIRNODE_INIT_FAIL'])
-				return result.display()	
-		res=curr_root.mkdir(params['mypath'])
-        	result.setSuccess(res)
-        	return result.display()
-        elif params['cmd']=='rename' and 'name' in params:
-        	curr_root.rename(params['mypath'],params['name'])
-        elif params['cmd']=='rmdir':
-        	curr_root.rmdir(params['mypath'])
-        elif params['cmd']=='find':
-        	curr_root[params['mypath']]
-        elif params['cmd']=='add':
-        	print "add"
-        	pass
-        elif params['cmd']=="rm":
-        	print "rm"
-        	pass
-        elif params['cmd']=="ls":
-        	res=curr_root[params['mypath']]
-        	if res:
-        		result.setSuccess()
-        	else:
-        		result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
-        	return result.display()
-        elif params['cmd']=="cd":
-        	curr_root[params['mypath']]
-        else:
-        	result.setError(RespCode.RespCode['PARAM_ERROR'])
-        	return result.display()
+				return result.display()
+		else:
+			res=curr_root.mkdir(params['mypath'])
+			print res
+			if res['code']==0:
+				result.setSuccess()
+			else:
+				jt_log.log.write(GLOBAL.error_log_path,"code:"+str(res['code'])+"msg:"+res['msg'])
+				result.setError(RespCode.RespCode['PROCESS_DIRNODE_MKDIR_FAIL'])
+			return result.display()
+	elif params['cmd']=='rename' and 'name' in params:
+		curr_root.rename(params['mypath'],params['name'])
+	elif params['cmd']=='rmdir':
+		curr_root.rmdir(params['mypath'])
+	elif params['cmd']=='find':
+		curr_root[params['mypath']]
+	elif params['cmd']=='add':
+		print "add"
+		pass
+	elif params['cmd']=="rm":
+		print "rm"
+		pass
+	elif params['cmd']=="ls":
+		curr_root._dirnode__childs.show()
+		curr_root._dirnode__dirnexts.show()
+		temp_dirnexts=curr_root._dirnode__dirnexts.getAll()
+		for t in temp_dirnexts:
+			print t.getName()
+			print t.ls()
+		res=curr_root[params['mypath']].ls()
+		print "ls"
+		print res
+		if res!=False:
+			result.setSuccess(res)
+		else:
+			result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
+		return result.display()
+	elif params['cmd']=="cd":
+		curr_root[params['mypath']]
+	else:
+		result.setError(RespCode.RespCode['PARAM_ERROR'])
+		return result.display()
 
+#处理dirnext
 def processDirnext(params,curr_root):
 	result=jt_apiResult.ApiResult()
 	if params['cmd']=='insert':
-       		temp_data=params['dirnode']
-       		curr_root.insert(temp_data.getName(),temp_data)	
-       		result.setSuccess()
-       		return result.display()
-        elif params['cmd']=="ls":
-        	res=curr_root.ls()
-        	result.setSuccess(res)
-        	return result.display()
-        elif params['cmd']=="mkdirnext":
-        	temp=jt_list.xlist()
-        	res_index=GLOBAL.LocalData.insert(params['mypath'],temp)
-        	result.setSuccess(res_index)	
-        	return result.display()
-        elif params['cmd']=="split":
-        	if curr_root.split(params['mac'],params['target_index']):
-        		result.setSuccess()
-        		return result.display()
+		temp_data=params['dirnode']
+		curr_root.insert(temp_data.getName(),temp_data)	
+		result.setSuccess()
+		return result.display()
+	elif params['cmd']=="ls":
+		res=curr_root.ls()
+		result.setSuccess(res)
+		return result.display()
+	elif params['cmd']=="mkdirnext":
+		temp=jt_list.xlist()
+		res_index=GLOBAL.LocalData.insert(params['mypath'],temp)
+		result.setSuccess(res_index)	
+		return result.display()
+	elif params['cmd']=="split":
+		if curr_root.split(params['mac'],params['target_index']):
+			result.setSuccess()
+			return result.display()
 		else:
 			result.setError(RespCode.RespCode['SPLIT_FAILE'])
 			return result.display()
@@ -130,7 +186,9 @@ def processDirnext(params,curr_root):
 		result.setSuccess(temp)
 		return result.display()
 	elif params['cmd']=="getLength":
+		print "getLength"
 		temp=curr_root.getLength()
+		print temp
 		result.setSuccess(temp)
 		return result.display()
 	elif params['cmd']=="getByName":
@@ -148,9 +206,9 @@ def processDirnext(params,curr_root):
 		else:
 			result.setError(RespCode.RespCode["XLIST_WRONG_INDEX"])
 			return result.display()
-        else:
-        	result.setError(RespCode.RespCode['PARAM_ERROR'])
-        	return result.display()
+	else:
+		result.setError(RespCode.RespCode['PARAM_ERROR'])
+		return result.display()
 
 	result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
 	return result.display()
