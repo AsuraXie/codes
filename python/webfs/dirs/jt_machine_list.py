@@ -86,19 +86,16 @@ class mList(object):
 	def __getitem__(self,index):
 		return self.__m_list[index]
 
+	#获取当前最佳状态的机器
 	def getBestMC(self):
-		print GLOBAL.local_addr,GLOBAL.local_port
 		weight=1000000
 		index=0
 		length=self.__m_list.getLength()
-		print length
 		for i in range(0,length):
 			address=self.__m_list[i].getAddress()
 			port=self.__m_list[i].getPort()
-			print address,port,GLOBAL.local_addr,GLOBAL.local_port
 			#不安排本机处理
 			if str(address)==str(GLOBAL.local_addr) and str(port)==str(GLOBAL.local_port):
-				print "euqual"
 				continue
 			if weight > self.__m_list[i].getAttr('weight'):
 				weight=self.__m_list[i].getAttr('weight')
@@ -112,7 +109,6 @@ class mList(object):
 
 	#更新所有的机器
 	def refreshAll(self):
-		pass
 		length=self.__m_list.getLength()
 		data=[]
 		for i in range(0,length):
@@ -126,6 +122,7 @@ class mList(object):
 			item.show()
 
 if __name__=="__main__":
+	mylist=mList()
 	mylist=mList()
 	for i in range(1,4):
 		t=machine("node_"+str(i),"192.168.0."+str(i),random.randint(8900,9000),{'a':i,'b':2*i})

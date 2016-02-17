@@ -21,5 +21,10 @@ RespCode={
 	"INSERT_FAIL_DIRNEXT_4":{"code":-1016,"msg":"新增块失败"},
 	"INSERT_FAIL_NO_temp_max":{"code":-1017,"msg":"新增块失败，没有最大块"},
 	"PROCESS_DIRNODE_MKDIR_FAIL":{"code":-1018,"msg":"processdirnode中mkdir失败"},
+	"PATH_TOO_LONG":{"code":-1019,"msg":"目录太长无法生成"},
+	"MKDIR_DIGUI_FAIL":{"code":-1020,"msg":"递归生成目录失败"},
+	"DIRNODE_LS_ERROR":{"code":-1021,"msg":"dirnode中ls显示时定位失败"},
+	"NO_SUCH_DIR":{"code":-1022,"msg":"无此目录"},
+	"DIRNEXT_INSERT_FAIL":{"code":-1023,"msg":"dirnext插入失败"},
 	}
 	

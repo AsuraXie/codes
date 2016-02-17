@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding:utf-8 --*--
 import dirnode
+import os
 import encrypt
 import sys
 import random
@@ -22,6 +23,8 @@ def process(params):
 		return result.display()
 	if 'index' in params:
 		curr_root=GLOBAL.LocalData.getByKey(params['index'])
+		if curr_root==False:
+			return RespCode.RespCode["NOT_FOUND_NODE"]
 	try:
 		if 'syscmd' in params:
 			return processSysCMD(params)
@@ -47,10 +50,10 @@ def showall():
 			temp_list=item.getAll()
 			for temp in temp_list:
 				print "xlist:"
-				temp.show()
+				temp.ls()
 		elif isinstance(item,dirnode.dirnode):
 			print "dirnode:"	
-			temp.show()			
+			item.ls()			
 	
 #处理系统命令
 def processSysCMD(params):
@@ -90,6 +93,7 @@ def processDirnode(params,curr_root):
 				result.setError(RespCode.RespCode['DIRNODE_INIT_FAIL'])
 				return result.display()
 		else:
+			print params['mypath']
 			res=curr_root.mkdir(params['mypath'])
 			print res
 			if res['code']==0:
@@ -111,22 +115,27 @@ def processDirnode(params,curr_root):
 		print "rm"
 		pass
 	elif params['cmd']=="ls":
-		curr_root._dirnode__childs.show()
-		curr_root._dirnode__dirnexts.show()
-		temp_dirnexts=curr_root._dirnode__dirnexts.getAll()
-		for t in temp_dirnexts:
-			print t.getName()
-			print t.ls()
-		res=curr_root[params['mypath']].ls()
-		print "ls"
+		print "----------------start--------------"
+		print params['mypath']
+		print curr_root
+		res=curr_root.ls()
+		print "----------------end---------------"
 		print res
 		if res!=False:
 			result.setSuccess(res)
 		else:
 			result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
+		print "abcdefg"
 		return result.display()
 	elif params['cmd']=="cd":
-		curr_root[params['mypath']]
+		#cd查找的时候返回的应该是该结点的所处机器位置,如何获取本身机器的位置呢
+		res=curr_root[params['mypath']]
+		if res:
+			data={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"index":params['index']}
+			result.setSuccess(data)
+		else:
+			result.setError(RespCode.RespCode['NO_SUCH_DIR'])
+		return result.display()	
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])
 		return result.display()
@@ -136,17 +145,21 @@ def processDirnext(params,curr_root):
 	result=jt_apiResult.ApiResult()
 	if params['cmd']=='insert':
 		temp_data=params['dirnode']
-		curr_root.insert(temp_data.getName(),temp_data)	
-		result.setSuccess()
+		res=curr_root.insert(temp_data.getName(),temp_data)	
+		if res>0:
+			result.setSuccess()
+		else:
+			result.setError(RespCode.RespCode['DIRNEXT_INSERT_FAIL'])
 		return result.display()
 	elif params['cmd']=="ls":
+		print "********************************"
 		res=curr_root.ls()
 		result.setSuccess(res)
 		return result.display()
 	elif params['cmd']=="mkdirnext":
 		temp=jt_list.xlist()
 		res_index=GLOBAL.LocalData.insert(params['mypath'],temp)
-		result.setSuccess(res_index)	
+		result.setSuccess(res_index)
 		return result.display()
 	elif params['cmd']=="split":
 		if curr_root.split(params['mac'],params['target_index']):
@@ -162,7 +175,10 @@ def processDirnext(params,curr_root):
 		return result.display()
 	elif params['cmd']=="getByKey":
 		key=params['key']
+		print key,curr_root
+		curr_root.show()
 		res=curr_root.getByKey(key)
+		print res
 		result.setSuccess(res)
 		return result.display()
 	elif params['cmd']=="getMaxName":
@@ -192,20 +208,23 @@ def processDirnext(params,curr_root):
 		result.setSuccess(temp)
 		return result.display()
 	elif params['cmd']=="getByName":
-		names=jt_common.pathSplit(params['name'])
-		index=encrypt.jiami(names['name'])
+		index=encrypt.jiami(params['name'])
 		res=curr_root[index]
 		if res:
-			temp=res[names['name_left']]
-			if temp:
-				result.setSuccess(temp)
-				return result.display()
-			else:
-				result.setError(RespCode.RespCode["XLIST_GET_ERROR"])
-				return result.display()
+			result.setSuccess(temp)
+			return result.display()
 		else:
 			result.setError(RespCode.RespCode["XLIST_WRONG_INDEX"])
 			return result.display()
+	elif params['cmd']=="cd":
+		index=encrypt.jiami(params['name'])
+		res=curr_root[index]
+		if res:
+			data={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"index":params["index"],"sub_index":index}
+			result.setSuccess(data)
+		else:
+			result.setError(RespCode.RespCode['NO_SUCH_DIR'])
+		return result.display()	
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])
 		return result.display()

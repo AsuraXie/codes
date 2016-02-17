@@ -8,6 +8,7 @@ import jt_common
 import traceback
 import jt_log
 import jt_global as GLOBAL
+import dirnode
 
 class xlist(object):
 	__max=0x0
@@ -172,6 +173,7 @@ class xlist(object):
 	def ls(self):
 		result=[]
 		for key in self.__data:
+			print "xlist getname"
 			temp=self.__data[key]
 			attrs=dir(temp)
 			if "getName" in attrs:

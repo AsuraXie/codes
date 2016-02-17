@@ -6,13 +6,11 @@ import jt_machine_list
 import jt_common
 
 def copydir(mc,index,path):
-	count=0
 	roots=os.listdir(path)
 	mydirs=[]
 	for item in roots:
 		if os.path.isdir(path+os.sep+item):
 			mydirs.append(path+os.sep+item)
-			count=count+1
 	
 	while len(mydirs)>0:
 		temp=mydirs.pop(0)
@@ -22,18 +20,36 @@ def copydir(mc,index,path):
 		for item in curr:
 			if os.path.isdir(temp+os.sep+item):
 				mydirs.append(temp+os.sep+item)
-				count=count+1
 
 if __name__=="__main__":
 	GLOBAL.MacList=jt_machine_list.mList()
 	mc=GLOBAL.MacList.getBestMC()
 	print mc.getPort()
-	res=jt_common.post(mc,"",{"cmd":"mkdir"})
+	res1=jt_common.post(mc,"",{"cmd":"mkdir"})
+	print res1
+	jt_common.post(mc,"",{"cmd":"mkdir","index":res1["data"],"mypath":"home"})
+	res=jt_common.post(mc,"",{"cmd":"cd","index":res1["data"],"mypath":"home"})
 	print res
+	mc=jt_machine_list.machine("",res['data']['address'],res['data']['port'],"")
+	jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"]['index'],"mypath":"asura"})
+	res=jt_common.post(mc,"",{"cmd":"cd","index":res["data"]['index'],"mypath":"asura"})
+	print res
+	print jt_common.post(mc,"",{"cmd":"ls","index":res1["data"],"mypath":""})
+	mc=jt_machine_list.machine("",res['data']['address'],res['data']['port'],"") 
+	'''
+	res=jt_common.post(mc,"",{"cmd":"cd","index":res["data"],"mypath":"asura"})
+	print res
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"],"mypath":"/home/asura/xiang"})	
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"],"mypath":"/home/xie"})	
+	print jt_common.post(mc,"",{"cmd":"ls","index":res["data"],"mypath":"/home/asura"})
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"],"mypath":"/home/asura/dirtest"})
+	print jt_common.post(mc,"",{"cmd":"ls","index":res['data'],"mypath":"/home/asura"})
+	print jt_common.post(mc,"",{"showall":"1"})
 	copydir(mc,res['data'],"/home/asura/dirtest")
-	print jt_common.post(mc,"",{"cmd":"ls","mypath":"/home/asura/dirtest/xiang/","index":res['data']})
+	print jt_common.post(mc,"",{"cmd":"ls","mypath":"/home/asura/dirtest","index":res['data']})
 	mc1=GLOBAL.MacList.getBestMC()
 	mc2=GLOBAL.MacList.getBestMC()
 	jt_common.post(mc1,"",{"showall":"1"})
 	jt_common.post(mc2,"",{"showall":"1"})
 	print "db"
+	'''
