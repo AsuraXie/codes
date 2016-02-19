@@ -62,6 +62,15 @@ class xlist(object):
 		else:
 			return False
 
+	#根据主键删除结点
+	def deleteByKey(self,key):
+		res=self.bSearch(key)
+		if res['success']==True:
+			self.deleteByIndex(res['index'])
+			return True
+		else:
+			return False
+		
 	#根据索引删除元素
 	def deleteByIndex(self,index):
 		if index<0 or index > len(self.__orderKey):
@@ -76,7 +85,7 @@ class xlist(object):
 		except Exception,e:
 			return False
 
-
+	#
 	def __refreshMaxMin__(self):
 		if len(self.__orderKey)>0:
 			self.__max=self.__orderKey[len(self.__orderKey)-1]
@@ -144,12 +153,14 @@ class xlist(object):
 				return self.__data[key]
 			except Exception,e:
 				return False
+
 	#根据下标获取元素
 	def getByKey(self,key):
 		if not (key in self.__data):
 			return False
 		else:
 			return self.__data[key]
+
 	#获取self.__min
 	def getMin(self):
 		return self.__min
@@ -173,7 +184,6 @@ class xlist(object):
 	def ls(self):
 		result=[]
 		for key in self.__data:
-			print "xlist getname"
 			temp=self.__data[key]
 			attrs=dir(temp)
 			if "getName" in attrs:
@@ -221,6 +231,11 @@ class xlist(object):
 			traceback.print_exc()
 			jt_log.log.write(GLOBAL.error_log_path,e.message)
 			return False
+	
+	#删除所有内容
+	def clearAll(self):
+		self.__data=[]
+		self.__orderKey=[]
 
 if __name__=='__main__':
 	a=xlist()

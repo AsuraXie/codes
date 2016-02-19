@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-dir_size=1
-dir_next_size=3
+dir_size=10
+dir_next_size=300
 type_file=1
 type_dir=2
 ROOT="root"

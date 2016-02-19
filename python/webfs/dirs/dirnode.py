@@ -62,8 +62,6 @@ class dirnode(object):
 		temp_max=False
 
 		#第一级目录没有满，可以放到里面.
-		print self.__childs.show()
-		print self.__dirnexts.show()
 		if self.__childs.getLength()<GLOBAL.dir_size:
 			if self.__childs.insert(name,temp_dir)<0:
 				return RespCode.RespCode["INSERT_FAIL_EMPTY"]
@@ -83,12 +81,9 @@ class dirnode(object):
 		if temp_max:
 			if self.__dirnexts.getLength()==0:
 				mymc=GLOBAL.MacList.getBestMC()
-				print mymc.getPort()
-				print mymc.getAddress()
 				temp_next_dir=dirnext(mymc)
 				temp_next_dir.insert(temp_max)
 				res=self.__dirnexts.insert(temp_max.getName(),temp_next_dir)
-				print res
 				if res<0:
 					return RespCode.RespCode["INSERT_FAIL_DIRNEXT"]
 				else:
@@ -107,31 +102,23 @@ class dirnode(object):
 				target_block_index['index']+=1
 			elif temp_max.getKey()<temp_min_key and target_block_index['index']>=1:
 				target_block_index['index']-=1
-			print target_block_index
 			if self.__dirnexts[target_block_index['index']].getLength()<GLOBAL.dir_next_size:
-				print "a"
-				if self.__dirnexts[target_block_index['index']].insert(temp_max.getName(),temp_max)<0:
+				if self.__dirnexts[target_block_index['index']].insert(temp_max)<0:
 					return RespCode.RespCode["INSERT_FAIL_DIRNEXT_2"]
 				else:
 					return RespCode.RespCode["SUCCESS"]
 			else:
 				#分裂
-				print "b"
 				#先获取一个目标地址
 				new_dirnext_address=GLOBAL.MacList.getBestMC()
-				print new_dirnext_address.show()
 				#生成一个链接块
 				new_dirnext=dirnext(new_dirnext_address)
 				#分裂旧的块
 				new_block=self.__dirnexts[target_block_index['index']].split(new_dirnext)
-				print "new_block:"	
-				print new_block
-				print new_dirnext_address
 				#将新块插入到链表中
 				if new_block!=False:
 					self.__dirnexts.insert(new_dirnext.getName(),new_dirnext)
-					res=new_dirnext.insert(temp_max.getName(),temp_max)
-					print res
+					res=new_dirnext.insert(temp_max)
 					if res==0:
 						return RespCode.RespCode["SUCCESS"]
 					else:
@@ -144,17 +131,16 @@ class dirnode(object):
 	#删除目录
 	def rmdir(self,name):
 		if name=="":
-			print "empty path"
 			return RespCode.RespCode['EMPTY_PATH']
 
 		key=encrypt.jiami(name)
 		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
 			res=self.__childs.bSearch(key)
 			if res['success']:
-				if name_left!="":#如果不是最后一层
-					self.__childs[res['index']].rmdir(name_left)
-				else:
-					self.__childs.deleteByIndex(res['index'])
+					if res.getLength()==1:
+						self.__childs.deleteByIndex(res['index'])
+					else:
+						return -1
 			else:
 				return -1
 		else:
@@ -181,11 +167,27 @@ class dirnode(object):
 					temp.deleteByName(name,key)
 			else:
 				return -3
+
+	#删除该结点下的所有内容
+	def clearAll(self):
+		print "clearAll"
+		self.__childs.show()
+		self.__dirnexts.show()
+		all_childs=self.__childs.getAll()
+		for item in all_childs:
+			print "childs"
+			item.clearAll()
+		self.__childs.clearAll()
+		all_dirnexts=self.__dirnexts.getAll()
+		for item in all_dirnexts:
+			print "dirnexts"
+			item.clearAll()
+		self.__dirnexts.clearAll()
+		return True
 	
 	#获取目录或者文件
 	def __getitem__(self,name):
 		if name=="":
-			print "empty path"
 			return RespCode.RespCode['EMPTY_PATH']
 		
 		key=encrypt.jiami(name)
@@ -217,16 +219,46 @@ class dirnode(object):
 					temp=self.__dirnexts[res['index']]
 				if isinstance(temp,bool):
 					return False
-				print "getByKey"
-				print temp
 				res=temp.getByKey(key)
-				print res
 				if res:
 					return res
 				else:
 					return False	
 			else:
 				return False
+
+	#查找结点位置
+	def where(self,name):
+		index=encrypt.jiami(name)
+		if index<=self.__childs.getMax():
+			temp_machine=jt_machine_list.machine("",GLOBAL.local_addr,GLOBAL.local_port,"")
+			return {"mac":temp_machine,"sub_index":index}
+		else:
+			res=self.__dirnexts.getByKey(index)
+			res.getAddress().show()
+			if res:
+				return {"mac":res.getAddress(),"index":res.getIndex(),"sub_index":index}
+			else:
+				return False
+
+	def getByKey(self,key):
+		if key<=self.__childs.getMax():
+			return self.__childs.getByKey(key)
+		else:
+			print "get by key in dirnexts"
+
+	#根据key删除结点
+	def deleteByKey(self,key):
+		if key<=self.__childs.getMax():
+			res=self.__childs.deleteByKey(key)
+			return True
+		else:
+			return False
+
+	#显示所有键值	
+	def show(self):
+		self.__childs.show()
+		self.__dirnexts.show()
 
 	#重命名目录
 	def rename(self,old_name,new_name):
@@ -263,19 +295,12 @@ class dirnode(object):
 	def ls(self):
 		try:
 			res=[]
-			print "dirnode childs show:"
-			self.__childs.show()
-			print "dirnode dirnexts show:"
-			self.__dirnexts.show()
 			alls_childs=self.__childs.getAll()
 			for item in alls_childs:
-				print "name:"
 				res.append(item.getName())
 			alls_nexts=self.__dirnexts.getAll()
 			for item in alls_nexts:
-				print "dirnext foreach:"
 				temp=item.ls()
-				print temp
 				for t in temp:
 					res.append(t)
 			return res
@@ -315,6 +340,10 @@ class dirnext(object):
 			jt_log.log.write(GLOBAL.error_log_path,"初始化dirnext失败，网络获取失败")
 		#self.__temp_list=jt_list.xlist()
 
+	#返回index内容
+	def getIndex(self):
+		return self.__index
+
 	#在当前块中查找是否有相应的文件名
 	def is_find(self,name):
 		pass
@@ -322,7 +351,7 @@ class dirnext(object):
 	#显示当前块中的目录内容
 	def ls(self):
 		try:
-			res=jt_common.get(self.__address,"",{"cmd":"ls","index":self.__index})
+			res=jt_common.post(self.__address,"",{"cmd":"ls","index":[self.__index]})
 			if res['code']==0:
 				return res['data']
 			else:
@@ -346,7 +375,7 @@ class dirnext(object):
 				self.__max=data.getKey()
 
 			#远程机创建目录只需要传递目录的名称即可
-			if jt_common.post(self.__address,"",{"cmd":"insert","index":self.__index,"dirnode":data}):
+			if jt_common.post(self.__address,"",{"cmd":"insert","index":[self.__index],"dirnode":data}):
 				self.__length=self.__length+1
 				return 0
 			else:
@@ -359,17 +388,18 @@ class dirnext(object):
 	
 	#重写get函数
 	def __getitem__(self,index):
-		res=jt_common.post(self.__address,"",{"cmd":"getByIndex","index":self.__index,"sub_index":index})	
+		res=jt_common.post(self.__address,"",{"cmd":"getByIndex","index":[self.__index],"sub_index":index})	
 		if res:
 			return {"mac":self.__address,"index":self.__index,"sub_index":index}	
 		return False
 
 	#根据主键获取内容
 	def getByKey(self,key):
-		self.__address.show()
-		res=jt_common.post(self.__address,"",{"cmd":"getByKey","index":self.__index,"key":key})
-		print "post getbykey"	
-		return res
+		res=jt_common.post(self.__address,"",{"cmd":"getByKey","index":[self.__index],"key":key})
+		if res['code']==0:
+			return {"mac":self.__address,"index":self.__index,"sub_index":res['data']}
+		else:
+			return False
 
 	#获取地址
 	def getAddress(self):
@@ -378,49 +408,53 @@ class dirnext(object):
 	#获取名字
 	def getName(self):
 		return self.__name
+
 	#获取最大的名称
 	def getMaxName(self):
-		res=jt_common.post(self.__address,"",{"cmd":"getMaxName","index":self.__index})
+		res=jt_common.post(self.__address,"",{"cmd":"getMaxName","index":[self.__index]})
 		return res
 
 	#根据名字删除结点
 	def deleteByName(self,name):
-		res=jt_common.post(self.__address,"",{"cmd":"deleteByName","index":self.__index,"name":name})
+		res=jt_common.post(self.__address,"",{"cmd":"deleteByName","index":[self.__index],"name":name})
 		return res
 	
 	#根据下标删除结点
 	def deleteByIndex(self,index):
-		res=jt_common.post(self.__address,"",{"cmd":"deleteByIndex","index":self.__index,"sub_index":index})
+		res=jt_common.post(self.__address,"",{"cmd":"deleteByIndex","index":[self.__index],"sub_index":index})
 		return res
 
 	#获取最大键值
 	def getMaxKey(self):
-		res=jt_common.post(self.__address,"",{"cmd":"getMaxKey","index":self.__index})
+		res=jt_common.post(self.__address,"",{"cmd":"getMaxKey","index":[self.__index]})
 		return res
 
 	#获取最小键值
 	def getMinKey(self):
-		res=jt_common.post(self.__address,"",{"cmd":"getMinKey","index":self.__index})
+		res=jt_common.post(self.__address,"",{"cmd":"getMinKey","index":[self.__index]})
 		return res
 
 	#获取当前存储内容的长度
 	def getLength(self):
-		res=jt_common.post(self.__address,"",{"cmd":"getLength","index":self.__index})
+		res=jt_common.post(self.__address,"",{"cmd":"getLength","index":[self.__index]})
 		return res
 
 	#根据名称获取内容
 	def getByName(self,name):
-		res=jt_common.post(self.__address,"",{"cmd":"getByName","index":self.__index,"name":name})
+		res=jt_common.post(self.__address,"",{"cmd":"getByName","index":[self.__index],"name":name})
 		return res
 
 	#根据key将数据拆分成两个块
 	def split(self,new_dirnext):
-		res=jt_common.post(self.__address,"",{"cmd":"split","mac":new_dirnext.__address,"index":self.__index,"target_index":new_dirnext.__index})
-		print res	
+		res=jt_common.post(self.__address,"",{"cmd":"split","mac":new_dirnext.__address,"index":[self.__index],"target_index":new_dirnext.__index})
 		if res['code']==0:	
 			return res['data']
 		else:
 			return False
+
+	#清除远程服务器上的dirnext数组内容
+	def clearAll(self):
+		jt_common.post(self.__address,"",{"syscmd":"delete","index":[self.__index]})
 
 #保存在目录中的文件条目
 class jt_file(object):

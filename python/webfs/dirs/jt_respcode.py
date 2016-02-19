@@ -26,5 +26,9 @@ RespCode={
 	"DIRNODE_LS_ERROR":{"code":-1021,"msg":"dirnode中ls显示时定位失败"},
 	"NO_SUCH_DIR":{"code":-1022,"msg":"无此目录"},
 	"DIRNEXT_INSERT_FAIL":{"code":-1023,"msg":"dirnext插入失败"},
+	"XLIST_MKDIR_FAIL":{"code":-1024,"msg":"dirnext中查找目录后mkdir失败"},
+	"DELETE_NODE_FAIL":{"code":-1025,"msg":"syscmd中删除结点失败"},
+	"RMDIR_FAIL":{"code":-1026,"msg":"rmdir删除失败"},
+	"INDEX_NOT_ENOUGH":{"code":-1027,"msg":"INDEX不足以删除"},
 	}
 	

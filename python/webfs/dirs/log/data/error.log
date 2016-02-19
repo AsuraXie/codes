@@ -414,3 +414,53 @@
 2016-02-17 11:26:01---post error
 2016-02-17 11:27:45---error in process cmd:mypath
 2016-02-17 12:00:05---error in process cmd:ls() takes exactly 1 argument (2 given)
+2016-02-17 13:38:50---error in process cmd:__init__() takes exactly 5 arguments (4 given)
+2016-02-17 13:40:19---error in process cmd:__init__() takes exactly 5 arguments (4 given)
+2016-02-17 13:55:15---error in process cmd:'str' object has no attribute 'getByKey'
+2016-02-17 13:57:04---error in process cmd:'dirnode' object has no attribute 'getByKey'
+2016-02-17 13:57:04---error in process cmd:'dirnode' object has no attribute 'getByKey'
+2016-02-17 14:18:57---error in process cmd:sub_index
+2016-02-17 14:18:57---error in process cmd:sub_index
+2016-02-17 15:02:31---error in process cmd:sub_index
+2016-02-17 15:02:31---error in process cmd:sub_index
+2016-02-17 15:13:00---error in process cmd:global name 'sub_index' is not defined
+2016-02-17 15:13:00---error in process cmd:global name 'sub_index' is not defined
+2016-02-17 15:57:56---error in process cmd:'bool' object does not support item assignment
+2016-02-17 15:57:56---error in process cmd:sub_index
+2016-02-17 16:03:11---error in process cmd:'bool' object does not support item assignment
+2016-02-17 16:03:11---error in process cmd:sub_index
+2016-02-17 16:06:07---error in process cmd:'bool' object does not support item assignment
+2016-02-17 16:06:07---error in process cmd:sub_index
+2016-02-17 16:54:42---post error
+2016-02-17 16:54:42---post error
+2016-02-17 16:59:51---error in process cmd:index
+2016-02-17 17:13:10---error in process cmd:mypath
+2016-02-17 17:13:10---error in process cmd:mypath
+2016-02-17 17:32:17---post error
+2016-02-17 17:45:35---code:-1016msg:新增块失败
+2016-02-17 19:41:04---code:-1016msg:新增块失败
+2016-02-17 19:50:52---code:-1016msg:新增块失败
+2016-02-17 19:59:54---error in process cmd:getLength() takes exactly 1 argument (2 given)
+2016-02-17 20:10:58---error in process cmd:'dirnext' object has no attribute 'getLenght'
+2016-02-17 20:12:22---error in process cmd:getLength() takes exactly 1 argument (2 given)
+2016-02-17 20:13:35---code:-1016msg:新增块失败
+2016-02-17 21:13:34---code:-1016msg:新增块失败
+2016-02-17 21:24:53---code:-1016msg:新增块失败
+2016-02-17 21:27:49---error in process cmd:insert() takes exactly 2 arguments (3 given)
+2016-02-17 21:34:57---error in process cmd:insert() takes exactly 2 arguments (3 given)
+2016-02-17 21:48:57---error in process cmd:sub_index
+2016-02-17 22:07:46---error in process cmd:unhashable type: 'dict'
+2016-02-17 22:07:46---post error
+2016-02-17 22:22:48---error in process cmd:unhashable type: 'dict'
+2016-02-17 22:22:48---post error
+2016-02-17 22:46:49---post error
+2016-02-17 22:58:15---post error
+2016-02-18 00:24:27---error in process cmd:local variable 'res' referenced before assignment
+2016-02-18 11:23:51---error in process cmd:cmd
+2016-02-18 11:23:52---error in process cmd:cmd
+2016-02-18 11:23:52---error in process cmd:cmd
+2016-02-18 11:24:03---error in process cmd:cmd
+2016-02-18 11:24:09---error in process cmd:cmd
+2016-02-18 13:28:37---error in process cmd:'NoneType' object has no attribute 'clearAll'
+2016-02-18 15:07:37---post error
+2016-02-18 22:56:04---post error

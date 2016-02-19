@@ -4,6 +4,7 @@ import dirnode
 import jt_global as GLOBAL
 import jt_machine_list
 import jt_common
+import encrypt
 
 def copydir(mc,index,path):
 	roots=os.listdir(path)
@@ -26,30 +27,13 @@ if __name__=="__main__":
 	mc=GLOBAL.MacList.getBestMC()
 	print mc.getPort()
 	res1=jt_common.post(mc,"",{"cmd":"mkdir"})
-	print res1
-	jt_common.post(mc,"",{"cmd":"mkdir","index":res1["data"],"mypath":"home"})
-	res=jt_common.post(mc,"",{"cmd":"cd","index":res1["data"],"mypath":"home"})
-	print res
-	mc=jt_machine_list.machine("",res['data']['address'],res['data']['port'],"")
-	jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"]['index'],"mypath":"asura"})
-	res=jt_common.post(mc,"",{"cmd":"cd","index":res["data"]['index'],"mypath":"asura"})
-	print res
-	print jt_common.post(mc,"",{"cmd":"ls","index":res1["data"],"mypath":""})
-	mc=jt_machine_list.machine("",res['data']['address'],res['data']['port'],"") 
-	'''
-	res=jt_common.post(mc,"",{"cmd":"cd","index":res["data"],"mypath":"asura"})
-	print res
-	print jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"],"mypath":"/home/asura/xiang"})	
-	print jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"],"mypath":"/home/xie"})	
-	print jt_common.post(mc,"",{"cmd":"ls","index":res["data"],"mypath":"/home/asura"})
-	print jt_common.post(mc,"",{"cmd":"mkdir","index":res["data"],"mypath":"/home/asura/dirtest"})
-	print jt_common.post(mc,"",{"cmd":"ls","index":res['data'],"mypath":"/home/asura"})
-	print jt_common.post(mc,"",{"showall":"1"})
-	copydir(mc,res['data'],"/home/asura/dirtest")
-	print jt_common.post(mc,"",{"cmd":"ls","mypath":"/home/asura/dirtest","index":res['data']})
-	mc1=GLOBAL.MacList.getBestMC()
-	mc2=GLOBAL.MacList.getBestMC()
-	jt_common.post(mc1,"",{"showall":"1"})
-	jt_common.post(mc2,"",{"showall":"1"})
-	print "db"
-	'''
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":[res1['data']],"mypath":"home"})
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":[res1['data']],"mypath":"xie"})
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":[res1['data']],"mypath":"lixiang"})
+	print jt_common.post(mc,"",{"cmd":"ls","index":[res1['data']]})
+	res=jt_common.post(mc,"",{"cmd":"cd","index":[res1['data']],"mypath":"home"})
+	print jt_common.post(mc,"",{"cmd":"ls","index":res['data']['index']})
+	print jt_common.post(mc,"",{"cmd":"mkdir","index":res['data']['index'],"mypath":"pj"})
+	res2=jt_common.post(mc,"",{"cmd":"cd","index":res['data']['index'],"mypath":"pj"})
+	print jt_common.post(mc,"",{"cmd":"rmdir","index":res['data']['index']})
+	print jt_common.post(mc,"",{"cmd":"ls","index":[res1['data']]})
