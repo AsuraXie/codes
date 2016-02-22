@@ -12,7 +12,6 @@ class log(object):
 			if size>=1024*1024*4:
 				newpath=time.strftime(jt_global.isotimeformate_brief)
 				print jt_common.rename(path,newpath)
-				
 		try:
 			temp_file=open(path,'a')
 			temp_file.write(time.strftime(jt_global.isotimeformate)+"---"+logs+"\n")

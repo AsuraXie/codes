@@ -15,25 +15,30 @@ import traceback
 import jt_machine_list
 
 def process(params):
+
 	curr_root="none"
+
 	result=jt_apiResult.ApiResult()
 	if 'showall' in params:
 		showall()
 		result.setSuccess()
 		return result.display()
-	if 'index' in params and len(params['index'])>0:
-		print params['index']
-		GLOBAL.LocalData.show()
+
+	if 'index' in params and 'index' !="":
+		params['index']=params['index'].split(';')
 		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
 		if curr_root==False:
 			return RespCode.RespCode["NOT_FOUND_NODE"]
+	elif GLOBAL.LocalData.getLength()>0:
+		curr_root=GLOBAL.LocalData[0]
+
 	try:
 		if 'syscmd' in params:
 			return processSysCMD(params)
 		elif isinstance(curr_root,jt_list.xlist) or params['cmd']=="mkdirnext":
 			return processDirnext(params,curr_root)
 		elif isinstance(curr_root,dirnode.dirnode) or params['cmd']=="mkdir":
-			if not isinstance(curr_root,str) and len(params['index'])>=2:
+			if not isinstance(curr_root,str) and 'index' in params and len(params['index'])>=2:
 				for i in range(1,len(params['index'])):
 					curr_root=curr_root.getByKey(params['index'][i])
 			if curr_root:
@@ -84,12 +89,26 @@ def processSysCMD(params):
 				GLOBAL.MacList.deleteByIndex(item['index'])	
 		return result.display()
 	elif params['syscmd']=="delete_node":
+		curr_root=GLOBAL.LocalData.getByKey(params['index'])
+		for item in curr_root:
+			item.clearAll()
 		res=GLOBAL.LocalData.deleteByKey(params['index'])
 		if res:
 			return result.display()
 		else:
 			result.setError(RespCode.RespCode['DELETE_NODE_FAIL'])
 			return result.display()
+	elif params['syscmd']=="init":
+		key=encrypt.jiami(params['name'])
+		res=GLOBAL.LocalData.getByKey(key)
+		res={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host,"index":key}
+		result.setSuccess(res)
+		return result.display()
+	elif params['syscmd']=="status":
+		#返回该结点的状态信息，当前资源使用情况
+		print GLOBAL.LocalData.show()
+		print GLOBAL.MacList.show()
+		pass
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])
 		return result.display()
@@ -99,8 +118,8 @@ def processDirnode(params,curr_root):
 	result=jt_apiResult.ApiResult()
 	if params['cmd']=='mkdir':
 		if curr_root=="none":
-			temp=dirnode.dirnode("root","")
-			res=GLOBAL.LocalData.insert("",temp)
+			temp=dirnode.dirnode(params['name'],"")
+			res=GLOBAL.LocalData.insert(params['name'],temp)
 			if res:
 				result.setSuccess(res)
 				return result.display()
@@ -118,20 +137,14 @@ def processDirnode(params,curr_root):
 	elif params['cmd']=='rename' and 'name' in params:
 		curr_root.rename(params['mypath'],params['name'])
 	elif params['cmd']=='rmdir':
-		print params['index']
 		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
 		if len(params['index'])>=2:
 			parent=curr_root
 			for i in range(1,len(params['index'])):
-				print "digui get"
 				parent=curr_root
 				curr_root=curr_root.getByKey(params['index'][i])
-			print parent,curr_root
 			curr_root.clearAll()
-			print params['index'][-1]
-			parent.show()
 			res=parent.deleteByKey(params['index'][-1])
-			print res
 			if res:
 				result.setSuccess()
 			else:
@@ -155,9 +168,15 @@ def processDirnode(params,curr_root):
 	elif params['cmd']=="cd":
 		#cd查找的时候返回的应该是该结点的所处机器位置,如何获取本身机器的位置呢
 		#有可能是返回childs里面的结点，也有可能是dirnext里面的结点，可能会有多个index
+		if params['mypath']=="":
+			res={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host,"index":";".join(params['index'])}
+			result.setSuccess(res)
+			return result.display()
+
 		position=curr_root.where(params['mypath'])
+		print "where:",position
 		if position:
-			res={"mac":position['mac']}
+			res={"address":position['mac'].getAddress(),"port":position['mac'].getPort(),"host":position['mac'].getHost()}
 			res['index']=[]
 			if 'index' in position and 'sub_index' in position:
 				res['index'].append(position['index'])
@@ -165,8 +184,9 @@ def processDirnode(params,curr_root):
 			else:
 				for i in range(0,len(params['index'])):
 					res["index"].append(params['index'][i])
-				if "sub_index" in position:
+				if 'sub_index' in position:
 					res["index"].append(position['sub_index'])
+			res['index']=';'.join(res['index'])
 			result.setSuccess(res)
 		else:
 			result.setError(RespCode.RespCode['NO_SUCH_DIR'])
@@ -212,15 +232,15 @@ def processDirnext(params,curr_root):
 		return result.display()
 	elif params['cmd']=="getByKey":
 		key=params['key']
-		curr_root.show()
 		res=curr_root.getByKey(key)
 		if res:
-			result.setSuccess(res)
+			result.setSuccess(key)
 		else:
 			result.setError(RespCode.RespCode['NOT_FOUND_NODE'])
 		return result.display()
 	elif params['cmd']=="getMaxName":
-		temp=curr_root.Max()
+		temp=curr_root.max()
+		print temp
 		result.setSuccess(temp.getName())
 		return result.display()
 	elif params['cmd']=="deleteByName":
@@ -252,20 +272,32 @@ def processDirnext(params,curr_root):
 			result.setError(RespCode.RespCode["XLIST_WRONG_INDEX"])
 			return result.display()
 	elif params['cmd']=="cd":
-		index=encrypt.jiami(params['name'])
-		res=curr_root[index]
-		if res:
+		index=encrypt.jiami(params['mypath'])
+		if len(params['index'])>=2:
+			for i in range(1,len(params['index'])):
+				curr_root=curr_root.getByKey(params['index'][i])
+		if curr_root:
 			temp_index=[]
-			for i in range(0,len(params["index"])):
-				temp_index.append(params["index"][i])
-			temp_index.append(index)
-			data={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"index":temp_index}
+			curr_root=curr_root.getByKey(index)
+			if isinstance(curr_root,dict) and 'index' in curr_root and 'sub_index' in curr_root:
+				temp_index.append(curr_root['index'])
+				temp_index.append(curr_root['sub_index'])
+				data={"host":curr_root['mac'].getHost(),"address":curr_root['mac'].getAddress(),"port":curr_root['mac'].getPort(),"index":";".join(temp_index)}
+			else:
+				for i in range(0,len(params["index"])):
+					temp_index.append(params["index"][i])
+				temp_index.append(index)
+				temp_index=";".join(temp_index)
+				data={"host":GLOBAL.local_host,"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"index":temp_index}
 			result.setSuccess(data)
 		else:
 			result.setError(RespCode.RespCode['NO_SUCH_DIR'])
 		return result.display()	
 	elif params['cmd']=="mkdir" and len(params['index'])>=2:
-		curr_root=curr_root.getByKey(params['index'][1])
+		if len(params['index'])>=2:
+			for i in range(1,len(params['index'])):
+				curr_root=curr_root.getByKey(params['index'][i])
+		print encrypt.jiami(params['mypath'])
 		res=curr_root.mkdir(params['mypath'])
 		if res['code']==0:
 			result.setSuccess()

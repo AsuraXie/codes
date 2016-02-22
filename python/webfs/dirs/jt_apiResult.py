@@ -2,6 +2,10 @@
 # --*-- coding:utf-8 --*--
 
 import jt_respcode as RespCode
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 
 class ApiResult(object):
 	__code=""
@@ -24,9 +28,18 @@ class ApiResult(object):
 		self.__data=data
 
 	def display(self):
+		'''
+		res=""
+		res=res+"{\"code\":\""+str(self.__code)+"\""
+		res=res+",\"msg\":\""+str(self.__msg)+"\""
+		if isinstance(self.__data,str) or isinstance(self.__data,int) or isinstance(self.__data,bool):
+			res=res+",\"data\":\""+str(self.__data)+"\""
+		else:
+			res=res+",\"data\":"+pickle.dumps(self.__data)
+		res=res+"}"
+		'''
 		res={}
 		res['code']=self.__code
 		res['msg']=self.__msg
 		res['data']=self.__data
 		return res
-		

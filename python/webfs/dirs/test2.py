@@ -5,9 +5,17 @@ import jt_common
 import jt_machine_list
 
 if __name__=="__main__":
-	GLOBAL.MacList=jt_machine_list.mList()
-	print GLOBAL.MacList.show()
-	for i in range(1,20):
-		mc=GLOBAL.MacList.getBestMC() 
-		print mc.show()
-		GLOBAL.MacList.refreshAll()	
+	mc=jt_machine_list.machine("test machine","127.0.0.1","8803","")
+	mc2=jt_machine_list.machine("test machine2","127.0.0.1","8802","")
+	res=jt_common.get(mc2,"",{"cmd":"ls","index":"63a9f0ea7bb98050796b649e85481845;720a75216fd1202a38a82bfd710bcdae"})
+	temp=jt_common.get(mc2,"",{"cmd":"cd","index":"63a9f0ea7bb98050796b649e85481845;720a75216fd1202a38a82bfd710bcdae","mypath":"asura"})	
+	print res
+	print temp
+	res3=jt_common.get(mc,"",{"cmd":"ls","index":"e11dc4c84daadc4f6bbebd31eba529e1"})
+	print res3
+	#res2=jt_common.get(mc2,"",{"cmd":"ls","index":"80ddcff0b5d0e9646166b4672def90ee"})
+	#print res2
+	#temp2=jt_common.get(mc2,"",{"cmd":"cd","index":"80ddcff0b5d0e9646166b4672def90ee","mypath":"howto"})
+	#print temp2
+	#res2=jt_common.get(mc,"",{"cmd":"ls","index":"d41d8cd98f00b204e9800998ecf8427e;23eeeb4347bdd26bfc6b7ee9a3b755dd;82ad9b26019ac203c2f22d8f0d8d3cc4;e3e2a9bfd88566b05001b02a3f51d286"})
+	#print res2

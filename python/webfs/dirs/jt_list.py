@@ -85,7 +85,7 @@ class xlist(object):
 		except Exception,e:
 			return False
 
-	#
+	#更新最大值和最小值
 	def __refreshMaxMin__(self):
 		if len(self.__orderKey)>0:
 			self.__max=self.__orderKey[len(self.__orderKey)-1]
@@ -156,7 +156,7 @@ class xlist(object):
 
 	#根据下标获取元素
 	def getByKey(self,key):
-		if not (key in self.__data):
+		if not isinstance(self.__data,list) or not (key in self.__data):
 			return False
 		else:
 			return self.__data[key]
@@ -187,7 +187,7 @@ class xlist(object):
 			temp=self.__data[key]
 			attrs=dir(temp)
 			if "getName" in attrs:
-				result.append(temp.getName())
+				result.append(temp.getName()+":"+str(GLOBAL.local_port))
 			else:
 				result.append("not found getName")
 		return result
@@ -211,21 +211,24 @@ class xlist(object):
 	#将链表二分,从中间分开
 	def split(self,mac,target_index):
 		try:
-			length=self.getLength()/2
-			index=0	
-			mac.show()
-			while index<length:
+			midle=self.getLength()/2
+			index=self.getLength()
+			print self.__orderKey,self.__data
+			while index>midle:
+				print "split-----------"+str(midle)
 				temp=self.pop()
+				print temp.getName()
 				if temp:
 					res=jt_common.post(mac,"",{"cmd":"insert","index":target_index,"dirnode":temp})
 					if res['code']!=0:
 						jt_log.log.write(GLOBAL.error_log_path,"拆分链表时远程插入错误")
 						return False	
 					else:
-						index=index+1
+						index=index-1
 				else:
 					jt_log.log.write(GLOBAL.error_log_path,"没有弹出最大元素")
 					return False
+			print self.__orderKey,self.__data
 			return True
 		except Exception,e:
 			traceback.print_exc()

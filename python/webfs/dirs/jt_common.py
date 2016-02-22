@@ -108,7 +108,7 @@ def get(machine,dirs,params):
 		conn.request("GET",dirs+"?"+cmds)
 		res=conn.getresponse()
 		if res.status==200 and res.reason=="OK":
-			return pickle.loads(res.read())
+			return res.read()
 		else:
 			jt_log.log.write("log/data/error.log","jt_common,get"+res.read())
 			return False
@@ -120,9 +120,9 @@ def get(machine,dirs,params):
 def post(machine,dirs,params):
 	try:
 		#params=urllib.urlencode(params)
-		params=pickle.dumps(params)
 		headers={"Content-type":"application/x-www-form-urlencoded","Accept":"text/plain"}
 		conn=httplib.HTTPConnection(machine.getAddress(),machine.getPort(),GLOBAL.time_out)
+		params=pickle.dumps(params)
 		conn.request("POST",dirs,params,headers)
 		res=conn.getresponse()
 		if res.status==200 and res.reason=='OK':

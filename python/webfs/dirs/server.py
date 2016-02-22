@@ -13,6 +13,9 @@ import time
 import jt_machine_list
 import threading
 import socket
+import urllib
+from json import *
+from SocketServer import ThreadingMixIn
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 try:
 	import cPickle as pickle
@@ -26,20 +29,32 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
 		self.storeRequest()
 		params=self.getCommand()
+		paths=self.splitPath()
 		print params
-		process_start=time.time()	
-		resp=main.process(params)
-		process_end=time.time()
-		if 'cmd' in params:
-			self.storeDealTime(process_start,process_end,params['cmd'])
+		if paths[0]=='web' or 'favicon.ico' in self.path:
+			if 'favicon.ico' in self.path:
+				name="favicon.ico"
+			elif len(paths)>=2:
+				name=paths[1]
+			else:
+				name="index.html"
+			resp=self.getFile(name)
 		else:
-			self.storeDealTime(process_start,process_end,"get")
-
+			process_start=time.time()	
+			resp=main.process(params)
+			process_end=time.time()
+			if 'cmd' in params:
+				self.storeDealTime(process_start,process_end,params['cmd'])
+			else:
+				self.storeDealTime(process_start,process_end,"get")
+			print resp
+			resp=JSONEncoder().encode(resp)
 		self.send_response(200)
-		self.send_header('content-type','text/html')
+		self.send_header('content-type','text/html,charset=utf-8')
 		self.send_header("Server","JT xlx")
+		self.send_header("Access-Control-Allow-Origin","*")
 		self.end_headers()
-		self.wfile.write(pickle.dumps(resp))
+		self.wfile.write(resp)
 		return 
 
 	def do_POST(self):
@@ -65,6 +80,24 @@ class RequestHandler(BaseHTTPRequestHandler):
 		logs=self.client_address[0]+str(self.client_address[1])+"  "+self.command+"  "+self.path
 		jt_log.log.write(GLOBAL.visited_log_path,logs)
 		return
+	
+	def getFile(self,name="index.html"):
+		file_object=open("web/"+name)
+		try:
+			all_the_text=file_object.read()
+		except Exception,e:
+			all_the_text=e.message
+		finally:
+			file_object.close()
+		return all_the_text
+			
+	def splitPath(self):
+		res=[]
+		paths=self.path.split("/")
+		for item in paths:
+			if item!="":
+				res.append(item)
+		return res
 
 	def storeDealTime(self,start,end,cmd):
 		spend=round((float(end)-float(start))*1000,3)
@@ -73,7 +106,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 	def getCommand(self):
 		if self.command=="GET":
-			params=jt_common.cmds(self.path)
+			params=jt_common.cmds(urllib.unquote(self.path))
 			return params
 		else:
 			params=jt_common.cmds(self.path)
@@ -83,7 +116,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 				post_params[key]=params[key]
 			return post_params
 	
-class CustomHTTPServer(HTTPServer):
+class CustomHTTPServer(ThreadingMixIn,HTTPServer):
 	def __init__(self,host,port):
 		server_address=(host,port)
 		#global ROOT
@@ -96,6 +129,7 @@ class CustomHTTPServer(HTTPServer):
 		#GLOBAL.LocalData.insert("/",ROOT)
 		#初始化机器列表
 		GLOBAL.MacList=jt_machine_list.mList()
+		GLOBAL.MacList.show()
 		#dircopy.copydir(ROOT,"/home/asura/codes/python")
 		HTTPServer.__init__(self,server_address,RequestHandler)
 	

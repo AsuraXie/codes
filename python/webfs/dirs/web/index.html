@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+		<title>分布式文件系统</title>
+		<script src="web/jquery.js"></script>
+	</head>
+	<body>
+		<h1>Asura</h1>
+		<a href="#" onclick="back()"><span>返回上级目录</span></a>
+		<a href="#" onclick="mkdir()"><span>创建目录</span></a>
+		<a href="#" onclick="rmdir()"><span>删除目录</span></a>
+		<a href="#" onclick="upload()"><span>上传文件</span></a>
+		<a href="#" onclick="showinfo()"><span>显示结点信息</span></a>
+		<div id="mylist">
+		</div>
+	</body>
+	<script>
+		var curr_path="";
+		var curr_index="";
+		var curr_url="http://localhost:8805";
+		var history_dir=new Array();
+
+		window.onload=function (){
+			init("root");
+		};
+
+		///初始化
+		function init(path){
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					syscmd:"init",
+					name:path
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						curr_index=data.data.index;
+						history_dir.push([curr_url,curr_index,curr_path]);
+						ls();
+					}
+					else{
+						alert(data.msg);
+					}
+				}
+			});
+		}
+
+		///显示目录内容
+		function ls(){
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					cmd:'ls',
+					index:curr_index
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						var htmlstrs="<ul>"
+						for(var i=0;i<data.data.length;i++)
+						{
+							htmlstrs=htmlstrs+"<li style='margin-top:5px'><input type='radio' name='myselect'><a href='#' onclick=cd('"+data.data[i]+"')>"+data.data[i]+"</a></li>";
+						}
+						htmlstrs=htmlstrs+"</ul>"
+						$("#mylist").html(htmlstrs);
+					}
+					else{
+						alert(data.msg);
+					}
+				},
+			})
+		}
+		
+		///切换当前目录
+		function cd(path){
+			path=path.split(":");
+			path=path[0];
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					cmd:'cd',
+					index:curr_index,
+					mypath:path
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						history_dir.push([curr_url,curr_index,curr_path]);
+						curr_url="http://"+data.data.host+":"+data.data.port;
+						curr_index=data.data.index;
+						curr_path=path;
+						///history_dir.push([curr_url,curr_index,curr_path]);
+						ls();
+					}
+					else{
+						alert(data.msg);
+					}
+				}
+			})
+		}
+	
+		///创建目录
+		function mkdir(){
+			var name=prompt("请输入文件名!!!","");
+			if (name!=null && name!=""){
+				path=name;
+				$.ajax({
+					url:curr_url,
+					type:"GET",
+					data:{
+						cmd:'mkdir',
+						index:curr_index,
+						mypath:path
+					},
+					success:function (data){
+						data=eval("("+data+")");
+						if(data.code==0){
+							ls();
+						}
+						else{
+							alert(data.msg)
+						}
+					}
+				});
+			}
+		}
+		
+		///删除目录	
+		function rmdir(){
+			var path=$('input:radio:checked').next().html();
+			path=path.split(":");
+			path=path[0];
+			if(path!=""){
+				$.ajax({
+					url:curr_url,
+					type:"GET",
+					data:{
+						cmd:'cd',
+						index:curr_index,
+						mypath:path
+					},
+					success:function(data){
+						data=eval("("+data+")");
+						if(data.code==0){
+							temp_url="http://"+data.data.host+":"+data.data.port;
+							temp_index=data.data.index;
+							$.ajax({
+								url:temp_url,
+								type:"GET",
+								data:{
+									cmd:"rmdir",
+									index:temp_index
+								},
+								success:function (res){
+									res=eval("("+res+")");
+									if(res.code==0){
+										ls();
+									}else{
+										alert(res.msg);
+									}
+								}
+							});
+						}
+						else{
+							alert(data.msg);
+						}
+					}
+				});
+			}
+		}
+
+		///返回上级目录	
+		function back(path){
+			temp=history_dir.pop();
+			if(temp&&temp.length>0){
+				temp_url=temp[0];
+				temp_index=temp[1];
+				temp_path=temp[2].split(":");
+				temp_path=temp_path[0];
+				if(temp_index==""){
+					alert("abc");
+					init("root");
+					return;
+				}
+				if(temp_path!=""){
+					temp_index=temp_index.split(";");
+					index_array=new Array();
+					for(var i=0;i<temp_index.length-1;i++){
+						index_array.push(temp_index[i]);
+					}
+					temp_index=index_array.join(";");
+				}
+				$.ajax({
+					url:temp_url,
+					type:"GET",
+					data:{
+						cmd:"cd",
+						index:temp_index,
+						mypath:temp_path,
+					},
+					success:function (data){
+						data=eval("("+data+")");
+						if(data.code==0){
+							curr_url="http://"+data.data.host+":"+data.data.port;
+							curr_index=data.data.index;
+							ls();
+						}
+						else{
+							alert(data.msg);
+						}
+					}
+				});
+			}
+		}
+	
+		///文件上传	
+		function upload(){
+		}
+		///显示结点信息
+		function showinfo(){
+			all_urls=["http://localhost:8802","http://localhost:8803","http://localhost:8804","http://localhost:8805","http://localhost:8806"];
+			for(var i =0;i<=all_urls.length;i++){
+				$.ajax({
+					url:all_urls[i],
+					type:"GET",
+					data:{
+						syscmd:"status",
+					},
+					success:function (data){
+					}
+				})
+			}
+		}
+	</script>
+</html>

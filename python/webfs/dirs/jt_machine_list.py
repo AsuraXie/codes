@@ -21,6 +21,7 @@ class machine(object):
 			self.address=address
 		self.port=port
 		self.attr=attr
+		self.host=socket.gethostbyaddr(self.address)[0]
 		self.index=encrypt.jiami(name)
 
 	def getName(self):
@@ -31,6 +32,9 @@ class machine(object):
 	
 	def getPort(self):
 		return self.port
+		
+	def getHost(self):
+		return self.host
 
 	def getAttr(self,name):
 		if name in self.attr:
@@ -87,7 +91,7 @@ class mList(object):
 		return self.__m_list[index]
 
 	#获取当前最佳状态的机器
-	def getBestMC(self):
+	def getBestMC(self,myfilter=[]):
 		weight=1000000
 		index=0
 		length=self.__m_list.getLength()
@@ -97,6 +101,16 @@ class mList(object):
 			#不安排本机处理
 			if str(address)==str(GLOBAL.local_addr) and str(port)==str(GLOBAL.local_port):
 				continue
+			#过滤服务器
+			if len(myfilter)>0:
+				signal=0
+				for item in myfilter:
+					if str(address)==item.getAddress() and str(port)==str(item.getPort()):
+						signal=1
+						break;
+				if signal==1:
+					continue
+
 			if weight > self.__m_list[i].getAttr('weight'):
 				weight=self.__m_list[i].getAttr('weight')
 				index=i
@@ -105,6 +119,7 @@ class mList(object):
 		port=self.__m_list[index].getPort()
 		if address==GLOBAL.local_addr and port==GLOBAL.local_port:
 			jt_log.log.write(GLOBAL.error_log_path,"getBestMC error,get self")
+		self.refreshAll()
 		return self.__m_list[index]
 
 	#更新所有的机器
@@ -114,7 +129,9 @@ class mList(object):
 		for i in range(0,length):
 			data.append({"index":self.__m_list[i].getIndex(),"data":self.__m_list[i]})
 		for i in range(0,length):
-			jt_common.post(self.__m_list[i],"",{"syscmd":"refresh_mc","data":data})	
+			if self.__m_list[i].getPort()!=GLOBAL.local_port and self.__m_list[i].getAddress()!=GLOBAL.local_addr:
+				jt_common.post(self.__m_list[i],"",{"syscmd":"refresh_mc","data":data})	
+				self.__m_list[i].show()
 
 	def show(self):
 		alldata=self.__m_list.getAll()
