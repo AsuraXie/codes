@@ -156,7 +156,7 @@ class xlist(object):
 
 	#根据下标获取元素
 	def getByKey(self,key):
-		if not isinstance(self.__data,list) or not (key in self.__data):
+		if len(self.__data)==0 or (not (key in self.__data)):
 			return False
 		else:
 			return self.__data[key]
@@ -213,11 +213,8 @@ class xlist(object):
 		try:
 			midle=self.getLength()/2
 			index=self.getLength()
-			print self.__orderKey,self.__data
 			while index>midle:
-				print "split-----------"+str(midle)
 				temp=self.pop()
-				print temp.getName()
 				if temp:
 					res=jt_common.post(mac,"",{"cmd":"insert","index":target_index,"dirnode":temp})
 					if res['code']!=0:
@@ -228,7 +225,6 @@ class xlist(object):
 				else:
 					jt_log.log.write(GLOBAL.error_log_path,"没有弹出最大元素")
 					return False
-			print self.__orderKey,self.__data
 			return True
 		except Exception,e:
 			traceback.print_exc()

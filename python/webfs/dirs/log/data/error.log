@@ -25409,3 +25409,134 @@
 2016-02-22 14:32:30---error in process cmd:name
 2016-02-22 14:32:30---error in process cmd:name
 2016-02-22 14:41:58---error in process cmd:mypath
+2016-02-22 18:56:54---error in process cmd:mypath
+2016-02-22 19:07:47---post error
+2016-02-22 19:09:39---error in process cmd:unhashable type: 'list'
+2016-02-22 19:09:39---error in process cmd:unhashable type: 'list'
+2016-02-22 19:09:39---error in process cmd:unhashable type: 'list'
+2016-02-22 19:09:39---error in process cmd:unhashable type: 'list'
+2016-02-22 19:59:21---error in process cmd:mypath
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 19:59:33---post error
+2016-02-22 19:59:33---'NoneType' object has no attribute '__getitem__'
+2016-02-22 19:59:33---'bool' object is not iterable
+2016-02-22 20:03:46---error in process cmd:mypath
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:04:02---post error
+2016-02-22 20:04:02---'NoneType' object has no attribute '__getitem__'
+2016-02-22 20:04:02---'bool' object is not iterable
+2016-02-22 20:16:25---error in process cmd:unhashable type: 'list'
+2016-02-22 20:16:25---error in process cmd:unhashable type: 'list'
+2016-02-22 20:27:52---error in process cmd:unhashable type: 'list'
+2016-02-22 20:28:10---error in process cmd:unhashable type: 'list'
+2016-02-22 20:28:10---error in process cmd:unhashable type: 'list'
+2016-02-22 20:41:44---error in process cmd:unhashable type: 'list'
+2016-02-22 20:42:09---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 20:42:18---error in process cmd:unhashable type: 'list'
+2016-02-22 20:43:10---error in process cmd:unhashable type: 'list'
+2016-02-22 20:46:25---error in process cmd:unhashable type: 'list'
+2016-02-22 20:54:29---error in process cmd:unhashable type: 'list'
+2016-02-22 20:57:09---error in process cmd:unhashable type: 'list'
+2016-02-22 20:57:39---error in process cmd:unhashable type: 'list'
+2016-02-22 20:58:18---error in process cmd:unhashable type: 'list'
+2016-02-22 20:58:23---error in process cmd:unhashable type: 'list'
+2016-02-22 21:01:25---error in process cmd:unhashable type: 'list'
+2016-02-22 21:01:25---error in process cmd:unhashable type: 'list'
+2016-02-22 21:18:11---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 21:18:17---error in process cmd:unhashable type: 'list'
+2016-02-22 21:18:17---error in process cmd:unhashable type: 'list'
+2016-02-22 21:20:15---error in process cmd:unhashable type: 'list'
+2016-02-22 21:22:27---error in process cmd:'bool' object has no attribute 'clearAll'
+2016-02-22 21:26:58---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 21:47:50---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 22:02:38---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 22:15:23---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 22:34:01---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 22:57:45---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 23:07:58---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-22 23:12:31---error in process cmd:index
+2016-02-22 23:35:27---post error
+2016-02-22 23:35:27---初始化dirnext失败，网络获取失败
+2016-02-22 23:35:27---post error
+2016-02-22 23:35:27---error in process cmd:'module' object has no attribute 'log_write'
+2016-02-22 23:35:27---post error
+2016-02-22 23:35:27---初始化dirnext失败，网络获取失败
+2016-02-22 23:35:27---post error
+2016-02-22 23:35:27---error in process cmd:'module' object has no attribute 'log_write'
+2016-02-23 00:02:09---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-23 00:02:21---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 00:03:02---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 00:03:40---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 00:03:49---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 00:04:08---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 00:19:21---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 00:24:55---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-23 00:25:23---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-23 00:26:24---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 14:11:37---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-23 14:12:13---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-23 14:12:23---error in process cmd:'bool' object has no attribute 'getMaxKey'
+2016-02-23 14:12:25---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 14:12:31---error in process cmd:'bool' object has no attribute 'ls'
+2016-02-23 14:12:46---error in process cmd:'bool' object has no attribute 'ls'

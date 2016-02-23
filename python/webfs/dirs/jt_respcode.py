@@ -30,5 +30,6 @@ RespCode={
 	"DELETE_NODE_FAIL":{"code":-1025,"msg":"syscmd中删除结点失败"},
 	"RMDIR_FAIL":{"code":-1026,"msg":"rmdir删除失败"},
 	"INDEX_NOT_ENOUGH":{"code":-1027,"msg":"INDEX不足以删除"},
+	"NOT_EMPTY":{"code":-1028,"msg":"文件夹不为空"},
 	}
 	

@@ -7,12 +7,10 @@ import jt_machine_list
 if __name__=="__main__":
 	mc=jt_machine_list.machine("test machine","127.0.0.1","8803","")
 	mc2=jt_machine_list.machine("test machine2","127.0.0.1","8802","")
-	res=jt_common.get(mc2,"",{"cmd":"ls","index":"63a9f0ea7bb98050796b649e85481845;720a75216fd1202a38a82bfd710bcdae"})
-	temp=jt_common.get(mc2,"",{"cmd":"cd","index":"63a9f0ea7bb98050796b649e85481845;720a75216fd1202a38a82bfd710bcdae","mypath":"asura"})	
+	res=jt_common.get(mc2,"",{"cmd":"ls","index":"63a9f0ea7bb98050796b649e85481845"})
+	#temp=jt_common.get(mc,"",{"cmd":"cd","index":"63a9f0ea7bb98050796b649e85481845","mypath":"codes"})	
 	print res
-	print temp
-	res3=jt_common.get(mc,"",{"cmd":"ls","index":"e11dc4c84daadc4f6bbebd31eba529e1"})
-	print res3
+	#print temp
 	#res2=jt_common.get(mc2,"",{"cmd":"ls","index":"80ddcff0b5d0e9646166b4672def90ee"})
 	#print res2
 	#temp2=jt_common.get(mc2,"",{"cmd":"cd","index":"80ddcff0b5d0e9646166b4672def90ee","mypath":"howto"})

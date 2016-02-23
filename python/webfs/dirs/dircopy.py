@@ -44,6 +44,7 @@ def digui(path,short,cnf):
 if __name__=="__main__":
 	GLOBAL.MacList=jt_machine_list.mList()
 	mc=GLOBAL.MacList.getBestMC()
+	#mc=jt_machine_list.machine("","127.0.0.1","8802","")
 	res1=jt_common.post(mc,"",{"cmd":"mkdir","name":"root"})
 	jt_common.post(mc,"",{"cmd":"mkdir","index":res1['data'],"mypath":"codes"})
 	cnf={"data":{"address":"","port":"","index":""}}

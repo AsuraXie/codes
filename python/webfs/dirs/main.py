@@ -31,7 +31,6 @@ def process(params):
 			return RespCode.RespCode["NOT_FOUND_NODE"]
 	elif GLOBAL.LocalData.getLength()>0:
 		curr_root=GLOBAL.LocalData[0]
-
 	try:
 		if 'syscmd' in params:
 			return processSysCMD(params)
@@ -58,13 +57,18 @@ def process(params):
 
 def showall():
 	allitems=GLOBAL.LocalData.getAll()
+	print allitems
 	for item in allitems:
 		if isinstance(item,jt_list.xlist):
+			print "show all xlist"
 			temp_list=item.getAll()
+			print temp_list
 			for temp in temp_list:
-				temp.ls()
+				print temp.ls()
+				print temp.getName()
 		elif isinstance(item,dirnode.dirnode):
-			item.ls()			
+			print "show all dirnode"
+			print item.ls()		
 	
 #处理系统命令
 def processSysCMD(params):
@@ -89,12 +93,19 @@ def processSysCMD(params):
 				GLOBAL.MacList.deleteByIndex(item['index'])	
 		return result.display()
 	elif params['syscmd']=="delete_node":
-		curr_root=GLOBAL.LocalData.getByKey(params['index'])
-		for item in curr_root:
-			item.clearAll()
-		res=GLOBAL.LocalData.deleteByKey(params['index'])
-		if res:
-			return result.display()
+		print "delete_node"
+		#此处只有一个index，需要将数组转化为字符串
+		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
+		if curr_root:
+			curr_root.clearAll()
+			res=GLOBAL.LocalData.deleteByKey(params['index'][0])
+			print "delete result ",res
+			if res:
+				result.setSuccess()
+				return result.display()
+			else:
+				result.setError(RespCode.RespCode['DELETE_NODE_FAIL'])
+				return result.display()
 		else:
 			result.setError(RespCode.RespCode['DELETE_NODE_FAIL'])
 			return result.display()
@@ -104,11 +115,6 @@ def processSysCMD(params):
 		res={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host,"index":key}
 		result.setSuccess(res)
 		return result.display()
-	elif params['syscmd']=="status":
-		#返回该结点的状态信息，当前资源使用情况
-		print GLOBAL.LocalData.show()
-		print GLOBAL.MacList.show()
-		pass
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])
 		return result.display()
@@ -143,8 +149,14 @@ def processDirnode(params,curr_root):
 			for i in range(1,len(params['index'])):
 				parent=curr_root
 				curr_root=curr_root.getByKey(params['index'][i])
-			curr_root.clearAll()
+
+			if curr_root.getLength()>0:
+				print "length="+str(curr_root.getLength())
+				result.setError(RespCode.RespCode['NOT_EMPTY'])
+				return result.display()
+			#curr_root.clearAll()
 			res=parent.deleteByKey(params['index'][-1])
+			print res
 			if res:
 				result.setSuccess()
 			else:
@@ -303,6 +315,29 @@ def processDirnext(params,curr_root):
 			result.setSuccess()
 		else:
 			result.setError(RespCode.RespCode['XLIST_MKDIR_FAIL'])
+		return result.display()
+	elif params['cmd']=="rmdir":
+		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
+		if len(params['index'])>=2:
+			parent=curr_root
+			for i in range(1,len(params['index'])):
+				parent=curr_root
+				curr_root=curr_root.getByKey(params['index'][i])
+
+			if curr_root.getLength()>0:
+				print "length="+str(curr_root.getLength())
+				result.setError(RespCode.RespCode['NOT_EMPTY'])
+				return result.display()
+
+			#curr_root.clearAll()
+			res=parent.deleteByKey(params['index'][-1])
+			print res
+			if res:
+				result.setSuccess()
+			else:
+				result.setError(RespCode.RespCode['RMDIR_FAIL'])
+		else:
+			result.setError(RespCode.RespCode['INDEX_NOT_ENOUGH'])
 		return result.display()
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])

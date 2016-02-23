@@ -25,6 +25,8 @@ class dirnode(object):
 	__dirnexts=0
 	#根据名字加密的主键
 	__key=""
+	#长度
+	__length=0
 	#初始化目录节点，传入的参数有两个：目录名name,权限控制power	
 	def __init__(self,name,parent_name,power=666):
 		self.__name=str(name)
@@ -33,6 +35,7 @@ class dirnode(object):
 		self.__key=encrypt.jiami(self.__name)
 		self.__childs=jt_list.xlist()
 		self.__dirnexts=jt_list.xlist()
+		self.__length=0
 	
 	#获取目录的名字
 	def getName(self):
@@ -52,7 +55,12 @@ class dirnode(object):
 
 	#获取列表长度	
 	def getLength(self):
-		pass
+		childs_length=self.__childs.getLength()
+		dirnexts_length=0
+		all_dirnexts=self.__dirnexts.getAll()
+		for item in all_dirnexts:
+			dirnexts_length=dirnexts_length+int(item.getLength())
+		return int(childs_length)+int(dirnexts_length)
 
 	#新增目录
 	def mkdir(self,name):
@@ -80,8 +88,6 @@ class dirnode(object):
 		if temp_max:
 			if self.__dirnexts.getLength()==0:
 				mymc=GLOBAL.MacList.getBestMC()
-				print "init dirnexts "
-				mymc.show()
 				temp_next_dir=dirnext(mymc)
 				temp_next_dir.insert(temp_max)
 				res=self.__dirnexts.insert(temp_max.getName(),temp_next_dir)
@@ -115,8 +121,6 @@ class dirnode(object):
 				myfilter.append(self.__dirnexts[target_block_index['index']].getAddress())
 				#先获取一个目标地址
 				new_dirnext_address=GLOBAL.MacList.getBestMC(myfilter)
-				print "split "
-				print self.__dirnexts[target_block_index['index']].ls(),temp_max.getName()
 				new_dirnext_address.show()
 				#生成一个链接块
 				new_dirnext=dirnext(new_dirnext_address)
@@ -125,80 +129,20 @@ class dirnode(object):
 				new_block=self.__dirnexts[target_block_index['index']].split(new_dirnext)
 
 				if new_block!=False:
-					#新块添加元素
-					print "temp_max name"
-					print temp_max.getName()
-					#将新块插入到链表中	
-					print new_dirnext.getMaxName()['data'],new_dirnext.ls(),new_dirnext.getAddress().getPort(),new_dirnext.getName()
 					#获取旧块
 					old_block=self.__dirnexts[target_block_index['index']]
 					#删除旧块
 					self.__dirnexts.deleteByIndex(target_block_index['index'])
 					#新增旧块
-					print old_block.getMaxName()['data'],old_block.ls(),new_dirnext.getAddress().getPort(),new_dirnext.getName()
 					self.__dirnexts.insert(old_block.getMaxName()['data'],old_block)
 					#将新块插入到链表中
 					self.__dirnexts.insert(new_dirnext.getMaxName()['data'],new_dirnext)
-					print "dirnext----------------------show"
-					self.__dirnexts.show()
 					return RespCode.RespCode["SUCCESS"]
 				else:
 					return RespCode.RespCode["INSERT_FAIL_DIRNEXT_4"]
 		else:
 			return RespCode.RespCode["INSERT_FAIL_NO_temp_max"]
 
-	#删除目录
-	def rmdir(self,name):
-		if name=="":
-			return RespCode.RespCode['EMPTY_PATH']
-
-		key=encrypt.jiami(name)
-		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
-			res=self.__childs.bSearch(key)
-			if res['success']:
-					if res.getLength()==1:
-						self.__childs.deleteByIndex(res['index'])
-					else:
-						return -1
-			else:
-				return -1
-		else:
-			res=self.__dirnexts.bSearch(key)
-			if res['index']<=0:
-				res['index']=0
-			if self.__dirnexts.getLength()==0:
-				return -4
-			temp=self.__dirnexts[res['index']]
-			if not isinstance(temp,bool):
-				temp_max=temp.getMaxKey()
-				temp_min=temp.getMinKey()
-
-				if key>temp_max and res['index']<temp.getLength()-1:
-					res['index']+=1
-					temp=self.__dirnexts[res['index']]
-				elif key<temp_min and res['index']>=1:
-					res['index']-=1
-					temp=self.__dirnexts[res['index']]
-
-				if name_left!="":
-					temp.rmdir(name_left,key)
-				else:
-					temp.deleteByName(name,key)
-			else:
-				return -3
-
-	#删除该结点下的所有内容
-	def clearAll(self):
-		all_childs=self.__childs.getAll()
-		for item in all_childs:
-			item.clearAll()
-		self.__childs.clearAll()
-		all_dirnexts=self.__dirnexts.getAll()
-		for item in all_dirnexts:
-			item.clearAll()
-		self.__dirnexts.clearAll()
-		return True
-	
 	#获取目录或者文件
 	def __getitem__(self,name):
 		if name=="":
@@ -244,9 +188,6 @@ class dirnode(object):
 	#查找结点位置
 	def where(self,name):
 		index=encrypt.jiami(name)
-		print index
-		self.__childs.show()
-		self.__dirnexts.show()
 		if index<=self.__childs.getMax():
 			temp_machine=jt_machine_list.machine("",GLOBAL.local_addr,GLOBAL.local_port,"")
 			return {"mac":temp_machine,"sub_index":index}
@@ -262,8 +203,9 @@ class dirnode(object):
 				target_block_index['index']+=1
 			elif index<temp_min_key and target_block_index['index']>=1:
 				target_block_index['index']-=1
-
+			
 			res=self.__dirnexts[target_block_index['index']].getByKey(index)
+			print res
 			if res:
 				return {"mac":res['mac'],"index":res['index'],"sub_index":res['sub_index']}
 			else:
@@ -292,7 +234,18 @@ class dirnode(object):
 			res=self.__childs.deleteByKey(key)
 			return True
 		else:
-			return False
+			target_block_index=self.__dirnexts.bSearch(key)
+			if not target_block_index['success']:
+				if target_block_index['index']<=0 or self.__dirnexts.getLength()==0:
+					target_block_index['index']=0
+			temp_max_key=self.__dirnexts[target_block_index['index']].getMaxKey()
+			temp_min_key=self.__dirnexts[target_block_index['index']].getMinKey()
+			if key>temp_max_key and target_block_index['index']<self.__dirnexts.getLength()-1:
+				target_block_index['index']+=1
+			elif key<temp_min_key and target_block_index['index']>=1:
+				target_block_index['index']-=1
+			res=self.__dirnexts[target_block_index['index']].getByKey(key)
+			return res
 
 	#显示所有键值	
 	def show(self):
@@ -410,20 +363,14 @@ class dirnext(object):
 				self.__min=data.getKey()
 				self.__max=data.getKey()
 
-			print "dirnext insert",data.getKey()
-
 			if data.getKey()<self.__min:
-				print "min"
 				self.__min=data.getKey()
 
 			if data.getKey()>self.__max:
-				print "max"
 				self.__max=data.getKey()
-			print self.__min,self.__max
 			#远程机创建目录只需要传递目录的名称即可
 			res=jt_common.post(self.__address,"",{"cmd":"insert","index":self.__index,"dirnode":data})
 			if res['code']==0:	
-				self.__length=self.__length+1
 				return 0
 			else:
 				return -1
@@ -485,7 +432,8 @@ class dirnext(object):
 
 	#获取当前存储内容的长度
 	def getLength(self):
-		return self.__length
+		res=jt_common.post(self.__address,"",{"cmd":"getLength","index":self.__index})
+		return res
 
 	#根据名称获取内容
 	def getByName(self,name):
@@ -507,11 +455,8 @@ class dirnext(object):
 	
 	#更新最大值和最小值
 	def __refreshMaxMin__(self):
-		self.__length=jt_common.post(self.__address,"",{"cmd":"getLength","index":self.__index})
 		self.__max=jt_common.post(self.__address,"",{"cmd":"getMaxKey","index":self.__index})['data']
 		self.__min=jt_common.post(self.__address,"",{"cmd":"getMinKey","index":self.__index})['data']
-		print "refreshMaxMin"
-		print self.__max,self.__min
 
 #保存在目录中的文件条目
 class jt_file(object):
