@@ -47,7 +47,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 				self.storeDealTime(process_start,process_end,params['cmd'])
 			else:
 				self.storeDealTime(process_start,process_end,"get")
-			print resp
 			resp=JSONEncoder().encode(resp)
 		self.send_response(200)
 		self.send_header('content-type','text/html,charset=utf-8')
@@ -112,6 +111,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 			params=jt_common.cmds(self.path)
 			post_params_str=self.rfile.read(int(self.headers['content-length']))
 			post_params=pickle.loads(post_params_str)
+			print post_params
 			for key in params:
 				post_params[key]=params[key]
 			return post_params
@@ -119,24 +119,20 @@ class RequestHandler(BaseHTTPRequestHandler):
 class CustomHTTPServer(ThreadingMixIn,HTTPServer):
 	def __init__(self,host,port):
 		server_address=(host,port)
-		#global ROOT
-		#global MacList
-		#global LocalData
-		#本地存储有序链表结构
-		GLOBAL.LocalData=jt_list.xlist()
-		#初始化目录结构
-		#ROOT=dirnode.dirnode("root","")
-		#GLOBAL.LocalData.insert("/",ROOT)
-		#初始化机器列表
-		GLOBAL.MacList=jt_machine_list.mList()
-		GLOBAL.MacList.show()
-		#dircopy.copydir(ROOT,"/home/asura/codes/python")
 		HTTPServer.__init__(self,server_address,RequestHandler)
 	
-def run_server(port):
+def run_server(port,ghost):
 	try:
 		server=CustomHTTPServer(DEFAULT_HOST,port)
 		print "JT Distribute FileSystem started on port:%s" % port
+		if ghost:
+			jt_common.loadGhost()
+		else:
+			#本地存储有序链表结构
+			GLOBAL.LocalData=jt_list.xlist()
+			#初始化机器列表
+			GLOBAL.MacList=jt_machine_list.mList()
+			GLOBAL.MacList.show()
 		server.serve_forever()
 	except Exception,err:
 		print "Error:%s" % err
@@ -147,8 +143,11 @@ def run_server(port):
 if __name__=="__main__":
 	parser=argparse.ArgumentParser(description="JT distribute file system")
 	parser.add_argument("--port",action="store",dest="port",type=int,default=DEFAULT_PORT)
+	parser.add_argument("--ghost",action="store",dest="ghost",type=bool,default=False)
 	given_args=parser.parse_args()
 	port=given_args.port
+	ghost=given_args.ghost
+	print ghost
 	'''
 	GLOBAL.LocalData=jt_list.xlist()
 	ROOT=dirnode.dirnode("root","")
@@ -158,4 +157,5 @@ if __name__=="__main__":
 	GLOBAL.local_port=port
 	print GLOBAL.local_addr
 	print GLOBAL.local_port
-	run_server(port)
+	run_server(port,ghost)
+	jt_common.saveGhost()	

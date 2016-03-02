@@ -11,10 +11,23 @@ import jt_global as GLOBAL
 import dirnode
 
 class xlist(object):
+	#最大key
 	__max=0x0
+
+	#最小key
 	__min=0x0
+
+	#数据保存
 	__data={}
+
+	#主键保存
 	__orderKey=[]
+
+	#备份地址保存
+	__address=[]
+
+	#名称
+	__name=""
 	
 	#初始化list结构
 	def __init__(self):
@@ -22,7 +35,7 @@ class xlist(object):
 		self.__orderKey=[]
 	
 	#插入元素到指定位
-	def insert(self,name,data):
+	def insert(self,name,data,is_backup=0):
 		try:
 			key=encrypt.jiami(str(name))
 			if key in self.__data:
@@ -44,6 +57,9 @@ class xlist(object):
 					self.__min=key
 				self.__orderKey.insert(index,key)
 				self.__data[key]=data
+				if not is_backup:
+					print "insert backup"
+					self.backup()
 				return key
 			else:
 				jt_log.log.write(GLOBAL.error_log_path,"二分查找失败，insert error"+str(name))
@@ -53,26 +69,26 @@ class xlist(object):
 			return -1
 	
 	#删除结点
-	def deleteByName(self,name):
+	def deleteByName(self,name,is_backup=0):
 		key=encrypt.jiami(name)
 		res=self.bSearch(key)
 		if res['success']==True:
-			self.deleteByIndex(res['index'])
+			self.deleteByIndex(res['index'],is_backup)
 			return True
 		else:
 			return False
 
 	#根据主键删除结点
-	def deleteByKey(self,key):
+	def deleteByKey(self,key,is_backup):
 		res=self.bSearch(key)
 		if res['success']==True:
-			self.deleteByIndex(res['index'])
+			self.deleteByIndex(res['index'],is_backup)
 			return True
 		else:
 			return False
 		
 	#根据索引删除元素
-	def deleteByIndex(self,index):
+	def deleteByIndex(self,index,is_backup=0):
 		if index<0 or index > len(self.__orderKey):
 			return False
 
@@ -80,19 +96,27 @@ class xlist(object):
 			key=self.__orderKey[index]
 			self.__data.pop(key)
 			self.__orderKey.pop(index)
-			self.__refreshMaxMin__()
+			self.__refreshMaxMin__(is_backup)
+			if not is_backup:
+				print "deleteByIndex backup"
+				self.backup()
 			return True
 		except Exception,e:
 			return False
 
 	#更新最大值和最小值
-	def __refreshMaxMin__(self):
+	def __refreshMaxMin__(self,is_backup=0):
 		if len(self.__orderKey)>0:
 			self.__max=self.__orderKey[len(self.__orderKey)-1]
 			self.__min=self.__orderKey[0]
 		else:
 			self.__max=0
 			self.__min=0
+	
+		if not is_backup:
+			print "refreshMaxMin backup"
+			self.backup()
+
 	
 	#二分查找
 	def bSearch(self,key):
@@ -139,7 +163,10 @@ class xlist(object):
 		if len(self.__orderKey)>0:
 			key=self.__orderKey.pop(len(self.__orderKey)-1)
 			self.__refreshMaxMin__()
-			return self.__data.pop(key)
+			res=self.__data.pop(key)
+			print "pop backup"
+			self.backup()
+			return res
 		else:
 			return False
 			
@@ -209,7 +236,7 @@ class xlist(object):
 		print "data:"+str(len(self.__data))
 
 	#将链表二分,从中间分开
-	def split(self,mac,target_index):
+	def split(self,mac,target_index,is_backup=0):
 		try:
 			midle=self.getLength()/2
 			index=self.getLength()
@@ -225,6 +252,10 @@ class xlist(object):
 				else:
 					jt_log.log.write(GLOBAL.error_log_path,"没有弹出最大元素")
 					return False
+			#备份
+			if not is_backup:
+				print "split backup"
+				self.backup()
 			return True
 		except Exception,e:
 			traceback.print_exc()
@@ -232,9 +263,40 @@ class xlist(object):
 			return False
 	
 	#删除所有内容
-	def clearAll(self):
+	def clearAll(self,is_backup=0):
 		self.__data=[]
 		self.__orderKey=[]
+		#备份
+		if not is_backup:
+			print "clearAll backup"
+			self.backup()
+
+	#设置备份地址
+	def setAddress(self,mac):
+		self.__address=mac
+
+	#设置主键
+	def setName(self,name):
+		self.__name=name
+
+	#数据修改后备份到其他服务器上
+	def backup(self):
+		print "-------------------backup------------------"
+		print self.__address
+		index=encrypt.jiami(self.__name)
+		for item in self.__address:
+			if str(item.getPort())==str(GLOBAL.local_port) and str(item.getAddress())==str(GLOBAL.local_addr):
+				continue
+			print jt_common.post([item],"",{"syscmd":"backup","index":index,"name":self.__name,"data":self})
+			print "port:",item.getPort(),"address:",item.getAddress()	
+
+	#根据结点index更新结点内容
+	def update(self,index,data):
+		print "xlist update data"
+		if index in self.__data:
+			self.__data[index]=data
+		else:
+			print "xlist update not found nodte"
 
 if __name__=='__main__':
 	a=xlist()

@@ -108,31 +108,94 @@ def get(machine,dirs,params):
 		conn.request("GET",dirs+"?"+cmds)
 		res=conn.getresponse()
 		if res.status==200 and res.reason=="OK":
-			return res.read()
+			result=res.read()
+			conn.close()
+			return result
 		else:
+			conn.close()
 			jt_log.log.write("log/data/error.log","jt_common,get"+res.read())
 			return False
 	except Exception,e:
+		conn.close()
 		traceback.print_exc()
 		jt_log.log.write(GLOBAL.error_log_path,"get error"+e.message)
 
 #调用POST方法
-def post(machine,dirs,params):
+def post(machine_list,dirs,params,index=0):
+	try:
+		#已经尝试了所有的地址都发送失败了
+		if index>=len(machine_list):
+			return False
+		machine=machine_list[index]
+	except Exception,e:
+		traceback.print_exc()
+		jt_log.log.write(GLOBAL.error_log_path,"post error 所有地址尝试发送均失败")
+		return False
+
 	try:
 		#params=urllib.urlencode(params)
+		print "post address:",machine.getAddress(),"port:",machine.getPort()
 		headers={"Content-type":"application/x-www-form-urlencoded","Accept":"text/plain"}
 		conn=httplib.HTTPConnection(machine.getAddress(),machine.getPort(),GLOBAL.time_out)
-		params=pickle.dumps(params)
-		conn.request("POST",dirs,params,headers)
+		temp_params=pickle.dumps(params)
+		conn.request("POST",dirs,temp_params,headers)
 		res=conn.getresponse()
 		if res.status==200 and res.reason=='OK':
-			return pickle.loads(res.read())
+			result=pickle.loads(res.read())
+			conn.close()
+			return result
 		else:
+			conn.close()
 			jt_log.log.write("log/data/error.log","jt_common,post"+res.read())
 			return False
 	except Exception,e:
 		traceback.print_exc()
-		jt_log.log.write(GLOBAL.error_log_path,"post error"+e.message)
+		conn.close()
+		removeRemoteMac(machine)
+		jt_log.log.write(GLOBAL.error_log_path,"post 发送失败"+e.message)
+		return post(machine_list,dirs,params,index+1)
+		
+#发送给所有的机器信息
+def sendToAll(dirs,params):
+	all_mac=GLOBAL.remote_mac
+	for item in all_mac:
+		temp_mac=jt_machine_list.machine("",item["addr"],item["port"],"")
+		post([temp_mac],dirs,params)
+
+#删除无效的地址
+def removeRemoteMac(mac):
+	for index in range(0,len(GLOBAL.remote_mac)):
+		if str(GLOBAL.remote_mac[index]['addr'])==str(mac.getAddress()) and str(GLOBAL.remote_mac[index]['port'])==str(mac.getPort()):
+			GLOBAL.remote_mac.pop(index)
+			break	
+
+#判断机器是否存在
+def checkMacExist(mac):
+	for item in GLOBAL.remote_mac:
+		if str(item['addr'])==str(mac.getAddress()) and str(item['port'])==str(mac.getPort()):
+			return True
+	return False
+
+#保存镜像文件
+def saveGhost():
+	try:
+		f=open("ghost","wb")
+		data={"data":GLOBAL.LocalData,"mac":GLOBAL.MacList}
+		pickle.dump(data,f)
+		f.close()
+	except Exception,e:
+		jt_log.log.write(GLOBAL.error_log_path,"镜像文件保存失败")
+
+#加载镜像文件
+def loadGhost():
+	try:
+		f=open("ghost","rb")
+		data=pickle.load(f)
+		GLOBAL.LocalData=data['data']
+		GLOBAL.MacList=data['mac']
+		f.close()
+	except Exception,e:
+		jt_log.log.write(GLOBAL.error_log_path,"镜像文件加载失败")
 
 if __name__=="__main__":
 	rename("a.txt","b.txt")

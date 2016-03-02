@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+		<title>分布式文件系统</title>
+		<script src="web/jquery.js"></script>
+	</head>
+	<body>
+		<h1>Asura</h1>
+		<a href="#" onclick="back()"><span>返回上级目录</span></a>
+		<a href="#" onclick="mkdir()"><span>创建目录</span></a>
+		<a href="#" onclick="rmdir()"><span>删除目录</span></a>
+		<a href="#" onclick="upload()"><span>上传文件</span></a>
+		<a href="#" onclick="showinfo()"><span>显示结点信息</span></a>
+		<div id="mylist">
+		</div>
+	</body>
+	<script>
+		var curr_path="";
+		var curr_index="";
+		var curr_url="http://localhost:8806";
+		var curr_url1=curr_url;////备份地址
+		var curr_url2=curr_url;////备份地址
+
+		var history_dir=new Array();
+
+		window.onload=function (){
+			init("root");
+		};
+
+		///初始化
+		function init(path){
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					syscmd:"init",
+					name:path
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						curr_index=data.data.index;
+
+						if(data.data.mac.length>0){
+							curr_url="http://"+data.data.mac[0].host+":"+data.data.mac[0].port;
+						}else{
+							curr_url="1";
+						}
+
+						if(data.data.mac.length>1){
+							curr_url1="http://"+data.data.mac[1].host+":"+data.data.mac[1].port;
+						}else{
+							curr_url1="2";
+						}
+
+						if(data.data.mac.length>2){
+							curr_url2="http://"+data.data.mac[2].host+":"+data.data.mac[2].port;
+						}else{
+							curr_url2="3";
+						}
+						urls=[curr_url,curr_url1,curr_url2];
+						history_dir.push([urls,curr_index,curr_path]);
+						ls();
+					}
+					else{
+						alert(data.msg);
+					}
+				},
+				error:function (){
+					if(curr_url==curr_url){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1){
+						curr_url=curr_url2;
+					}else if(curr_url==curr_url2){
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return
+					}
+					init(path);
+				}
+			});
+		}
+
+		///显示目录内容
+		function ls(){
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					cmd:'ls',
+					index:curr_index
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						var htmlstrs="<ul>"
+						for(var i=0;i<data.data.length;i++)
+						{
+							htmlstrs=htmlstrs+"<li style='margin-top:5px'><input type='radio' name='myselect'><a href='#' onclick=cd('"+data.data[i]+"')>"+data.data[i]+"</a></li>";
+						}
+						htmlstrs=htmlstrs+"</ul>"
+						$("#mylist").html(htmlstrs);
+					}
+					else{
+						alert(data.msg);
+					}
+				},
+				error:function (data){
+					if(curr_url==curr_url){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1){
+						curr_url=curr_url2;
+					}else if(curr_url==curr_url2){
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return
+					}
+					ls();
+				}
+			})
+		}
+		
+		///切换当前目录
+		function cd(path){
+			path=path.split(":");
+			path=path[0];
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					cmd:'cd',
+					index:curr_index,
+					mypath:path
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						urls=[curr_url,curr_url1,curr_url2];
+						history_dir.push([urls,curr_index,curr_path]);
+						if(data.data.mac.length>0){
+							curr_url="http://"+data.data.mac[0].host+":"+data.data.mac[0].port;
+						}else{
+							curr_url="1";
+						}
+
+						if(data.data.mac.length>1){
+							curr_url1="http://"+data.data.mac[1].host+":"+data.data.mac[1].port;
+						}else{
+							curr_url1="2";
+						}
+
+						if(data.data.mac.length>2){
+							curr_url2="http://"+data.data.mac[2].host+":"+data.data.mac[2].port;
+						}else{
+							curr_url2="3";
+						}
+						///curr_url="http://"+data.data.host+":"+data.data.port;
+						curr_index=data.data.index;
+						curr_path=path;
+						///history_dir.push([curr_url,curr_index,curr_path]);
+						ls();
+					}
+					else{
+						alert(data.msg);
+					}
+				},
+				error:function (data){
+					if(curr_url==curr_url){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1){
+						curr_url=curr_url2;
+					}else if(curr_url==curr_url2){
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return
+					}
+					cd(path);
+				}
+			})
+		}
+	
+		///创建目录
+		function mkdir(name=""){
+			if(name==""){
+				name=prompt("请输入文件名!!!","");
+			}
+			if (name!=null && name!=""){
+				path=name;
+				$.ajax({
+					url:curr_url,
+					type:"GET",
+					data:{
+						cmd:'mkdir',
+						index:curr_index,
+						mypath:path
+					},
+					success:function (data){
+						data=eval("("+data+")");
+						if(data.code==0){
+							ls();
+						}
+						else{
+							alert(data.msg)
+						}
+					},
+					error:function (data){
+						if(curr_url==curr_url){
+							curr_url=curr_url1;
+						}else if(curr_url==curr_url1){
+							curr_url=curr_url2;
+						}else if(curr_url==curr_url2){
+							alert("已尝试所有备份路径均请求失败！！！！！");
+							return
+						}
+						mkdir(path);
+					}
+				});
+			}
+		}
+		
+		///删除目录	
+		function rmdir(){
+			var path=$('input:radio:checked').next().html();
+			path=path.split(":");
+			path=path[0];
+			if(path!=""){
+				$.ajax({
+					url:curr_url,
+					type:"GET",
+					data:{
+						cmd:'cd',
+						index:curr_index,
+						mypath:path
+					},
+					success:function(data){
+						data=eval("("+data+")");
+						if(data.code==0){
+							temp_url="http://"+data.data.host+":"+data.data.port;
+							temp_index=data.data.index;
+							$.ajax({
+								url:temp_url,
+								type:"GET",
+								data:{
+									cmd:"rmdir",
+									index:temp_index
+								},
+								success:function (res){
+									res=eval("("+res+")");
+									if(res.code==0){
+										ls();
+									}else{
+										alert(res.msg);
+									}
+								}
+							});
+						}
+						else{
+							alert(data.msg);
+						}
+					},
+					error:function (data){
+						if(curr_url==curr_url){
+							curr_url=curr_url1;
+						}else if(curr_url==curr_url1){
+							curr_url=curr_url2;
+						}else if(curr_url==curr_url2){
+							alert("已尝试所有备份路径均请求失败！！！！！");
+							return
+						}
+						rmdir();
+					}
+				});
+			}
+		}
+
+		///返回上级目录	
+		function back(path){
+			temp=history_dir.pop();
+			if(temp&&temp.length>0){
+				curr_url=temp[0].length>0?temp[0][0]:"1";
+				curr_url1=temp[0].length>1?temp[0][1]:"2";
+				curr_url2=temp[0].length>2?temp[0][2]:"3";
+				temp_index=temp[1];
+				temp_path=temp[2].split(":");
+				temp_path=temp_path[0];
+				if(temp_index==""){
+					init("root");
+					return;
+				}
+				if(temp_path!=""){
+					temp_index=temp_index.split(";");
+					index_array=new Array();
+					for(var i=0;i<temp_index.length-1;i++){
+						index_array.push(temp_index[i]);
+					}
+					temp_index=index_array.join(";");
+				}
+				back_request(temp_index,temp_path);
+			}
+		}
+
+		function back_request(temp_index,temp_path){
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					cmd:"cd",
+					index:temp_index,
+					mypath:temp_path,
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						for(var i=0;i<data.data.mac.length;i++){
+							if(i==0){
+								curr_url="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+							}else if(i==1){
+								curr_url1="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+							}else if(i==2){
+								curr_url2="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+							}
+						}
+						curr_index=data.data.index
+						curr_path=temp_path;
+						ls();
+					}
+					else{
+						alert(data.msg);
+					}
+				},
+				error:function (data){
+					if(curr_url==curr_url){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1){
+						curr_url=curr_url2;
+					}else if(curr_url==curr_url2){
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return 0;
+					}
+					back_request(temp_index,temp_path);
+				}
+			});
+		}	
+		///文件上传	
+		function upload(){
+		}
+		///显示结点信息
+		function showinfo(){
+			all_urls=["http://localhost:8802","http://localhost:8803","http://localhost:8804","http://localhost:8805","http://localhost:8806"];
+			for(var i =0;i<=all_urls.length;i++){
+				$.ajax({
+					url:all_urls[i],
+					type:"GET",
+					data:{
+						showall:"status",
+					},
+					success:function (data){
+					}
+				})
+			}
+		}
+	</script>
+</html>

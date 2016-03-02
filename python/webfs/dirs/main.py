@@ -24,7 +24,7 @@ def process(params):
 		result.setSuccess()
 		return result.display()
 
-	if 'index' in params and 'index' !="":
+	if 'syscmd' not in params and 'index' in params and 'index' !="":
 		params['index']=params['index'].split(';')
 		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
 		if curr_root==False:
@@ -66,6 +66,7 @@ def showall():
 			for temp in temp_list:
 				print temp.ls()
 				print temp.getName()
+				print temp.getKey()
 		elif isinstance(item,dirnode.dirnode):
 			print "show all dirnode"
 			print item.ls()		
@@ -93,13 +94,11 @@ def processSysCMD(params):
 				GLOBAL.MacList.deleteByIndex(item['index'])	
 		return result.display()
 	elif params['syscmd']=="delete_node":
-		print "delete_node"
 		#此处只有一个index，需要将数组转化为字符串
 		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
 		if curr_root:
 			curr_root.clearAll()
 			res=GLOBAL.LocalData.deleteByKey(params['index'][0])
-			print "delete result ",res
 			if res:
 				result.setSuccess()
 				return result.display()
@@ -111,10 +110,48 @@ def processSysCMD(params):
 			return result.display()
 	elif params['syscmd']=="init":
 		key=encrypt.jiami(params['name'])
+		'''
 		res=GLOBAL.LocalData.getByKey(key)
-		res={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host,"index":key}
-		result.setSuccess(res)
+		res_mac={"index":key,"mac":[]}
+		if res:
+			res={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host,"index":key}
+			res_mac['mac'].append(res)
+		else:
+		'''
+		res_mac={"index":key,"mac":[]}
+		for item in GLOBAL.root_mac:
+			res={"address":item.getAddress(),"port":item.getPort(),"host":item.getHost()}
+			res_mac['mac'].append(res)
+		result.setSuccess(res_mac)
 		return result.display()
+	elif params['syscmd']=="backup":
+		print "---------------backup----------------"
+		data=params['data']
+		indexs=params['index'].split(";")
+		curr_root=GLOBAL.LocalData
+		parent=curr_root
+		for i in range(0,len(indexs)):
+			parent=curr_root
+			curr_root=curr_root.getByKey(indexs[i])
+		index=indexs[-1]
+		print index,curr_root
+		GLOBAL.LocalData.show()
+		if curr_root:
+			print "backup update"
+			#不继续发布备份了
+			parent.update(index,params['data'])
+			#GLOBAL.LocalData.deleteByKey(index,1)
+			result.setSuccess()
+		else:
+			print "backup insert"
+			res=GLOBAL.LocalData.insert(params['name'],data,1)
+			if not res:
+				result.setError(RespCode.RespCode['BACKUP_NOT_FOUND'])
+			else:
+				result.setSuccess()
+		return result.display()
+	elif params['syscmd']=="getroot":
+		GLOBAL.root_mac=params['mac']
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])
 		return result.display()
@@ -124,10 +161,24 @@ def processDirnode(params,curr_root):
 	result=jt_apiResult.ApiResult()
 	if params['cmd']=='mkdir':
 		if curr_root=="none":
-			temp=dirnode.dirnode(params['name'],"")
-			res=GLOBAL.LocalData.insert(params['name'],temp)
+			#根目录
+			temp=dirnode.dirnode(params['name'],"",666,2)
+			#获取三个根目录的备份地址		
+			address=[]
+			addr1=jt_machine_list.machine("",GLOBAL.local_addr,GLOBAL.local_port,"")
+			address.append(addr1)
+			addr2=GLOBAL.MacList.getBestMC(address)
+			address.append(addr2)
+			addr3=GLOBAL.MacList.getBestMC(address)
+			address.append(addr3)
+			temp.setAddress(address)
+	
+			res=GLOBAL.LocalData.insert(params['name'],temp,1)
 			if res:
+				temp.sendBackup()
 				result.setSuccess(res)
+				data={"syscmd":"getroot","mac":address}
+				jt_common.sendToAll("",data)
 				return result.display()
 			else:
 				result.setError(RespCode.RespCode['DIRNODE_INIT_FAIL'])
@@ -151,12 +202,10 @@ def processDirnode(params,curr_root):
 				curr_root=curr_root.getByKey(params['index'][i])
 
 			if curr_root.getLength()>0:
-				print "length="+str(curr_root.getLength())
 				result.setError(RespCode.RespCode['NOT_EMPTY'])
 				return result.display()
 			#curr_root.clearAll()
 			res=parent.deleteByKey(params['index'][-1])
-			print res
 			if res:
 				result.setSuccess()
 			else:
@@ -181,15 +230,19 @@ def processDirnode(params,curr_root):
 		#cd查找的时候返回的应该是该结点的所处机器位置,如何获取本身机器的位置呢
 		#有可能是返回childs里面的结点，也有可能是dirnext里面的结点，可能会有多个index
 		if params['mypath']=="":
-			res={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host,"index":";".join(params['index'])}
+			address={"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"host":GLOBAL.local_host}
+			res={"mac":[address],"index":";".join(params['index'])}
 			result.setSuccess(res)
 			return result.display()
 
 		position=curr_root.where(params['mypath'])
-		print "where:",position
 		if position:
-			res={"address":position['mac'].getAddress(),"port":position['mac'].getPort(),"host":position['mac'].getHost()}
+			res={}
 			res['index']=[]
+			res['mac']=[]
+			for item in position['mac']:
+				res['mac'].append({"address":item.getAddress(),"port":item.getPort(),"host":item.getHost()})
+
 			if 'index' in position and 'sub_index' in position:
 				res['index'].append(position['index'])
 				res['index'].append(position['sub_index'])
@@ -227,7 +280,9 @@ def processDirnext(params,curr_root):
 		return result.display()
 	elif params['cmd']=="mkdirnext":
 		temp=jt_list.xlist()
-		res_index=GLOBAL.LocalData.insert(params['mypath'],temp)
+		temp.setAddress(params['mac'])
+		temp.setName(params['mypath'])
+		res_index=GLOBAL.LocalData.insert(params['mypath'],temp,1)
 		result.setSuccess(res_index)
 		return result.display()
 	elif params['cmd']=="split":
@@ -244,6 +299,7 @@ def processDirnext(params,curr_root):
 		return result.display()
 	elif params['cmd']=="getByKey":
 		key=params['key']
+		curr_root.show()
 		res=curr_root.getByKey(key)
 		if res:
 			result.setSuccess(key)
@@ -252,7 +308,6 @@ def processDirnext(params,curr_root):
 		return result.display()
 	elif params['cmd']=="getMaxName":
 		temp=curr_root.max()
-		print temp
 		result.setSuccess(temp.getName())
 		return result.display()
 	elif params['cmd']=="deleteByName":
@@ -294,13 +349,18 @@ def processDirnext(params,curr_root):
 			if isinstance(curr_root,dict) and 'index' in curr_root and 'sub_index' in curr_root:
 				temp_index.append(curr_root['index'])
 				temp_index.append(curr_root['sub_index'])
-				data={"host":curr_root['mac'].getHost(),"address":curr_root['mac'].getAddress(),"port":curr_root['mac'].getPort(),"index":";".join(temp_index)}
+				address=[]
+				for item in curr_root['mac']:
+					temp={"host":item.getHost(),"address":item.getAddress(),"port":item.getPort()}
+					address.append(temp)
+				data={"mac":address,"index":";".join(temp_index)}
 			else:
 				for i in range(0,len(params["index"])):
 					temp_index.append(params["index"][i])
 				temp_index.append(index)
 				temp_index=";".join(temp_index)
-				data={"host":GLOBAL.local_host,"address":GLOBAL.local_addr,"port":GLOBAL.local_port,"index":temp_index}
+				address={"host":GLOBAL.local_host,"address":GLOBAL.local_addr,"port":GLOBAL.local_port}
+				data={"mac":[address],"index":temp_index}
 			result.setSuccess(data)
 		else:
 			result.setError(RespCode.RespCode['NO_SUCH_DIR'])
@@ -309,7 +369,6 @@ def processDirnext(params,curr_root):
 		if len(params['index'])>=2:
 			for i in range(1,len(params['index'])):
 				curr_root=curr_root.getByKey(params['index'][i])
-		print encrypt.jiami(params['mypath'])
 		res=curr_root.mkdir(params['mypath'])
 		if res['code']==0:
 			result.setSuccess()
@@ -325,19 +384,21 @@ def processDirnext(params,curr_root):
 				curr_root=curr_root.getByKey(params['index'][i])
 
 			if curr_root.getLength()>0:
-				print "length="+str(curr_root.getLength())
 				result.setError(RespCode.RespCode['NOT_EMPTY'])
 				return result.display()
 
 			#curr_root.clearAll()
 			res=parent.deleteByKey(params['index'][-1])
-			print res
 			if res:
 				result.setSuccess()
 			else:
 				result.setError(RespCode.RespCode['RMDIR_FAIL'])
 		else:
 			result.setError(RespCode.RespCode['INDEX_NOT_ENOUGH'])
+		return result.display()
+	elif params['cmd']=="fresh_addr":
+		curr_root.setAddress(params['mac'])
+		result.setSuccess()
 		return result.display()
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])

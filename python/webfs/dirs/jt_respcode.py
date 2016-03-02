@@ -31,5 +31,6 @@ RespCode={
 	"RMDIR_FAIL":{"code":-1026,"msg":"rmdir删除失败"},
 	"INDEX_NOT_ENOUGH":{"code":-1027,"msg":"INDEX不足以删除"},
 	"NOT_EMPTY":{"code":-1028,"msg":"文件夹不为空"},
+	"BACKUP_NOT_FOUND":{"code":-1029,"msg":"备份未找到结点"},
 	}
 	

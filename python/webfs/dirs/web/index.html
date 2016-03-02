@@ -10,15 +10,17 @@
 		<a href="#" onclick="back()"><span>返回上级目录</span></a>
 		<a href="#" onclick="mkdir()"><span>创建目录</span></a>
 		<a href="#" onclick="rmdir()"><span>删除目录</span></a>
-		<a href="#" onclick="upload()"><span>上传文件</span></a>
-		<a href="#" onclick="showinfo()"><span>显示结点信息</span></a>
+		<!--<a href="#" onclick="showinfo()"><span>显示结点信息</span></a>-->
 		<div id="mylist">
 		</div>
 	</body>
 	<script>
 		var curr_path="";
 		var curr_index="";
-		var curr_url="http://localhost:8805";
+		var curr_url="http://localhost:8802";
+		var curr_url1="1";////备份地址
+		var curr_url2="2";////备份地址
+
 		var history_dir=new Array();
 
 		window.onload=function (){
@@ -38,12 +40,43 @@
 					data=eval("("+data+")");
 					if(data.code==0){
 						curr_index=data.data.index;
-						history_dir.push([curr_url,curr_index,curr_path]);
+
+						if(data.data.mac.length>0){
+							curr_url="http://"+data.data.mac[0].host+":"+data.data.mac[0].port;
+						}else{
+							curr_url="1";
+						}
+
+						if(data.data.mac.length>1){
+							curr_url1="http://"+data.data.mac[1].host+":"+data.data.mac[1].port;
+						}else{
+							curr_url1="2";
+						}
+
+						if(data.data.mac.length>2){
+							curr_url2="http://"+data.data.mac[2].host+":"+data.data.mac[2].port;
+						}else{
+							curr_url2="3";
+						}
+
+						urls=[curr_url,curr_url1,curr_url2];
+						history_dir.push([urls,curr_index,curr_path]);
 						ls();
 					}
 					else{
 						alert(data.msg);
 					}
+				},
+				error:function (){
+					if(curr_url==curr_url&&curr_url!=curr_url1){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+						curr_url=curr_url2;
+					}else{
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return
+					}
+					init(path);
 				}
 			});
 		}
@@ -72,6 +105,17 @@
 						alert(data.msg);
 					}
 				},
+				error:function (data){
+					if(curr_url==curr_url&&curr_url!=curr_url1){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+						curr_url=curr_url2;
+					}else{
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return
+					}
+					ls();
+				}
 			})
 		}
 		
@@ -90,8 +134,26 @@
 				success:function (data){
 					data=eval("("+data+")");
 					if(data.code==0){
-						history_dir.push([curr_url,curr_index,curr_path]);
-						curr_url="http://"+data.data.host+":"+data.data.port;
+						urls=[curr_url,curr_url1,curr_url2];
+						history_dir.push([urls,curr_index,curr_path]);
+						if(data.data.mac.length>0){
+							curr_url="http://"+data.data.mac[0].host+":"+data.data.mac[0].port;
+						}else{
+							curr_url="1";
+						}
+
+						if(data.data.mac.length>1){
+							curr_url1="http://"+data.data.mac[1].host+":"+data.data.mac[1].port;
+						}else{
+							curr_url1="2";
+						}
+
+						if(data.data.mac.length>2){
+							curr_url2="http://"+data.data.mac[2].host+":"+data.data.mac[2].port;
+						}else{
+							curr_url2="3";
+						}
+						///curr_url="http://"+data.data.host+":"+data.data.port;
 						curr_index=data.data.index;
 						curr_path=path;
 						///history_dir.push([curr_url,curr_index,curr_path]);
@@ -100,13 +162,26 @@
 					else{
 						alert(data.msg);
 					}
+				},
+				error:function (data){
+					if(curr_url==curr_url&&curr_url!=curr_url1){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+						curr_url=curr_url2;
+					}else{
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return
+					}
+					cd(path);
 				}
 			})
 		}
 	
 		///创建目录
-		function mkdir(){
-			var name=prompt("请输入文件名!!!","");
+		function mkdir(name=""){
+			if(name==""){
+				name=prompt("请输入文件名!!!","");
+			}
 			if (name!=null && name!=""){
 				path=name;
 				$.ajax({
@@ -125,6 +200,17 @@
 						else{
 							alert(data.msg)
 						}
+					},
+					error:function (data){
+						if(curr_url==curr_url&&curr_url!=curr_url1){
+							curr_url=curr_url1;
+						}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+							curr_url=curr_url2;
+						}else{
+							alert("已尝试所有备份路径均请求失败！！！！！");
+							return
+						}
+						mkdir(path);
 					}
 				});
 			}
@@ -147,43 +233,76 @@
 					success:function(data){
 						data=eval("("+data+")");
 						if(data.code==0){
-							temp_url="http://"+data.data.host+":"+data.data.port;
-							temp_index=data.data.index;
-							$.ajax({
-								url:temp_url,
-								type:"GET",
-								data:{
-									cmd:"rmdir",
-									index:temp_index
-								},
-								success:function (res){
-									res=eval("("+res+")");
-									if(res.code==0){
-										ls();
-									}else{
-										alert(res.msg);
-									}
+							temp_url=new Array();
+							for(var i=0;i<data.data.mac.length;i++){
+								if(i==0){
+									temp="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+									temp_url.push(temp)
+								}else if(i==1){
+									temp="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+									temp_url.push(temp)
+								}else if(i==2){
+									temp="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+									temp_url.push(temp)
 								}
-							});
+							}
+							temp_index=data.data.index;
+							commandRmdir(temp_url,temp_index);
 						}
 						else{
 							alert(data.msg);
 						}
+					},
+					error:function (data){
+						if(curr_url==curr_url&&curr_url!=curr_url1){
+							curr_url=curr_url1;
+						}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+							curr_url=curr_url2;
+						}else{
+							alert("已尝试所有备份路径均请求失败！！！！！");
+							return
+						}
+						rmdir();
 					}
 				});
 			}
+		}
+
+		////删除命令
+		function commandRmdir(urls,temp_index){
+			temp_url=urls.pop()
+			$.ajax({
+				url:temp_url,
+				type:"GET",
+				data:{
+					cmd:"rmdir",
+					index:temp_index
+				},
+				success:function (res){
+					res=eval("("+res+")");
+					if(res.code==0){
+						ls();
+					}else{
+						alert(res.msg);
+					}
+				},
+				error:function (){
+					commandRmdir(urls,temp_index);
+				}
+			});
 		}
 
 		///返回上级目录	
 		function back(path){
 			temp=history_dir.pop();
 			if(temp&&temp.length>0){
-				temp_url=temp[0];
+				curr_url=temp[0].length>0?temp[0][0]:"1";
+				curr_url1=temp[0].length>1?temp[0][1]:"2";
+				curr_url2=temp[0].length>2?temp[0][2]:"3";
 				temp_index=temp[1];
 				temp_path=temp[2].split(":");
 				temp_path=temp_path[0];
 				if(temp_index==""){
-					alert("abc");
 					init("root");
 					return;
 				}
@@ -195,32 +314,57 @@
 					}
 					temp_index=index_array.join(";");
 				}
-				$.ajax({
-					url:temp_url,
-					type:"GET",
-					data:{
-						cmd:"cd",
-						index:temp_index,
-						mypath:temp_path,
-					},
-					success:function (data){
-						data=eval("("+data+")");
-						if(data.code==0){
-							curr_url="http://"+data.data.host+":"+data.data.port;
-							curr_index=data.data.index;
-							ls();
-						}
-						else{
-							alert(data.msg);
-						}
-					}
-				});
+				back_request(temp_index,temp_path);
 			}
 		}
-	
+
+		function back_request(temp_index,temp_path){
+			$.ajax({
+				url:curr_url,
+				type:"GET",
+				data:{
+					cmd:"cd",
+					index:temp_index,
+					mypath:temp_path,
+				},
+				success:function (data){
+					data=eval("("+data+")");
+					if(data.code==0){
+						for(var i=0;i<data.data.mac.length;i++){
+							if(i==0){
+								curr_url="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+							}else if(i==1){
+								curr_url1="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+							}else if(i==2){
+								curr_url2="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+							}
+						}
+						curr_index=data.data.index
+						curr_path=temp_path;
+						ls();
+					}
+					else{
+						alert(data.msg);
+					}
+				},
+				error:function (data){
+					if(curr_url==curr_url&&curr_url!=curr_url1){
+						curr_url=curr_url1;
+					}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+						curr_url=curr_url2;
+					}else{
+						alert("已尝试所有备份路径均请求失败！！！！！");
+						return 0;
+					}
+					back_request(temp_index,temp_path);
+				}
+			});
+		}	
+
 		///文件上传	
 		function upload(){
 		}
+
 		///显示结点信息
 		function showinfo(){
 			all_urls=["http://localhost:8802","http://localhost:8803","http://localhost:8804","http://localhost:8805","http://localhost:8806"];
