@@ -1,0 +1,19 @@
+#!/bin/bash
+cd data
+rm *
+cd ..
+cd cmd
+rm *
+cd ..
+cd avg
+rm *
+cd ..
+cd output
+rm *
+cd ..
+cd res
+rm *
+cd ..
+cd http
+rm *
+cd ..

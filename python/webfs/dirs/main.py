@@ -57,12 +57,9 @@ def process(params):
 
 def showall():
 	allitems=GLOBAL.LocalData.getAll()
-	print allitems
 	for item in allitems:
 		if isinstance(item,jt_list.xlist):
-			print "show all xlist"
 			temp_list=item.getAll()
-			print temp_list
 			for temp in temp_list:
 				print temp.ls()
 				print temp.getName()
@@ -87,7 +84,6 @@ def processSysCMD(params):
 					#无则新增
 					GLOBAL.MacList.add(item['data'])
 			return	result.display()
-		GLOBAL.MacList.show()
 	elif params['syscmd']=="delete_mc":
 		if len(params['data'])>0:
 			for item in params['data']:
@@ -125,7 +121,6 @@ def processSysCMD(params):
 		result.setSuccess(res_mac)
 		return result.display()
 	elif params['syscmd']=="backup":
-		print "---------------backup----------------"
 		data=params['data']
 		indexs=params['index'].split(";")
 		curr_root=GLOBAL.LocalData
@@ -134,16 +129,12 @@ def processSysCMD(params):
 			parent=curr_root
 			curr_root=curr_root.getByKey(indexs[i])
 		index=indexs[-1]
-		print index,curr_root
-		GLOBAL.LocalData.show()
 		if curr_root:
-			print "backup update"
 			#不继续发布备份了
 			parent.update(index,params['data'])
 			#GLOBAL.LocalData.deleteByKey(index,1)
 			result.setSuccess()
 		else:
-			print "backup insert"
 			res=GLOBAL.LocalData.insert(params['name'],data,1)
 			if not res:
 				result.setError(RespCode.RespCode['BACKUP_NOT_FOUND'])
@@ -299,7 +290,6 @@ def processDirnext(params,curr_root):
 		return result.display()
 	elif params['cmd']=="getByKey":
 		key=params['key']
-		curr_root.show()
 		res=curr_root.getByKey(key)
 		if res:
 			result.setSuccess(key)

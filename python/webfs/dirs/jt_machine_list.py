@@ -131,7 +131,6 @@ class mList(object):
 		for i in range(0,length):
 			if self.__m_list[i].getPort()!=GLOBAL.local_port and self.__m_list[i].getAddress()!=GLOBAL.local_addr:
 				jt_common.post(self.__m_list[i],"",{"syscmd":"refresh_mc","data":data})	
-				self.__m_list[i].show()
 
 	def show(self):
 		alldata=self.__m_list.getAll()

@@ -274,7 +274,7 @@ class dirnode(object):
 	#根据key删除结点
 	def deleteByKey(self,key):
 		if key<=self.__childs.getMax():
-			res=self.__childs.deleteByKey(key)
+			res=self.__childs.deleteByKey(key,1)
 			#如果为根目录修改需要备份
 			if self.__type==2:
 				self.sendBackup()
@@ -332,8 +332,6 @@ class dirnode(object):
 	#显示目录中的内容
 	def ls(self):
 		try:
-			self.__childs.show()
-			self.__dirnexts.show()
 			res=[]
 			if self.__childs.getLength()>0:
 				alls_childs=self.__childs.getAll()
@@ -343,7 +341,6 @@ class dirnode(object):
 			if self.__dirnexts.getLength()>0:
 				alls_nexts=self.__dirnexts.getAll()
 				for item in alls_nexts:
-					item.getAddress()[0].show()
 					temp=item.ls()
 					for t in temp:
 						res.append(t)

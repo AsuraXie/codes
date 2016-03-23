@@ -26,12 +26,14 @@ def copydir(mc,index,path):
 
 #深度遍历文件系统
 def initdir(level,short,cnf):
-	if level>=5:
+	print "curr name :"+str(short)
+	if level>=3:
 		return
-	mc=jt_machine_list.machine("",cnf['data']['mac'][0]['adress'],cnf['data']['mac'][0]['port'],"")
-	for index in range(0,10):
-		res=jt_common.post([mc],"",{"cmd":"mkdir","index":res['data']['index'],"mypath":str(short)+str(index)})
-		print res
+	mc=jt_machine_list.machine("",cnf['data']['mac'][0]['address'],cnf['data']['mac'][0]['port'],"")
+	res=jt_common.post([mc],"",{"cmd":"cd","index":cnf['data']['index'],"mypath":short})
+	mc=jt_machine_list.machine("",res['data']['mac'][0]['address'],res['data']['mac'][0]['port'],"")
+	for index in range(0,200):
+		res2=jt_common.post([mc],"",{"cmd":"mkdir","index":res['data']['index'],"mypath":str(short)+str(index)})
 		initdir(level+1,str(short)+str(index),res)
 
 #深度遍历
@@ -58,15 +60,13 @@ if __name__=="__main__":
 	mc=GLOBAL.MacList.getBestMC()
 	#mc=jt_machine_list.machine("","127.0.0.1","8802","")
 	res1=jt_common.post([mc],"",{"cmd":"mkdir","name":"root"})
-	print res1
-	jt_common.post([mc],"",{"cmd":"mkdir","index":res1['data'],"mypath":"dirtest"})
+	jt_common.post([mc],"",{"cmd":"mkdir","index":res1['data'],"mypath":"x"})
 	address={"address":"","port":""}
 	address['address']=mc.getAddress()
 	address['port']=mc.getPort()
 	cnf={"data":{"mac":[],"index":res1['data']}}
 	cnf['data']['mac']=[]
 	cnf['data']['mac'].append(address)
-	print res1
 	'''
 	print jt_common.post(mc,"",{"cmd":"mkdir","index":res1['data'],"mypath":"home"})
 	res2=jt_common.post(mc,"",{"cmd":"cd","index":res1['data'],"mypath":"home"})
@@ -80,4 +80,4 @@ if __name__=="__main__":
 	'''
 	print cnf
 	#digui("/home/asura/dirtest","dirtest",cnf)
-	initdir(1,1,cnf)
+	initdir(1,"x",cnf)

@@ -58,7 +58,6 @@ class xlist(object):
 				self.__orderKey.insert(index,key)
 				self.__data[key]=data
 				if not is_backup:
-					print "insert backup"
 					self.backup()
 				return key
 			else:
@@ -79,7 +78,7 @@ class xlist(object):
 			return False
 
 	#根据主键删除结点
-	def deleteByKey(self,key,is_backup):
+	def deleteByKey(self,key,is_backup=0):
 		res=self.bSearch(key)
 		if res['success']==True:
 			self.deleteByIndex(res['index'],is_backup)
@@ -98,7 +97,6 @@ class xlist(object):
 			self.__orderKey.pop(index)
 			self.__refreshMaxMin__(is_backup)
 			if not is_backup:
-				print "deleteByIndex backup"
 				self.backup()
 			return True
 		except Exception,e:
@@ -114,7 +112,6 @@ class xlist(object):
 			self.__min=0
 	
 		if not is_backup:
-			print "refreshMaxMin backup"
 			self.backup()
 
 	
@@ -164,7 +161,6 @@ class xlist(object):
 			key=self.__orderKey.pop(len(self.__orderKey)-1)
 			self.__refreshMaxMin__()
 			res=self.__data.pop(key)
-			print "pop backup"
 			self.backup()
 			return res
 		else:
@@ -254,7 +250,6 @@ class xlist(object):
 					return False
 			#备份
 			if not is_backup:
-				print "split backup"
 				self.backup()
 			return True
 		except Exception,e:
@@ -268,7 +263,6 @@ class xlist(object):
 		self.__orderKey=[]
 		#备份
 		if not is_backup:
-			print "clearAll backup"
 			self.backup()
 
 	#设置备份地址
@@ -281,18 +275,13 @@ class xlist(object):
 
 	#数据修改后备份到其他服务器上
 	def backup(self):
-		print "-------------------backup------------------"
-		print self.__address
 		index=encrypt.jiami(self.__name)
 		for item in self.__address:
 			if str(item.getPort())==str(GLOBAL.local_port) and str(item.getAddress())==str(GLOBAL.local_addr):
 				continue
-			print jt_common.post([item],"",{"syscmd":"backup","index":index,"name":self.__name,"data":self})
-			print "port:",item.getPort(),"address:",item.getAddress()	
 
 	#根据结点index更新结点内容
 	def update(self,index,data):
-		print "xlist update data"
 		if index in self.__data:
 			self.__data[index]=data
 		else:

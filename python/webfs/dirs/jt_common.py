@@ -122,6 +122,7 @@ def get(machine,dirs,params):
 
 #调用POST方法
 def post(machine_list,dirs,params,index=0):
+	machine_list=removeSame(machine_list)
 	try:
 		#已经尝试了所有的地址都发送失败了
 		if index>=len(machine_list):
@@ -154,6 +155,17 @@ def post(machine_list,dirs,params,index=0):
 		removeRemoteMac(machine)
 		jt_log.log.write(GLOBAL.error_log_path,"post 发送失败"+e.message)
 		return post(machine_list,dirs,params,index+1)
+
+def removeSame(machine_list):
+	res=[]
+	for item in machine_list:
+		signal=0
+		for p in res:
+			if p.getPort()==item.getPort() and p.getAddress()==item.getAddress():
+				signal=1
+		if signal==0:
+			res.append(item)
+	return res	
 		
 #发送给所有的机器信息
 def sendToAll(dirs,params):

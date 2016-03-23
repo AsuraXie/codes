@@ -27,10 +27,10 @@ DEFAULT_PORT=GLOBAL.local_port
 
 class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
-		self.storeRequest()
 		params=self.getCommand()
+		params_size=sys.getsizeof(params)
+		self.storeRequest(params_size)
 		paths=self.splitPath()
-		print params
 		if paths[0]=='web' or 'favicon.ico' in self.path:
 			if 'favicon.ico' in self.path:
 				name="favicon.ico"
@@ -44,9 +44,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 			resp=main.process(params)
 			process_end=time.time()
 			if 'cmd' in params:
-				self.storeDealTime(process_start,process_end,params['cmd'])
+				self.storeDealTime(process_start,process_end,params['cmd'],params_size)
+			elif "syscmd" in params:
+				self.storeDealTime(process_start,process_end,params['syscmd'],params_size)
 			else:
-				self.storeDealTime(process_start,process_end,"get")
+				self.storeDealTime(process_start,process_end,"get",params_size)
 			resp=JSONEncoder().encode(resp)
 		self.send_response(200)
 		self.send_header('content-type','text/html,charset=utf-8')
@@ -57,17 +59,19 @@ class RequestHandler(BaseHTTPRequestHandler):
 		return 
 
 	def do_POST(self):
-		self.storeRequest()
 		#print self.rfile.read(int(self.headers['content-length']))
 		params=self.getCommand()
-		print params
+		params_size=sys.getsizeof(params)
+		self.storeRequest(params_size)
 		process_start=time.time()
 		resp=main.process(params)
 		process_end=time.time()
 		if 'cmd' in params:
-			self.storeDealTime(process_start,process_end,params['cmd'])
+			self.storeDealTime(process_start,process_end,params['cmd'],params_size)
+		elif "syscmd" in params:
+			self.storeDealTime(process_start,process_end,params['syscmd'],params_size)
 		else:
-			self.storeDealTime(process_start,process_end,"get")
+			self.storeDealTime(process_start,process_end,"get",params_size)
 		self.send_response(200)
 		self.send_header("content-type","text/html")
 		self.send_header("Server","JT xlx")
@@ -75,8 +79,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 		self.wfile.write(pickle.dumps(resp))
 		return 
 
-	def storeRequest(self):
-		logs=self.client_address[0]+str(self.client_address[1])+"  "+self.command+"  "+self.path
+	def storeRequest(self,size):
+		logs=self.client_address[0]+str(self.client_address[1])+"  "+self.command+"  "+self.path+" "+str(size)
 		jt_log.log.write(GLOBAL.visited_log_path,logs)
 		return
 	
@@ -98,9 +102,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 				res.append(item)
 		return res
 
-	def storeDealTime(self,start,end,cmd):
+	def storeDealTime(self,start,end,cmd,size=0):
 		spend=round((float(end)-float(start))*1000,3)
-		jt_log.log.write(GLOBAL.spend_time_log_path,str(spend)+"---"+cmd)
+		jt_log.log.write(GLOBAL.spend_time_log_path,str(spend)+"---"+cmd+"---"+str(size))
 		return
 
 	def getCommand(self):
@@ -111,7 +115,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 			params=jt_common.cmds(self.path)
 			post_params_str=self.rfile.read(int(self.headers['content-length']))
 			post_params=pickle.loads(post_params_str)
-			print post_params
 			for key in params:
 				post_params[key]=params[key]
 			return post_params

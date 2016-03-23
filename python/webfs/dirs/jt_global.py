@@ -2,10 +2,10 @@
 # --*-- coding:utf-8 --*--
 
 #childs的长度
-dir_size=1
+dir_size=50
 
 #dirnexts的长度
-dir_next_size=10
+dir_next_size=100
 
 #备份数
 back_up_num=3
