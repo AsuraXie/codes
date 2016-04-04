@@ -4,6 +4,7 @@ import os
 import jt_log
 import httplib,urllib
 import socket
+import jt_buffer
 import jt_machine_list
 import random
 import jt_global as GLOBAL
@@ -135,14 +136,26 @@ def post(machine_list,dirs,params,index=0):
 
 	try:
 		#params=urllib.urlencode(params)
-		print "post address:",machine.getAddress(),"port:",machine.getPort()
+		if not checkMacExist(machine):
+			return post(machine_list,dirs,params,index+1)	
+		#print "post address:",machine.getAddress(),"port:",machine.getPort()
+		address=str(machine.getAddress())+str(machine.getPort())
 		headers={"Content-type":"application/x-www-form-urlencoded","Accept":"text/plain"}
 		conn=httplib.HTTPConnection(machine.getAddress(),machine.getPort(),GLOBAL.time_out)
 		temp_params=pickle.dumps(params)
+		#直接取缓存数据
+		buffers=jt_buffer.bufferPost(address,temp_params)
+		if buffers:
+			return buffers
+
 		conn.request("POST",dirs,temp_params,headers)
 		res=conn.getresponse()
+		max_age=res.getheader("Cache-control",['max-age'])
+		max_age=max_age.split("=")[1]
 		if res.status==200 and res.reason=='OK':
 			result=pickle.loads(res.read())
+			if int(max_age)>0:
+				jt_buffer.StoreBufferPost(address,temp_params,result,max_age)
 			conn.close()
 			return result
 		else:

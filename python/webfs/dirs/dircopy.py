@@ -6,6 +6,7 @@ import jt_global as GLOBAL
 import jt_machine_list
 import jt_common
 import encrypt
+import jt_log
 
 #广度遍历
 def copydir(mc,index,path):
@@ -32,8 +33,17 @@ def initdir(level,short,cnf):
 	mc=jt_machine_list.machine("",cnf['data']['mac'][0]['address'],cnf['data']['mac'][0]['port'],"")
 	res=jt_common.post([mc],"",{"cmd":"cd","index":cnf['data']['index'],"mypath":short})
 	mc=jt_machine_list.machine("",res['data']['mac'][0]['address'],res['data']['mac'][0]['port'],"")
+	get_res=jt_common.post([mc],"",{"cmd":"get","index":res['data']['index']})
 	for index in range(0,200):
 		res2=jt_common.post([mc],"",{"cmd":"mkdir","index":res['data']['index'],"mypath":str(short)+str(index)})
+		res3=jt_common.post([mc],"",{"cmd":"cd","index":res['data']['index'],"mypath":str(short)+str(index)})
+		mc2=jt_machine_list.machine("",res3['data']['mac'][0]['address'],res3['data']['mac'][0]['port'],"")
+		GLOBAL.curr_index=GLOBAL.curr_index+1
+		size=jt_common.post([mc],"",{"syscmd":"getSize"})
+		print size	
+		size=size['data']
+		jt_log.log.write("./log/data/size",str(GLOBAL.curr_index)+" "+str(size['total'])+" "+str(size['data']))
+		get_res=jt_common.post([mc2],"",{"cmd":"get","index":res3['data']['index']})
 		initdir(level+1,str(short)+str(index),res)
 
 #深度遍历

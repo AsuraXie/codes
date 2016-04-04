@@ -10,6 +10,7 @@
 		<a href="#" onclick="back()"><span>返回上级目录</span></a>
 		<a href="#" onclick="mkdir()"><span>创建目录</span></a>
 		<a href="#" onclick="rmdir()"><span>删除目录</span></a>
+		<a href="#" onclick="rmall()"><span>删除全部</span></a>
 		<!--<a href="#" onclick="showinfo()"><span>显示结点信息</span></a>-->
 		<div id="mylist">
 		</div>
@@ -250,7 +251,6 @@
 							commandRmdir(temp_url,temp_index);
 						}
 						else{
-							alert(data.msg);
 						}
 					},
 					error:function (data){
@@ -259,7 +259,6 @@
 						}else if(curr_url==curr_url1&&curr_url!=curr_url2){
 							curr_url=curr_url2;
 						}else{
-							alert("已尝试所有备份路径均请求失败！！！！！");
 							return
 						}
 						rmdir();
@@ -268,9 +267,61 @@
 			}
 		}
 
+		function rmall(){
+			var total=$("input:radio").length;
+			for(var i=0;i<total;i++){
+				temp=$('input:radio')[i].nextSibling.innerHTML;
+				path=temp.split(":");
+				path=path[0];
+				if(path!=""){
+					$.ajax({
+						url:curr_url,
+						type:"GET",
+						data:{
+							cmd:'cd',
+							index:curr_index,
+							mypath:path
+						},
+						success:function(data){
+							data=eval("("+data+")");
+							if(data.code==0){
+								temp_url=new Array();
+								for(var i=0;i<data.data.mac.length;i++){
+									if(i==0){
+										temp="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+										temp_url.push(temp)
+									}else if(i==1){
+										temp="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+										temp_url.push(temp)
+									}else if(i==2){
+										temp="http://"+data.data.mac[i].host+":"+data.data.mac[i].port;
+										temp_url.push(temp)
+									}
+								}
+								temp_index=data.data.index;
+								commandRmdir2(temp_url,temp_index);
+							}
+							else{
+							}
+						},
+						error:function (data){
+							if(curr_url==curr_url&&curr_url!=curr_url1){
+								curr_url=curr_url1;
+							}else if(curr_url==curr_url1&&curr_url!=curr_url2){
+								curr_url=curr_url2;
+							}else{
+								return
+							}
+							rmall();
+						}
+					});
+				}
+			}
+		}
 		////删除命令
-		function commandRmdir(urls,temp_index){
-			temp_url=urls.pop()
+		function commandRmdir2(urls,temp_index){
+			temp_url=urls.pop();
+			if(temp_url){
 			$.ajax({
 				url:temp_url,
 				type:"GET",
@@ -280,16 +331,36 @@
 				},
 				success:function (res){
 					res=eval("("+res+")");
-					if(res.code==0){
-						ls();
-					}else{
-						alert(res.msg);
-					}
+					commandRmdir2(urls,temp_index);
+				},
+				error:function (){
+					commandRmdir2(urls,temp_index);
+				}
+			});
+			}
+		}
+
+		////删除命令
+		function commandRmdir(urls,temp_index){
+			temp_url=urls.pop();
+			if(temp_url){
+		
+			$.ajax({
+				url:temp_url,
+				type:"GET",
+				data:{
+					cmd:"rmdir",
+					index:temp_index
+				},
+				success:function (res){
+					res=eval("("+res+")");
+					commandRmdir(urls,temp_index);
 				},
 				error:function (){
 					commandRmdir(urls,temp_index);
 				}
 			});
+			}
 		}
 
 		///返回上级目录	

@@ -2,6 +2,7 @@
 # --*-- coding:utf-8 --*--
 import argparse
 import sys
+import os
 import dirnode
 import jt_log
 import jt_list
@@ -14,6 +15,7 @@ import jt_machine_list
 import threading
 import socket
 import urllib
+import jt_buffer
 from json import *
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
@@ -49,11 +51,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 				self.storeDealTime(process_start,process_end,params['syscmd'],params_size)
 			else:
 				self.storeDealTime(process_start,process_end,"get",params_size)
+			print resp
 			resp=JSONEncoder().encode(resp)
 		self.send_response(200)
 		self.send_header('content-type','text/html,charset=utf-8')
 		self.send_header("Server","JT xlx")
 		self.send_header("Access-Control-Allow-Origin","*")
+		max_age=jt_buffer.getMaxAget(params)
+		self.send_header("Cache-control","max-age="+str(max_age))
 		self.end_headers()
 		self.wfile.write(resp)
 		return 
@@ -75,6 +80,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 		self.send_response(200)
 		self.send_header("content-type","text/html")
 		self.send_header("Server","JT xlx")
+		max_age=jt_buffer.getMaxAge(params)
+		self.send_header("Cache-control","max-age="+str(max_age))
 		self.end_headers()
 		self.wfile.write(pickle.dumps(resp))
 		return 
@@ -156,9 +163,12 @@ if __name__=="__main__":
 	ROOT=dirnode.dirnode("root","")
 	GLOBAL.MacList=jt_machine_list.mList()
 	'''
-	GLOBAL.local_addr=socket.gethostbyname("localhost")
+	GLOBAL.local_addr=GLOBAL.local_addr
 	GLOBAL.local_port=port
 	print GLOBAL.local_addr
 	print GLOBAL.local_port
+	pid_file=open("/home/asura/.webfs/pid",'w')
+	pid_file.write(str(os.getpid()))
+	pid_file.close()
 	run_server(port,ghost)
-	jt_common.saveGhost()	
+	jt_common.saveGhost()

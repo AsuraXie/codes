@@ -89,6 +89,10 @@ def processSysCMD(params):
 			for item in params['data']:
 				GLOBAL.MacList.deleteByIndex(item['index'])	
 		return result.display()
+	elif params['syscmd']=="getSize":
+		res=GLOBAL.LocalData.getSize()
+		result.setSuccess(res)
+		return result.display()
 	elif params['syscmd']=="delete_node":
 		#此处只有一个index，需要将数组转化为字符串
 		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
@@ -175,6 +179,7 @@ def processDirnode(params,curr_root):
 				result.setError(RespCode.RespCode['DIRNODE_INIT_FAIL'])
 				return result.display()
 		else:
+			print params
 			res=curr_root.mkdir(params['mypath'])
 			if res['code']==0:
 				result.setSuccess()
@@ -212,6 +217,8 @@ def processDirnode(params,curr_root):
 		pass
 	elif params['cmd']=="ls":
 		res=curr_root.ls()
+		print "dirnode ls"
+		print res
 		if res!=False:
 			result.setSuccess(res)
 		else:
@@ -247,6 +254,20 @@ def processDirnode(params,curr_root):
 		else:
 			result.setError(RespCode.RespCode['NO_SUCH_DIR'])
 		return result.display()	
+	elif params['cmd']=="get":
+		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
+		if curr_root:
+			for i in range(1,len(params['index'])):
+				curr_root=curr_root.getByKey(params['index'][i])
+				if curr_root:
+					continue
+				else:
+					result.setError(RespCode.RespCode['NOT_FOUND_FILE'])
+					break
+			result.setSuccess()
+		else:
+			result.setError(RespCode.RespCode['NOT_FOUND_FILE'])
+		return result.display()
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])
 		return result.display()
@@ -266,6 +287,7 @@ def processDirnext(params,curr_root):
 		if len(params['index'])>=2:
 			for i in range(1,len(params['index'])):
 				curr_root=curr_root.getByKey(params['index'][i])
+		print "dirnext ls"
 		res=curr_root.ls()
 		result.setSuccess(res)
 		return result.display()
@@ -389,6 +411,20 @@ def processDirnext(params,curr_root):
 	elif params['cmd']=="fresh_addr":
 		curr_root.setAddress(params['mac'])
 		result.setSuccess()
+		return result.display()
+	elif params['cmd']=="get":
+		curr_root=GLOBAL.LocalData.getByKey(params['index'][0])
+		if curr_root:
+			for i in range(1,len(params['index'])):
+				curr_root=curr_root.getByKey(params['index'][i])
+				if curr_root:
+					continue
+				else:
+					result.setError(RespCode.RespCode['NOT_FOUND_FILE'])
+					break
+			result.setSuccess()
+		else:
+			result.setError(RespCode.RespCode['NOT_FOUND_FILE'])
 		return result.display()
 	else:
 		result.setError(RespCode.RespCode['PARAM_ERROR'])

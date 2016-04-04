@@ -9,6 +9,7 @@ import traceback
 import jt_log
 import jt_global as GLOBAL
 import dirnode
+import sys
 
 class xlist(object):
 	#最大key
@@ -203,6 +204,24 @@ class xlist(object):
 			result.append(self.__data[item])
 		return result
 
+	#获取内存大小
+	def getSize(self):
+		res=0
+		res=res+sys.getsizeof(self.__max)
+		res=res+sys.getsizeof(self.__min)
+		res=res+sys.getsizeof(self.__name)
+		data=0
+		total=0
+		for key in self.__data:
+			temp=self.__data[key]
+			attrs=dir(temp)
+			if "getSize" in attrs:
+				temp_data=temp.getSize()
+				data=data+temp_data['data']
+				total=total+temp_data['total']
+		total=res+total+sys.getsizeof(self.__orderKey)
+		return {"total":total,"data":data+res}
+
 	#获取所有的名字
 	def ls(self):
 		result=[]
@@ -210,7 +229,7 @@ class xlist(object):
 			temp=self.__data[key]
 			attrs=dir(temp)
 			if "getName" in attrs:
-				result.append(temp.getName()+":"+str(GLOBAL.local_port))
+				result.append(temp.getName()+":"+str(GLOBAL.local_addr))
 			else:
 				result.append("not found getName")
 		return result

@@ -9,6 +9,7 @@ touch cmd/add
 touch cmd/rm
 touch cmd/ls
 touch cmd/cd
+touch cmd/get
 
 cat data/spendtime.log | while read line
 

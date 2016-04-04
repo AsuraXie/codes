@@ -10,6 +10,7 @@ import jt_common
 import jt_machine_list
 import traceback
 import jt_log
+import sys
 import jt_respcode as RespCode
 
 class dirnode(object):
@@ -336,7 +337,7 @@ class dirnode(object):
 			if self.__childs.getLength()>0:
 				alls_childs=self.__childs.getAll()
 				for item in alls_childs:
-					res.append(item.getName()+":"+str(GLOBAL.local_port))
+					res.append(item.getName()+":"+str(GLOBAL.local_addr))
 
 			if self.__dirnexts.getLength()>0:
 				alls_nexts=self.__dirnexts.getAll()
@@ -345,6 +346,25 @@ class dirnode(object):
 					for t in temp:
 						res.append(t)
 			return res
+		except Exception,e:
+			traceback.print_exc()
+			jt_log.log.write(GLOBAL.error_log_path,e.message)
+			return False
+
+	#获取内存大小
+	def getSize(self):
+		try:
+			res=0
+			res=res+sys.getsizeof(self.__parent_name)
+			res=res+sys.getsizeof(self.__name)
+			res=res+sys.getsizeof(self.__power)
+			res=res+sys.getsizeof(self.__key)
+			res=res+sys.getsizeof(self.__length)
+			res=res+sys.getsizeof(self.__type)
+			res=res+sys.getsizeof(self.__address)
+			res=res+sys.getsizeof(self.__p_index)
+			data=self.__childs.getSize()
+			return {"total":int(res)+int(data['total']),"data":int(res)+int(data['data'])}
 		except Exception,e:
 			traceback.print_exc()
 			jt_log.log.write(GLOBAL.error_log_path,e.message)
@@ -387,6 +407,7 @@ class dirnode(object):
 			self.__childs.update(index,data)
 		else:
 			print "dirnode update fail"
+
 
 #目录类中定义的下一个块的位置
 class dirnext(object):
@@ -438,7 +459,7 @@ class dirnext(object):
 			if res['code']==0:
 				return res['data']
 			else:
-				return res['msg']
+				jt_log.log.write(GLOBAL.error_log_path,"dirnext ls fail"+str(res['msg']))
 		except Exception,e:
 			traceback.print_exc()
 			jt_log.log.write(GLOBAL.error_log_path,e.message)
