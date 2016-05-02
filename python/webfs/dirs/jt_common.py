@@ -9,6 +9,8 @@ import jt_machine_list
 import random
 import jt_global as GLOBAL
 import traceback
+import time
+
 try:
 	import cPickle as pickle
 except ImportError:
@@ -98,7 +100,51 @@ def getRandomName(count=8):
 		res=res+origin_str[index]
 		i=i+1
 	return res
-		
+
+#处理文件名
+def processFilename(name):
+	names=name.split(os.sep)
+	name_array=[]
+	for item in names:
+		if item!="":
+			name_array.append(item)	
+	name=os.sep.join(name_array)
+	name=name.replace(os.sep,"_")
+	return name
+
+#存储文件
+def storeFile(name,files):
+	try:
+		name=processFilename(name)
+		f=open(GLOBAL.file_location+os.sep+name,"wb")
+		f.write(files)
+		f.close()
+		return True
+	except Exception,e:
+		traceback.print_exc()
+		jt_log.log.write(GLOBAL.error_log_path,"存储失败:"+e.message)
+		return False
+
+#获取文件
+def getFile(name):
+	try:
+		name=processFilename(name)
+		f=open(GLOBAL.file_location+os.sep+name,"rb")
+		res=f.read()
+		f.close()
+		return res
+	except Exception,e:
+		traceback.print_exc()
+		jt_log.log.write(GLOBAL.error_log_path,"读取文件失败:"+e.message)
+		return False	
+
+#获取文件存储的最佳位置		
+def getFileBestMC(mac=[]):
+	return GLOBAL.MacList.getBestMC()
+
+#获取目录存储的最佳位置
+def getDirBestMC(mac=[]):
+	return GLOBAL.MacList.getBestMC()	
 
 #调用GET方法
 def get(machine,dirs,params):
@@ -164,7 +210,7 @@ def post(machine_list,dirs,params,index=0):
 			return False
 	except Exception,e:
 		traceback.print_exc()
-		conn.close()
+		#conn.close()
 		removeRemoteMac(machine)
 		jt_log.log.write(GLOBAL.error_log_path,"post 发送失败"+e.message)
 		return post(machine_list,dirs,params,index+1)

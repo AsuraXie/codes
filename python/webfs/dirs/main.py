@@ -108,6 +108,13 @@ def processSysCMD(params):
 		else:
 			result.setError(RespCode.RespCode['DELETE_NODE_FAIL'])
 			return result.display()
+	elif params['syscmd']=="storefile":
+		res=jt_common.storeFile(params['filename'],params['file'])
+		if res:
+			result.setSuccess()
+		else:
+			result.setError(RespCode.RespCode["SAVE_FILE_FAIL"])
+		return result.display()
 	elif params['syscmd']=="init":
 		key=encrypt.jiami(params['name'])
 		'''
@@ -128,10 +135,9 @@ def processSysCMD(params):
 		data=params['data']
 		indexs=params['index'].split(";")
 		curr_root=GLOBAL.LocalData
-		parent=curr_root
 		for i in range(0,len(indexs)):
 			parent=curr_root
-			curr_root=curr_root.getByKey(indexs[i])
+			curr_root=parent.getByKey(indexs[i])
 		index=indexs[-1]
 		if curr_root:
 			#不继续发布备份了
@@ -179,7 +185,6 @@ def processDirnode(params,curr_root):
 				result.setError(RespCode.RespCode['DIRNODE_INIT_FAIL'])
 				return result.display()
 		else:
-			print params
 			res=curr_root.mkdir(params['mypath'])
 			if res['code']==0:
 				result.setSuccess()
@@ -187,6 +192,27 @@ def processDirnode(params,curr_root):
 				jt_log.log.write(GLOBAL.error_log_path,"code:"+str(res['code'])+"msg:"+res['msg'])
 				result.setError(RespCode.RespCode['PROCESS_DIRNODE_MKDIR_FAIL'])
 			return result.display()
+	elif params['cmd']=="addfile":
+		res=curr_root.mkdir(params['mypath'],3)
+		if res['code']==0:
+			file_addr=curr_root[params['mypath']]
+			if not file_addr:
+				result.setError(RespCode.RespCode['NOT_FOUND_PATH'])
+				return result.display()
+			temp_file=file_addr.getFile()
+			file_addr=temp_file.getAddr()
+			full_name=temp_file.getName()
+			res=jt_common.post(file_addr,"",{"syscmd":"storefile","filename":full_name,"file":params['file']})
+			if res['code']==0:
+				result.setSuccess()
+			else:
+				jt_log.log.write(GLOBAL.error_log_path,"code:"+str(res['code'])+"msg:"+res['msg'])
+				result.setError(RespCode.RespCode["SAVE_FILE_FAIL"])
+			return result.display()
+		else:
+			jt_log.log.write(GLOBAL.error_log_path,"code:"+str(res['code'])+"msg:"+res['msg'])
+			result.setError(RespCode.RespCode["PROCESS_DIRNODE_MKDIR_FAIL"])
+		return result.display()
 	elif params['cmd']=='rename' and 'name' in params:
 		curr_root.rename(params['mypath'],params['name'])
 	elif params['cmd']=='rmdir':
@@ -217,8 +243,6 @@ def processDirnode(params,curr_root):
 		pass
 	elif params['cmd']=="ls":
 		res=curr_root.ls()
-		print "dirnode ls"
-		print res
 		if res!=False:
 			result.setSuccess(res)
 		else:
@@ -287,7 +311,6 @@ def processDirnext(params,curr_root):
 		if len(params['index'])>=2:
 			for i in range(1,len(params['index'])):
 				curr_root=curr_root.getByKey(params['index'][i])
-		print "dirnext ls"
 		res=curr_root.ls()
 		result.setSuccess(res)
 		return result.display()
@@ -314,7 +337,7 @@ def processDirnext(params,curr_root):
 		key=params['key']
 		res=curr_root.getByKey(key)
 		if res:
-			result.setSuccess(key)
+			result.setSuccess(res)
 		else:
 			result.setError(RespCode.RespCode['NOT_FOUND_NODE'])
 		return result.display()

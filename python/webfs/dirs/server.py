@@ -41,6 +41,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 			else:
 				name="index.html"
 			resp=self.getFile(name)
+		elif paths[0]=="file":
+			full_path=os.sep.join(paths[1:])
+			resp=jt_common.getFile(full_path)
 		else:
 			process_start=time.time()	
 			resp=main.process(params)
@@ -51,20 +54,19 @@ class RequestHandler(BaseHTTPRequestHandler):
 				self.storeDealTime(process_start,process_end,params['syscmd'],params_size)
 			else:
 				self.storeDealTime(process_start,process_end,"get",params_size)
-			print resp
 			resp=JSONEncoder().encode(resp)
 		self.send_response(200)
 		self.send_header('content-type','text/html,charset=utf-8')
 		self.send_header("Server","JT xlx")
 		self.send_header("Access-Control-Allow-Origin","*")
-		max_age=jt_buffer.getMaxAget(params)
+		max_age=jt_buffer.getMaxAge(params)
 		self.send_header("Cache-control","max-age="+str(max_age))
 		self.end_headers()
 		self.wfile.write(resp)
 		return 
 
 	def do_POST(self):
-		#print self.rfile.read(int(self.headers['content-length']))
+		#self.rfile.read(int(self.headers['content-length']))
 		params=self.getCommand()
 		params_size=sys.getsizeof(params)
 		self.storeRequest(params_size)
@@ -121,7 +123,18 @@ class RequestHandler(BaseHTTPRequestHandler):
 		else:
 			params=jt_common.cmds(self.path)
 			post_params_str=self.rfile.read(int(self.headers['content-length']))
-			post_params=pickle.loads(post_params_str)
+			post_params={}
+			content_type=self.headers['content-type'].split(";")
+			#文件输入
+			if content_type[0]=="multipart/form-data":
+				alldata=post_params_str.split("\r\n")
+				file_attr=alldata[1].split("filename=")
+				post_params['file']=alldata[4]
+				post_params['mypath']=file_attr[1].replace("\"","")
+				post_params['file_length']=len(post_params['file'])
+				post_params['cmd']="addfile"
+			else:#参赛输入
+				post_params=pickle.loads(post_params_str)
 			for key in params:
 				post_params[key]=params[key]
 			return post_params

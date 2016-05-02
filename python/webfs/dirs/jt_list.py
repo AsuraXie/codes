@@ -65,6 +65,7 @@ class xlist(object):
 				jt_log.log.write(GLOBAL.error_log_path,"二分查找失败，insert error"+str(name))
 				return -1
 		except Exception,e:
+			traceback.print_exc()
 			jt_log.log.write(GLOBAL.error_log_path,"insert error:"+str(name))
 			return -1
 	
@@ -229,7 +230,7 @@ class xlist(object):
 			temp=self.__data[key]
 			attrs=dir(temp)
 			if "getName" in attrs:
-				result.append(temp.getName()+":"+str(GLOBAL.local_addr))
+				result.append(temp.getName()+":"+str(GLOBAL.local_addr)+","+str(GLOBAL.local_port)+","+str(temp.getFullName()))
 			else:
 				result.append("not found getName")
 		return result
@@ -257,6 +258,8 @@ class xlist(object):
 			index=self.getLength()
 			while index>midle:
 				temp=self.pop()
+				temp.setAddress(mac)
+				temp.setPIndex(target_index)
 				if temp:
 					res=jt_common.post(mac,"",{"cmd":"insert","index":target_index,"dirnode":temp})
 					if res['code']!=0:
@@ -294,10 +297,23 @@ class xlist(object):
 
 	#数据修改后备份到其他服务器上
 	def backup(self):
+		new_address=[]
+		if isinstance(self.__address,str) or len(self.__address)==0:
+			return False
+		for item in self.__address:
+			if jt_common.checkMacExist(item):
+				new_address.append(item)
+
+		self.__address=new_address
+		while len(self.__address)<GLOBAL.back_up_num:
+			temp=GLOBAL.MacList.getBestMC(self.__address)
+			self.__address.append(temp)
+
 		index=encrypt.jiami(self.__name)
 		for item in self.__address:
 			if str(item.getPort())==str(GLOBAL.local_port) and str(item.getAddress())==str(GLOBAL.local_addr):
 				continue
+			jt_common.post([item],"",{"syscmd":"backup","index":index,"name":self.__name,"data":self})
 
 	#根据结点index更新结点内容
 	def update(self,index,data):

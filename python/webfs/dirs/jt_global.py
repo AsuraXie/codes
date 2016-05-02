@@ -2,10 +2,10 @@
 # --*-- coding:utf-8 --*--
 
 #childs的长度
-dir_size=10
+dir_size=1
 
 #dirnexts的长度
-dir_next_size=20
+dir_next_size=1
 
 #备份数
 back_up_num=3
@@ -50,6 +50,9 @@ curr_index=0
 
 #超时时间
 time_out=2
+
+#文件存储位置
+file_location="data"
 
 #远程机器有哪些
 remote_mac=[{"addr":"127.0.0.1","port":"8802"},

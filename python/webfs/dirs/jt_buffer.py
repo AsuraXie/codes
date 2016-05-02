@@ -56,9 +56,11 @@ def bufferPost(urls,params):
 		return False
 
 def getMaxAge(params):
+	'''
 	if 'cmd' in params:
 		if params['cmd']=="cd":
 			return 50
+	'''
 	return 0
 
 if __name__=="__main__":

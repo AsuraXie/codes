@@ -33,5 +33,6 @@ RespCode={
 	"NOT_EMPTY":{"code":-1028,"msg":"文件夹不为空"},
 	"BACKUP_NOT_FOUND":{"code":-1029,"msg":"备份未找到结点"},
 	"NOT_FOUND_PATH":{"code":-1030,"msg":"没有找到文件"},
+	"SAVE_FILE_FAIL":{"code":-1031,"msg":"保存文件失败"},
 	}
 	

@@ -11,9 +11,14 @@
 		<a href="#" onclick="mkdir()"><span>创建目录</span></a>
 		<a href="#" onclick="rmdir()"><span>删除目录</span></a>
 		<a href="#" onclick="rmall()"><span>删除全部</span></a>
+		<a href="#" onclick="upload()"><span>上传文件</span></a>
 		<!--<a href="#" onclick="showinfo()"><span>显示结点信息</span></a>-->
 		<div id="mylist">
 		</div>
+		<form id="fileuploader" style="display:none" action="#" method="post" enctype="multipart/form-data">
+			<input name="file" type="file" />
+			<input type="submit" value="Upload"/>
+		</form>
 	</body>
 	<script>
 		var curr_path="";
@@ -434,6 +439,12 @@
 
 		///文件上传	
 		function upload(){
+			alert("upload file");
+			$("#fileuploader").css("display","block");
+			alert("abcd");
+			urls=curr_url+"/web?index="+curr_index;
+			alert(urls);
+			$("#fileuploader").attr("action",urls);
 		}
 
 		///显示结点信息

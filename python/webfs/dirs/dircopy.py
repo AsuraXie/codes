@@ -33,17 +33,24 @@ def initdir(level,short,cnf):
 	mc=jt_machine_list.machine("",cnf['data']['mac'][0]['address'],cnf['data']['mac'][0]['port'],"")
 	res=jt_common.post([mc],"",{"cmd":"cd","index":cnf['data']['index'],"mypath":short})
 	mc=jt_machine_list.machine("",res['data']['mac'][0]['address'],res['data']['mac'][0]['port'],"")
-	get_res=jt_common.post([mc],"",{"cmd":"get","index":res['data']['index']})
-	for index in range(0,200):
+	#get_res=jt_common.post([mc],"",{"cmd":"get","index":res['data']['index']})
+	for index in range(0,3):
 		res2=jt_common.post([mc],"",{"cmd":"mkdir","index":res['data']['index'],"mypath":str(short)+str(index)})
 		res3=jt_common.post([mc],"",{"cmd":"cd","index":res['data']['index'],"mypath":str(short)+str(index)})
 		mc2=jt_machine_list.machine("",res3['data']['mac'][0]['address'],res3['data']['mac'][0]['port'],"")
+		'''	
 		GLOBAL.curr_index=GLOBAL.curr_index+1
-		size=jt_common.post([mc],"",{"syscmd":"getSize"})
-		print size	
-		size=size['data']
-		jt_log.log.write("./log/data/size",str(GLOBAL.curr_index)+" "+str(size['total'])+" "+str(size['data']))
+		total=0
+		data=0
+		for t_mac in GLOBAL.MacList.getAll():
+			size=jt_common.post([t_mac],"",{"syscmd":"getSize"})
+			size=size['data']
+			total=total+size['total']
+			data=data+size['data']
+
+		jt_log.log.write("./log/data/size",str(GLOBAL.curr_index)+" "+str(total)+" "+str(data))
 		get_res=jt_common.post([mc2],"",{"cmd":"get","index":res3['data']['index']})
+		'''
 		initdir(level+1,str(short)+str(index),res)
 
 #深度遍历
@@ -88,6 +95,5 @@ if __name__=="__main__":
 	res4=jt_common.post(mc,"",{"cmd":"cd","index":res3['data']['index'],"mypath":"lixiang"})
 	print res4
 	'''
-	print cnf
 	#digui("/home/asura/dirtest","dirtest",cnf)
 	initdir(1,"x",cnf)

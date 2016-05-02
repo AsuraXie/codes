@@ -30,6 +30,8 @@ class dirnode(object):
 	__length=0
 	#类型,1普通目录，2根目录，3普通文件
 	__type=1
+	#普通文件
+	__file="jt_file"
 	#备份地址，根目录和普通文件有三个备份地址
 	__address=[]
 	#查询结点,从根结点到目标结点一路上的结点内容
@@ -38,13 +40,12 @@ class dirnode(object):
 	#初始化目录节点，传入的参数有两个：目录名name,权限控制power	
 	def __init__(self,name,parent_name,power=666,ftype=1,p_index=""):
 		self.__name=str(name)
-		self.__parent_name=parent_name
+		self.__parent_name=parent_name+os.sep+name
 		self.__power=power
 		self.__key=encrypt.jiami(self.__name)
 		self.__childs=jt_list.xlist()
 		self.__dirnexts=jt_list.xlist()
 		self.__length=0
-		self.__type=ftype
 		p_indexs=p_index.split(";")
 		p_indexs.append(self.__key)
 		res=[]
@@ -52,22 +53,34 @@ class dirnode(object):
 			if item!="":
 				res.append(item)
 		self.__p_index=";".join(res)
+		#目录类型处理
+		if ftype==1:
+			self.__type=ftype
+		elif ftype==2:
+			self.__type=ftype
+		elif ftype==3:
+			self.__type=ftype
 	
 	#获取目录的名字
 	def getName(self):
 		return self.__name
 
+	#获取文件或者目录全路径
 	def getFullName(self):
-		return self.__parent_name+"/"+self.__name
+		return self.__parent_name
 
 	#更改名字
 	def setName(self,name):
 		self.__name=name
 		self.__key=encrypt.jiami(name)
-		
+
 	#获取目录的主键
 	def getKey(self):
 		return self.__key
+
+	#获取存储文件
+	def getFile(self):
+		return self.__file
 
 	#获取列表长度	
 	def getLength(self):
@@ -77,17 +90,39 @@ class dirnode(object):
 		for item in all_dirnexts:
 			dirnexts_length=dirnexts_length+int(item.getLength())
 		return int(childs_length)+int(dirnexts_length)
+	
+	#设置文件存储信息
+	def setFileInfo(self,jt_file):
+		self.__file=jt_file
+
+	#获取文件的存储信息,jt_file对象
+	def getFileInfo(self):
+		return self.__file
+
+	#获取文件的存储信息,数组存储
+	def getFileInfos(self):
+		return self.__file.getInfo()
 
 	#新增目录
-	def mkdir(self,name):
+	def mkdir(self,name,ftype=1):
 		if name=="":
 			return RespCode.RespCode['EMPTY_PATH']
-		temp_dir=dirnode(name,self.__parent_name+"/"+self.__name,666,1,self.__p_index)
+		temp_dir=dirnode(name,self.__parent_name,666,ftype,self.__p_index)
+		#如果是普通文件，则需要设置文件的存储地址，以便文件存放	
+		if ftype==3:
+			file_addr=[]
+			file_addr.append(jt_common.getFileBestMC())
+			file_addr.append(jt_common.getFileBestMC(file_addr))
+			file_addr.append(jt_common.getFileBestMC(file_addr))
+			temp_file=jt_file(name,self.__parent_name,file_addr)
+			temp_dir.setFileInfo(temp_file)
 		temp_max=False
 
 		#第一级目录没有满，可以放到里面.
-		if self.__childs.getLength()<GLOBAL.dir_size:
+		if GLOBAL.dir_size<0 or self.__childs.getLength()<GLOBAL.dir_size:
+			#
 			temp_dir.setAddress(self.__address)
+			temp_dir.setPIndex(self.__p_index)
 			if self.__childs.insert(name,temp_dir)<0:
 				return RespCode.RespCode["INSERT_FAIL_EMPTY"]
 			else:
@@ -96,7 +131,6 @@ class dirnode(object):
 					self.sendBackup()
 				elif self.__type==1:
 					self.sendBackup()
-
 				return RespCode.RespCode['SUCCESS']
 
 		#如果第一级目录满了，并且key小于最大值则插入进去后取出最大值放到下一个块中
@@ -105,6 +139,11 @@ class dirnode(object):
 			if self.__childs.insert(name,temp_dir)<0:
 				return RespCode.RespCode["INSTALL_FAIL_FULL"]
 			temp_max=self.__childs.pop()
+			#弹出最大值后需要更新
+			if self.__type==2:
+				self.sendBackup()
+			elif self.__type==1:
+				self.sendBackup()
 		else:
 			temp_max=temp_dir
 
@@ -149,11 +188,6 @@ class dirnode(object):
 				if self.__dirnexts[target_block_index['index']].insert(temp_max)<0:
 					return RespCode.RespCode["INSERT_FAIL_DIRNEXT_2"]
 				else:
-					#如果为根目录则需要备份
-					if self.__type==2:
-						self.sendBackup()
-					elif self.__type==1:
-						self.sendBackup()
 					return RespCode.RespCode["SUCCESS"]
 			else:
 				#分裂
@@ -182,8 +216,11 @@ class dirnode(object):
 					#将新块插入到链表中
 					self.__dirnexts.insert(new_dirnext.getMaxName()['data'],new_dirnext)
 					#如果为根目录则需要备份
-					if self.__type==2:
+					if self.__type==1:
 						self.sendBackup()
+					elif self.__type==2:
+						self.sendBackup()
+
 					return RespCode.RespCode["SUCCESS"]
 				else:
 					return RespCode.RespCode["INSERT_FAIL_DIRNEXT_4"]
@@ -194,22 +231,19 @@ class dirnode(object):
 	def __getitem__(self,name):
 		if name=="":
 			return RespCode.RespCode['EMPTY_PATH']
-		
+	
 		key=encrypt.jiami(name)
 
-		if key>=self.__childs.getMin() and key<=self.__childs.getMax():
-			res=self.__childs.bSearch(key)
-			if res['success']:
-					return self.__childs[res['index']]
+		if key<=self.__childs.getMax():
+			res=self.__childs[key]
+			if res:
+				return res
 			else:
 				return False
 		else:
 			res=self.__dirnexts.bSearch(key)
-			if res['index']<=0:
+			if res['index']<=0 or self.__dirnexts.getLength()==0:
 				res['index']=0
-
-			if self.__dirnexts.getLength()==0:
-				return False
 
 			temp=self.__dirnexts[res['index']]
 			if not isinstance(temp,bool):
@@ -218,13 +252,12 @@ class dirnode(object):
 
 				if key>temp_max and res['index']<self.__dirnexts.getLength()-1:
 					res['index']+=1
-					temp=self.__dirnexts[res['index']]
 				elif key<temp_min and res['index']>=1:
 					res['index']-=1
-					temp=self.__dirnexts[res['index']]
+				temp=self.__dirnexts[res['index']]
 				if isinstance(temp,bool):
 					return False
-				res=temp.getByKey(key)
+				res=temp[key]
 				if res:
 					return res
 				else:
@@ -259,6 +292,7 @@ class dirnode(object):
 		if key<=self.__childs.getMax():
 			return self.__childs.getByKey(key)
 		else:
+			#下面这段代码估计都没有情况会用
 			target_block_index=self.__dirnexts.bSearch(key)
 			if not target_block_index['success']:
 				if target_block_index['index']<=0 or self.__dirnexts.getLength()==0:
@@ -337,7 +371,7 @@ class dirnode(object):
 			if self.__childs.getLength()>0:
 				alls_childs=self.__childs.getAll()
 				for item in alls_childs:
-					res.append(item.getName()+":"+str(GLOBAL.local_addr))
+					res.append(item.getName()+":"+str(GLOBAL.local_addr)+","+str(GLOBAL.local_port)+","+self.__parent_name)
 
 			if self.__dirnexts.getLength()>0:
 				alls_nexts=self.__dirnexts.getAll()
@@ -493,9 +527,10 @@ class dirnext(object):
 	#重写get函数
 	def __getitem__(self,index):
 		self.checkNum()
-		res=jt_common.post(self.__address,"",{"cmd":"getByIndex","index":self.__index,"sub_index":index})
+		res=jt_common.post(self.__address,"",{"cmd":"getByKey","index":self.__index,"key":index})
 		if res:
-			return {"mac":self.__address,"index":self.__index,"sub_index":index}	
+			return res['data']
+			#return {"mac":self.__address,"index":self.__index,"sub_index":index}	
 		return False
 
 	#根据主键获取内容
@@ -503,7 +538,12 @@ class dirnext(object):
 		self.checkNum()
 		res=jt_common.post(self.__address,"",{"cmd":"getByKey","index":self.__index,"key":key})
 		if res['code']==0:
-			return {"mac":self.__address,"index":self.__index,"sub_index":res['data']}
+			sub_index=""
+			if isinstance(res['data'],dirnode):
+				sub_index=res['data'].getKey()
+			else:
+				sub_index=res['data']
+			return {"mac":self.__address,"index":self.__index,"sub_index":sub_index}
 		else:
 			return False
 
@@ -614,30 +654,44 @@ class dirnext(object):
 
 #保存在目录中的文件条目
 class jt_file(object):
-	__name=""
+	#文件索引
 	__key=""
-	__address=[]
-	__power=666
-	__type=0
+	#文件存放地址
+	__address=[]	
+	#文件名
+	__name=""
+	#全文路径
+	__full_path=""
 
-	def __init__(self,name,power=666,address=[]):
+	def __init__(self,name,parent_name,address=[]):
 		self.__name=name
-		self.__power=power
+		#全路径名
+		self.__full_path=parent_name+os.sep+name
 		self.__address=address
 		#将文件名转化为key
-		self.__key=encrypt.jiami(self.__name)
+		self.__key=encrypt.jiami(self.__full_path)
 
 	#获取名字
 	def getName(self):
-		return self.__name
-
+		return self.__full_path
+	
 	#获取主键
 	def getKey(self):
 		return self.__key
 
-	#显示当前结点信息
-	def ls(self):
-		print self.__name
+	#获取文件存储信息
+	def getInfo(self):
+		res={"full_path":self.__full_path,"key":self.__key,"mac":[]}
+		for item in self.__address:
+			temp={"address":"","port":""}
+			temp['address']=item.getAddress()
+			temp['port']=item.getPort()
+			res['mac'].append(temp)
+		return res
+
+	#获取存储地址
+	def getAddr(self):
+		return self.__address
 
 if __name__=="__main__":
 	mac=jt_machine_list.machine("test","127.0.0.1","8802","")

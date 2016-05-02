@@ -70,6 +70,9 @@ class mList(object):
 			t.setAttr("weight",0)
 			self.__m_list.insert(t.getName(),t)
 
+	def getAll(self):
+		return self.__m_list.getAll()
+
 	def add(self,m):
 		self.__m_list.insert(m.getName(),m)
 
