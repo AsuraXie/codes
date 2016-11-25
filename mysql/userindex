@@ -1,0 +1,28 @@
+id	s_uid	w_uid	phone	name	wx_unionid
+13115959	1871038017	0	13514681527	A????85	
+*************************** 1. row ***************************
+            id: 124
+           uid: 13115959
+         w_uid: 0
+         s_uid: 1871038017
+         phone: 13514681527
+          name: A????85
+   name_u_time: 0000-00-00 00:00:00
+        gender: m
+         image: http://tva3.sinaimg.cn/crop.0.0.750.750.50/6f85c641jw8f4ypagg1o3j20ku0kugm8.jpg
+       wb_name: ??SG
+      wb_image: http://tva3.sinaimg.cn/crop.0.0.750.750.50/6f85c641jw8f4ypagg1o3j20ku0kugm8.jpg
+    wx_unionid: 
+   wx_open_uid: 
+ wx_public_uid: 
+       wx_name: 
+      wx_image: 
+        source: 4
+        ind_id: 5
+  client_token: 106589a13026b782d8660efb070d9b2db51c557eb73f7
+is_first_login: 0
+          pact: 113
+        status: 0
+        c_time: 2015-11-24 09:36:45
+        u_time: 2016-09-28 10:58:35
+        r_time: 2016-01-08 09:37:03

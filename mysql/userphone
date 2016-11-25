@@ -1,0 +1,28 @@
+id	s_uid	w_uid	phone	name	wx_unionid
+10000194	3730907694	0	15331339472	?????	o4zrrju217BJmjVbugJsrArVqaVI
+*************************** 1. row ***************************
+            id: 11
+           uid: 10000194
+         w_uid: 0
+         s_uid: 3730907694
+         phone: 15331339472
+          name: ?????
+   name_u_time: 0000-00-00 00:00:00
+        gender: f
+         image: http://tva3.sinaimg.cn/crop.298.0.1066.1066.50/de61222ejw8euximkm3udj21hc0u012s.jpg
+       wb_name: ???????
+      wb_image: http://tva3.sinaimg.cn/crop.298.0.1066.1066.50/de61222ejw8euximkm3udj21hc0u012s.jpg
+    wx_unionid: o4zrrju217BJmjVbugJsrArVqaVI
+   wx_open_uid: oPdIAs4St2uyQdvsUklzWkhAWJIg
+ wx_public_uid: 
+       wx_name: dorry
+      wx_image: http://wx.qlogo.cn/mmopen/iaJBiaTeJsVE9bY7Mt8t3P2xTbScNSr3I7L3Gkp48GooibiaJiaI8mGE83fU89Dh6AUPeic9oqO2UdGdwSIWGVNk07sFISfGWkXibJh/0
+        source: 3
+        ind_id: 5
+  client_token: 1147bafcfe51de900891596ed079191038d3b57df4ac4
+is_first_login: 0
+          pact: 113
+        status: 0
+        c_time: 2014-06-25 10:51:51
+        u_time: 2016-09-26 11:33:49
+        r_time: 2016-04-13 17:15:03
