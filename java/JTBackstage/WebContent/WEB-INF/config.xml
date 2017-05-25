@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<root>
-<dburl>jdbc:mysql://192.168.0.121:3306/jtcms</dburl>
-<dbuser>ctjw_db</dbuser>
-<dbpwd>123456</dbpwd>
-</root>

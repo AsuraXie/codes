@@ -1,8 +1,0 @@
-  2.  :w FILENAME  writes the current Vim file to disk with name FILENAME.
-
-  3.  v  motion  :w FILENAME  saves the Visually selected lines in file
-      FILENAME.
-
-  4.  :r FILENAME  retrieves disk file FILENAME and puts it below the
-      cursor position.
-
